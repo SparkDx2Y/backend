@@ -88,8 +88,40 @@ export class AuthService {
     }
   }
 
+  async forgotPasswordRequest(email: string) {
+    try {
+      const user = await this.userRepo.findByEmail(email)
+      if(!user) throw new Error('User not found')
 
+        await this.otpRepo.deleteOtp(user._id.toString())
+        const otp = generateOTP();
+        await this.otpRepo.createOtp(user._id.toString(), otp);
+        await sendOtp(email, otp);
   
+        return { userId: user._id, message: "OTP sent to email" };
+
+    } catch (error: any) {
+      console.error('Error during forgot password',error)
+      throw error
+    }
+  }
+
+  async verifyForgotPasswordOtp(userId: string, otpCode: string) {
+    try {
+      const match = await this.otpRepo.findOtp(userId, otpCode)
+      if (!match) throw new Error('Invalid or expired OTP');
+      return { message: 'OTP verified'}
+    } catch (error: any) {
+      console.error('Error during verifyOtp',error)
+    }
+  }
+  
+  async resetPassword(userId: string, newPassword: string) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    await this.userRepo.updatePassword(userId, hashedPassword)
+    await this.otpRepo.deleteOtp(userId)
+    return { message: 'Password reset successful'}
+  }
 
 }
 

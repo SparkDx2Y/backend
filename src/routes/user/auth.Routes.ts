@@ -17,6 +17,11 @@ router.post('/login', authController.login)
 router.post('/logout', authController.logout);
 router.post('/otp/resend', authController.resendOtp)
 
+router.post('/forgot-password/request', authController.forgotPasswordRequest);
+router.post('/forgot-password/verify-otp', authController.verifyForgotPasswordOtp);
+router.post('/forgot-password/reset', authController.resetPassword) ;
+
+
 
 
 

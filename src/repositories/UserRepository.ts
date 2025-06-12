@@ -12,4 +12,9 @@ export class UserRepository {
   async verifyUser(userId: string) {
     return User.findByIdAndUpdate(userId, {isVerified: true})
   }
+
+  async updatePassword(userId: string, newPassword: string) {
+    return User.findByIdAndUpdate(userId, { password: newPassword });
+  }
+  
 }

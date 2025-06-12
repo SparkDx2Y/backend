@@ -1,4 +1,4 @@
-import { signupSchema, loginSchema, verifyOtpSchema } from "../../dto/Auth.dto";
+import { signupSchema, loginSchema, verifyOtpSchema, forgotPasswordRequestSchema, forgotPasswordVerifyOtpSchema, resetPasswordSchema } from "../../dto/Auth.dto";
 import { AuthService } from "../../services/AuthService";
 import { Request, Response } from "express";
 import { z } from 'zod'
@@ -75,6 +75,44 @@ export class AuthController {
       res.status(500).json({ message: "An error occurred during logout." });
     }
   }
-  
+
+
+  forgotPasswordRequest = async (req: Request, res: Response) => {
+    try {
+
+      const data = forgotPasswordRequestSchema.parse(req.body)
+      const result = await this.authService.forgotPasswordRequest(data.email)
+      res.status(200).json(result)
+
+    } catch (err: any) {
+      console.error('Forgot password request error', err);
+      res.status(400).json({ message: err.message})
+    }
+
+  }
+
+
+  verifyForgotPasswordOtp = async (req: Request, res: Response)  => {
+    try {
+
+      const data = forgotPasswordVerifyOtpSchema.parse(req.body)
+      const result = await this.authService.verifyForgotPasswordOtp(data.userId, data.otp)
+      res.status(200).json(result)
+    } catch (err: any) {
+      console.error('verify forgot password otp error', err);
+      res.status(400).json({ message: err.message})
+    }
+  }
+
+  resetPassword = async (req: Request, res: Response) => {
+    try {
+      const data = resetPasswordSchema.parse(req.body)
+      const result = await this.authService.resetPassword(data.userId, data.password);
+      res.status(200).json(result);
+    } catch (err: any) {
+      console.error('Reset password error', err);
+      res.status(400).json({ message: err.message})
+    }
+  }
   
 }
