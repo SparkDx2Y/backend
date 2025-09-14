@@ -3,18 +3,14 @@
   "version": "1.0.0",
   "description": "Dating Application",
   "main": "src/server.ts",
-"scripts": {
-  "dev": "nodemon",
-  "build": "tsc",
-  "start": "node dist/server.js"
-},
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
   "author": "Achu",
   "license": "ISC",
   "dependencies": {
-    "@types/mongoose": "^5.11.96",
-    "@types/morgan": "^1.9.10",
-    "@types/node": "^24.3.3",
-    "@types/nodemailer": "^7.0.1",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
@@ -24,10 +20,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.1",
     "nodemailer": "^7.0.6",
-    "nodemon": "^3.1.10",
     "reflect-metadata": "^0.2.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.2",
     "zod": "^4.1.8"
   },
   "devDependencies": {
@@ -35,6 +28,13 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/inversify": "^2.0.32",
-    "@types/jsonwebtoken": "^9.0.10"
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.96",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.3.3",
+    "@types/nodemailer": "^7.0.1",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }
