@@ -14,6 +14,9 @@ connectDB();
 //? create express app
 const app = express()
 
+//? importing the routes
+import routes from './routes'
+
 
 //? middleware
 app.use(express.json())
@@ -26,6 +29,8 @@ app.use(cors({
     credentials: true,
 }))
 
+//? routes
+app.use('/api', routes)
 
 
 //? exporting the app
