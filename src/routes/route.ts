@@ -3,7 +3,7 @@ import v1Routes from "./v1";
 
 const router = Router()
 
-//? v1 routes
+//? v1 route
 router.use('/v1', v1Routes)
 
 export default router

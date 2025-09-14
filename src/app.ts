@@ -15,7 +15,7 @@ connectDB();
 const app = express()
 
 //? importing the routes
-import routes from './routes'
+import routes from './routes/route'
 
 
 //? middleware
