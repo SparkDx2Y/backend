@@ -1,8 +1,12 @@
+import 'reflect-metadata'
 import express from 'express'
 import dotenv from 'dotenv'
 import morgan from 'morgan'
 import cors from 'cors'
-import connectDB from './config/db'
+import connectDB from './config/dbConfig'
+
+//? container 
+import container from './di/index'
 
 //? dotenv config
 dotenv.config();
