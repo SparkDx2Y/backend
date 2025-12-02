@@ -2,12 +2,12 @@
 
 export interface IOtpRepository {
 
-    saveOtp(email: string, otp: string, expiresIn?: number): Promise<void>;
+    saveOtp(userId: string, otp: string, expiresIn?: number): Promise<void>;
 
-    getOtp(email: string): Promise<string | null>;
+    getOtp(userId: string): Promise<string | null>;
 
-    deleteOtp(email: string): Promise<void>;
+    deleteOtp(userId: string): Promise<void>;
     
-    otpExists(email: string): Promise<boolean>
+    otpExists(userId: string): Promise<boolean>
 
 }
