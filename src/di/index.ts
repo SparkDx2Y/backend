@@ -3,6 +3,7 @@ import { bindServices } from "./service.bindings";
 import { bindRepositories } from "./repository.bindings";
 import { DI_TYPES } from "./types";
 import redis from "../config/redisConfig";
+import { bindControllers } from "./controller.bindings";
 const container = new Container({defaultScope: 'Singleton'});
 
 
@@ -11,6 +12,6 @@ container.bind(DI_TYPES.External.REDIS).toConstantValue(redis)
 
 bindRepositories(container);
 bindServices(container);
-
+bindControllers(container)
 
 export default container       
