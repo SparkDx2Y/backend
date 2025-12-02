@@ -1,17 +1,29 @@
+import { ForgotPasswordVerifyOtpDto } from "../../dto/request/auth/forgot-password-verify-otp.dto";
+import { ForgotPasswordDto } from "../../dto/request/auth/forgot-password.dto";
+import { LoginDto } from "../../dto/request/auth/login.dto";
+import { SignupDto } from "../../dto/request/auth/register.dto";
+import { ResendOtpDto } from "../../dto/request/auth/resend-otp.dto";
+import { ResetPasswordDto } from "../../dto/request/auth/reset-password.dto";
+import { VerifyOtpDto } from "../../dto/request/auth/verify-otp.dto";
+import { LoginResponseDto } from "../../dto/response/auth/login-response.dto";
 
 
 
 
 export interface IAuthService {
 
-    signup(email: string, password: string): Promise<void>;
+  signup(data: SignupDto): Promise<{userId: string, message: string}>
 
-    verifyUser(email: string, otp: string): Promise<boolean>;
+  verifySignupOtp(data: VerifyOtpDto): Promise<{message: string}>
 
-    resendOtp(email: string): Promise<void>;
+  resendSignupOtp(data: ResendOtpDto): Promise<{message: string}>
 
-    login(email: string, password: string): Promise<{ accessToken: string, refreshToken: string }>;
+  login(data: LoginDto): Promise<LoginResponseDto>
 
+  forgotPassword(data: ForgotPasswordDto): Promise<{userId: string, message: string}>
 
-  }
-  
+  forgotPasswordVerifyOtp(data: ForgotPasswordVerifyOtpDto): Promise<{message: string}>
+
+  resetPassword(data: ResetPasswordDto): Promise<{message: string}>
+
+}
