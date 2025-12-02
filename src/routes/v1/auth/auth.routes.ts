@@ -10,22 +10,22 @@ const authController = container.get<AuthController>(DI_TYPES.CONTROLLERS.AUTH_C
 
 //* ------------------ Auth Routes ---------------------------
 
-router.post('/signup', (req,res) =>  authController.signup(req,res))
+router.post('/signup', authController.signup)
 
-router.post('/verify-otp', (req,res) =>  authController.verifySignupOtp(req,res))
+router.post('/verify-otp', authController.verifySignupOtp)
 
-router.post('/resend-otp', (req,res) => authController.resendSignupOtp(req,res))
+router.post('/resend-otp', authController.resendSignupOtp)
 
-router.post('/login', (req,res) => authController.login(req,res))
+router.post('/login', authController.login)
 
-router.post('/forgot-password', (req,res) => authController.forgotPassword(req,res))
+router.post('/forgot-password', authController.forgotPassword)
 
-router.post('/forgot-password/verify-otp', (req,res) => authController.forgotPasswordVerifyOtp(req,res))
+router.post('/forgot-password/verify-otp', authController.forgotPasswordVerifyOtp)
 
-router.post('/reset-password', (req,res) => authController.resetPassword(req,res))
+router.post('/reset-password', authController.resetPassword)
 
-router.post('/logout', (req,res) => authController.logout(req,res))
+router.post('/logout', authController.logout)
 
-router.post('/refresh-token', (req,res) => authController.refreshToken(req,res))
+router.post('/refresh-token', authController.refreshToken)
 
 export default router
