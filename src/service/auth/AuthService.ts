@@ -110,7 +110,7 @@ export class AuthService implements IAuthService {
 
         if(!user.isVerified) throw new Error('User is not verified');
         const token = generateToken({ id: user._id, role: user.role });
-        const refreshToken = generateRefreshToken({ id: user._id, });
+        const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
 
         return AuthMapper.toAuthResponseDto(user,  token, refreshToken)
     }
