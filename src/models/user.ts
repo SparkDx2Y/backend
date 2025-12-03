@@ -7,6 +7,7 @@ export interface IUser extends Document {
     password: string;
     isVerified: boolean;
     role: 'user' | 'admin';
+    isBlocked: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -16,7 +17,6 @@ const userSchema = new mongoose.Schema<IUser>({
     name: {
         type: String,
         required: true,
-        unique: true
     },
     email: {
         type: String,
@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema<IUser>({
         required: true
     },
     isVerified: {
+        type: Boolean,
+        default: false
+    },
+    isBlocked: {
         type: Boolean,
         default: false
     },
