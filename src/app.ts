@@ -1,20 +1,11 @@
-import 'reflect-metadata'
 import express from 'express'
-import dotenv from 'dotenv'
 import morgan from 'morgan'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import connectDB from './config/dbConfig'
+
 
 //? container 
 import container from './di/index'
-
-//? dotenv config
-dotenv.config();
-
-//? database connection
-connectDB();
-
 
 //? create express app
 const app = express()
