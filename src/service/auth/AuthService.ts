@@ -108,9 +108,11 @@ export class AuthService implements IAuthService {
         const isMatch = await comparePassword(data.password, user.password);
         if(!isMatch) throw new Error('Invalid credentials');
 
+        if(user.isBlocked) throw new Error('User is blocked');
+
         if(!user.isVerified) throw new Error('User is not verified');
-        const token = generateToken({ id: user._id, role: user.role });
-        const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
+        const token = generateToken({ id: user._id.toString(), role: user.role });
+        const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
         return AuthMapper.toAuthResponseDto(user,  token, refreshToken)
     }
