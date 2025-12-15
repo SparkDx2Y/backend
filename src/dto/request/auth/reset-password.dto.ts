@@ -2,8 +2,6 @@ import { z } from "zod";
 
 export const resetPasswordSchema = z
   .object({
-    userId: z.string().min(1, "User ID is required").trim(),
-
     newPassword: z
       .string()
       .min(6, "Password must be at least 6 characters long")

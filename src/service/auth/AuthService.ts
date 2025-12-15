@@ -13,7 +13,6 @@ import { generateRefreshToken, generateToken } from "../../utils/jwtHelper";
 
 import { SignupDto } from "../../dto/request/auth/register.dto";
 import { VerifyOtpDto } from "../../dto/request/auth/verify-otp.dto";
-import { ResendOtpDto } from "../../dto/request/auth/resend-otp.dto";
 import { LoginResponseDto } from "../../dto/response/auth/login-response.dto";
 import { LoginDto } from "../../dto/request/auth/login.dto";
 
@@ -83,15 +82,15 @@ export class AuthService implements IAuthService {
 
     //* // // // // // //   resendSignupOtp  // // // // // // // *//
 
-    async resendSignupOtp(data: ResendOtpDto): Promise<{message: string}> {
+    async resendSignupOtp(userId: string): Promise<{message: string}> {
 
-        const user = await this._userRepo.findById(data.userId);
+        const user = await this._userRepo.findById(userId);
         if(!user) throw new Error('User not found');
 
         const newOtp = generateOtp();
 
-        await this._otpRepo.deleteOtp(data.userId);
-        await this._otpRepo.saveOtp(data.userId, newOtp, 300);
+        await this._otpRepo.deleteOtp(userId);
+        await this._otpRepo.saveOtp(userId, newOtp, 300);
         await sendOtpEmail(user.email, newOtp);
 
         return { message: 'OTP resent successfully' };
@@ -137,24 +136,26 @@ export class AuthService implements IAuthService {
 
     //* // // // // // //   forgotPasswordVerifyOtp  // // // // // // // *//
 
-    async forgotPasswordVerifyOtp(data: ForgotPasswordVerifyOtpDto): Promise<{message: string}> {
+    async forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{message: string}> {
 
-        const storedOtp = await this._otpRepo.getOtp(data.userId);
+        const storedOtp = await this._otpRepo.getOtp(userId);
+
         if(!storedOtp || storedOtp !== data.otp) {
             throw new Error('Invalid OTP or Expired OTP');
         }
 
-        await this._otpRepo.deleteOtp(data.userId);
+        await this._otpRepo.deleteOtp(userId);
+
         return { message: 'OTP verified successfully' };
     }
 
 
     //* // // // // // //   resetPassword  // // // // // // // *//
 
-    async resetPassword(data: ResetPasswordDto): Promise<{message: string}> {
+    async resetPassword(userId: string, data: ResetPasswordDto): Promise<{message: string}> {
         const hashedPassword = await hashPassword(data.newPassword);
 
-        await this._userRepo.updatePassword(data.userId, hashedPassword);
+        await this._userRepo.updatePassword(userId, hashedPassword);
 
         return { message: 'Password reset successfully' };
     }

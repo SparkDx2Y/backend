@@ -5,7 +5,6 @@ import { DI_TYPES } from "../../di/types";
 import { IAuthService } from "../../service/auth/IAuthService";
 import { signupSchema } from "../../dto/request/auth/register.dto";
 import { verifyOtpSchema } from "../../dto/request/auth/verify-otp.dto";
-import { resendOtpSchema } from "../../dto/request/auth/resend-otp.dto";
 import { loginSchema } from "../../dto/request/auth/login.dto";
 import { forgotPasswordSchema } from "../../dto/request/auth/forgot-password.dto";
 import { forgotPasswordVerifyOtpSchema } from "../../dto/request/auth/forgot-password-verify-otp.dto";
@@ -70,9 +69,14 @@ export class AuthController {
 
     resendSignupOtp = async (req: Request, res: Response) => {
         try {
-            const data = resendOtpSchema.parse(req.body);
-            const result = await this._authService.resendSignupOtp(data);
-            return res.status(200).json(result)
+            const userId = req.cookies.otp_userId
+
+        if(!userId) {
+            return res.status(401).json({message: 'Otp Session expired'})
+        }
+
+        const result = await this._authService.resendSignupOtp(userId);
+        return res.status(200).json(result)
         } catch (error: any) {
             return res.status(400).json({message: error.message})
         }
@@ -113,8 +117,17 @@ export class AuthController {
     forgotPassword = async (req: Request, res: Response) => {
         try {
             const data = forgotPasswordSchema.parse(req.body);
-            const result = await this._authService.forgotPassword(data);
-            return res.status(200).json(result)
+            const {userId, message} = await this._authService.forgotPassword(data);
+            
+            //^ setting userId in the cookie for verifying the user in the next request
+            res.cookie('otp_userId', userId, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                maxAge: 5 * 60 * 1000
+            });
+
+            return res.status(200).json({message})
         } catch (error: any) {
             return res.status(400).json({message: error.message})
         }
@@ -125,7 +138,21 @@ export class AuthController {
     forgotPasswordVerifyOtp = async (req: Request, res: Response) => {
         try {
             const data = forgotPasswordVerifyOtpSchema.parse(req.body);
-            const result = await this._authService.forgotPasswordVerifyOtp(data);
+
+            const   userId = req.cookies.otp_userId;
+            if(!userId) {
+                return res.status(401).json({message: 'Otp Session expired'})
+            }
+            const result = await this._authService.forgotPasswordVerifyOtp(userId, data);
+
+            res.cookie('otp_verified', 'true', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                maxAge: 5 * 60 * 1000
+            });
+
+
             return res.status(200).json(result)
         } catch (error: any) {
             return res.status(400).json({message: error.message})
@@ -137,7 +164,18 @@ export class AuthController {
     resetPassword = async (req: Request, res: Response) => {
         try {
             const data = resetPasswordSchema.parse(req.body);
-            const result = await this._authService.resetPassword(data);
+            
+            const userId = req.cookies.otp_userId;
+            const otpVerified = req.cookies.otp_verified;
+
+            if(!userId || !otpVerified) {
+                return res.status(401).json({message: 'Otp Session expired or not verified'})
+            }
+            const result = await this._authService.resetPassword(userId, data);
+
+            res.clearCookie('otp_userId');
+            res.clearCookie('otp_verified');
+
             return res.status(200).json(result)
         } catch (error: any) {
             return res.status(400).json({message: error.message})
