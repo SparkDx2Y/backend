@@ -25,8 +25,17 @@ export class AuthController {
     signup = async (req: Request, res: Response) => {
         try {
             const data = signupSchema.parse(req.body);
-            const result = await this._authService.signup(data);
-            return res.status(201).json(result)
+            const { userId, message} = await this._authService.signup(data);
+            
+            //^ setting userId in the cookie for verifying the user in the next request
+            res.cookie('otp_userId', userId, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                maxAge: 5 * 60 * 1000
+            });
+
+            return res.status(201).json({ message })
         } catch (error: any) {
             return res.status(400).json({message: error.message})
         }
@@ -37,7 +46,20 @@ export class AuthController {
     verifySignupOtp = async (req: Request, res: Response) => {
         try {
             const data = verifyOtpSchema.parse(req.body);
-            const result = await this._authService.verifySignupOtp(data);
+
+            //^ getting userId from the cookie
+            const userId = req.cookies.otp_userId;
+
+            if(!userId) {
+                return res.status(401).json({message: 'Otp Session expired'})
+            }
+
+            //^ verifying the otp
+            const result = await this._authService.verifySignupOtp(userId, data);
+
+            //^ clearing the cookie after verifying the otp
+            res.clearCookie('otp_userId');
+
             return res.status(200).json(result)
         } catch (error: any) {
             return res.status(400).json({message: error.message})

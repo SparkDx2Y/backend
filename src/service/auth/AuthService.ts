@@ -64,16 +64,16 @@ export class AuthService implements IAuthService {
 
     //* // // // // // //   verifySignupOtp  // // // // // // // *//
 
-    async verifySignupOtp(data: VerifyOtpDto): Promise<{message: string}> {
+ async verifySignupOtp(userId: string, data: VerifyOtpDto): Promise<{message: string}> {
 
-        const storedOtp = await this._otpRepo.getOtp(data.userId);
+        const storedOtp = await this._otpRepo.getOtp(userId);
 
         if(!storedOtp || storedOtp !== data.otp) {
             throw new Error('Invalid OTP');
         }
 
-        await this._userRepo.markVerified(data.userId);
-        await this._otpRepo.deleteOtp(data.userId);
+        await this._userRepo.markVerified(userId);
+        await this._otpRepo.deleteOtp(userId);
 
         return { message: 'Account verified successfully' };
     }
