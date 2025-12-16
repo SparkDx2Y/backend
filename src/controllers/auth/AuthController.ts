@@ -50,7 +50,7 @@ export class AuthController {
             const userId = req.cookies.otp_userId;
 
             if(!userId) {
-                return res.status(401).json({message: 'Otp Session expired'})
+                return res.status(401).json({message: 'OTP Session expired'})
             }
 
             //^ verifying the otp
@@ -72,7 +72,7 @@ export class AuthController {
             const userId = req.cookies.otp_userId
 
         if(!userId) {
-            return res.status(401).json({message: 'Otp Session expired'})
+            return res.status(401).json({message: 'OTP Session expired'})
         }
 
         const result = await this._authService.resendSignupOtp(userId);
@@ -141,7 +141,7 @@ export class AuthController {
 
             const   userId = req.cookies.otp_userId;
             if(!userId) {
-                return res.status(401).json({message: 'Otp Session expired'})
+                return res.status(401).json({message: 'OTP Session expired'})
             }
             const result = await this._authService.forgotPasswordVerifyOtp(userId, data);
 
@@ -169,7 +169,7 @@ export class AuthController {
             const otpVerified = req.cookies.otp_verified;
 
             if(!userId || !otpVerified) {
-                return res.status(401).json({message: 'Otp Session expired or not verified'})
+                return res.status(401).json({message: 'OTP Session expired or not verified'})
             }
             const result = await this._authService.resetPassword(userId, data);
 
