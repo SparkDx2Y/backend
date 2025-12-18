@@ -93,7 +93,7 @@ export class AuthService implements IAuthService {
         await this._otpRepo.saveOtp(userId, newOtp, 300);
         await sendOtpEmail(user.email, newOtp);
 
-        return { message: 'OTP resent successfully' };
+        return { message: 'OTP resent successfully. Please check your email' };
     }
 
 
