@@ -9,7 +9,7 @@ import { IOtpRepository } from "../../repositories/otp/IOtpRepository";
 import { comparePassword, hashPassword } from "../../utils/password";
 import { generateOtp } from "../../utils/generate-otp";
 import { sendOtpEmail } from "../../utils/sendEmail";
-import { generateRefreshToken, generateToken } from "../../utils/jwtHelper";
+import { generateRefreshToken, generateTempToken, generateToken } from "../../utils/jwtHelper";
 
 import { SignupDto } from "../../dto/request/auth/register.dto";
 import { VerifyOtpDto } from "../../dto/request/auth/verify-otp.dto";
@@ -35,7 +35,7 @@ export class AuthService implements IAuthService {
 
     //* // // // // // //   signUp  // // // // // // // *//
 
-    async signup(data: SignupDto): Promise<{ userId: string; message: string; }> {
+    async signup(data: SignupDto): Promise<{ tempToken: string; message: string; }> {
         
         const existingUser = await this._userRepo.findByEmail(data.email);
         if (existingUser) {
@@ -57,7 +57,9 @@ export class AuthService implements IAuthService {
 
         await sendOtpEmail(newUser.email, otp);
 
-        return { userId: newUser._id.toString(), message: 'OTP sent to your email' };
+        const tempToken = generateTempToken({ userId: newUser._id.toString() });
+
+        return { tempToken, message: 'OTP sent to your email' };
     }
 
 

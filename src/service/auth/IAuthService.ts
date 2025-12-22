@@ -11,7 +11,7 @@ import { LoginResponseDto } from "../../dto/response/auth/login-response.dto";
 
 export interface IAuthService {
 
-  signup(data: SignupDto): Promise<{ userId: string; message: string; }>
+  signup(data: SignupDto): Promise<{ tempToken: string; message: string; }>
 
   verifySignupOtp(userId: string, data: VerifyOtpDto): Promise<{message: string}>
 

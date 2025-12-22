@@ -9,7 +9,7 @@ import { loginSchema } from "../../dto/request/auth/login.dto";
 import { forgotPasswordSchema } from "../../dto/request/auth/forgot-password.dto";
 import { forgotPasswordVerifyOtpSchema } from "../../dto/request/auth/forgot-password-verify-otp.dto";
 import { resetPasswordSchema } from "../../dto/request/auth/reset-password.dto";
-import { generateRefreshToken, generateToken, verifyRefreshToken } from "../../utils/jwtHelper";
+import { generateRefreshToken, generateToken, verifyRefreshToken, verifyTempToken } from "../../utils/jwtHelper";
 
 
 
@@ -24,14 +24,14 @@ export class AuthController {
     signup = async (req: Request, res: Response) => {
         try {
             const data = signupSchema.parse(req.body);
-            const { userId, message} = await this._authService.signup(data);
+            const { tempToken, message} = await this._authService.signup(data);
             
             //^ setting userId in the cookie for verifying the user in the next request
-            res.cookie('otp_userId', userId, {
+            res.cookie('temp_token', tempToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                maxAge: 5 * 60 * 1000
+                maxAge:305 * 60 * 1000
             });
 
             return res.status(201).json({ message })
@@ -47,17 +47,17 @@ export class AuthController {
             const data = verifyOtpSchema.parse(req.body);
 
             //^ getting userId from the cookie
-            const userId = req.cookies.otp_userId;
+            const token = req.cookies.temp_token;
 
-            if(!userId) {
-                return res.status(401).json({message: 'OTP Session expired'})
+            if(!token) {
+                return res.status(401).json({message: 'Session expired'})
             }
 
-            //^ verifying the otp
-            const result = await this._authService.verifySignupOtp(userId, data);
+            const { userId } = verifyTempToken(token)
 
-            //^ clearing the cookie after verifying the otp
-            res.clearCookie('otp_userId');
+            //^ verifying the otp
+            const result= await this._authService.verifySignupOtp(userId, data);
+
 
             return res.status(200).json(result)
         } catch (error: any) {

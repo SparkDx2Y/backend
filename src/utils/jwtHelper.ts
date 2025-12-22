@@ -28,3 +28,19 @@ export const verifyRefreshToken = (token: string): RefreshPayload  => {
     return jwt.verify(token, jwtConfig.refreshTokenSecret) as RefreshPayload;
   };
   
+
+  export const generateTempToken = (payload: object) => {
+    return jwt.sign(
+      { ...payload, type: "TEMP" },
+      jwtConfig.tempTokenSecret,
+      { expiresIn:  jwtConfig.tempTokenExpiresIn }
+    );
+  };
+  
+  export const verifyTempToken = (token: string) => {
+    return jwt.verify(token, jwtConfig.tempTokenSecret ) as {
+      userId: string;
+      type: "TEMP";
+    };
+  };
+  
