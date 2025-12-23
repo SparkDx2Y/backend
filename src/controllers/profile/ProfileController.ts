@@ -40,11 +40,10 @@ export class ProfileController {
 
             const data = completeProfileSchema.parse(req.body);
 
-            // 3️⃣ Complete profile
-            const { profile, isCompleted } =
-                await this._profileService.completeProfile(userId, data);
+            // Complete profile
+            const { profile, isCompleted } = await this._profileService.completeProfile(userId, data);
 
-            // 4️⃣ If profile is NOT completed yet
+            // If profile is NOT completed yet
             if (!isCompleted) {
                 return res.status(200).json({
                     message: "Profile saved partially",
@@ -53,14 +52,14 @@ export class ProfileController {
                 });
             }
 
-            // 5️⃣ Profile completed → issue auth tokens
+            // Profile completed → issue auth tokens
             const accessToken = generateToken({ id: userId, role: "user", isProfileCompleted: true });
             const refreshToken = generateRefreshToken({ id: userId, role: "user" });
 
-            // 6️⃣ Clear temp token
+            // Clear temp token
             res.clearCookie("temp_token");
 
-            // 7️⃣ Set auth cookies
+            // Set auth cookies
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
