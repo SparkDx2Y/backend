@@ -115,10 +115,15 @@ export class AuthService implements IAuthService {
         if (user.isBlocked) throw new Error('User is blocked');
 
         if (!user.isVerified) throw new Error('User is not verified');
-        const token = generateToken({ id: user._id.toString(), role: user.role });
-        const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
         const isProfileCompleted = await this._profileService.isProfileCompleted(user._id.toString());
+
+        const token = generateToken({
+            id: user._id.toString(),
+            role: user.role,
+            isProfileCompleted
+        });
+        const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
         return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted);
     }

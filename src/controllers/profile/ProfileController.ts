@@ -54,7 +54,7 @@ export class ProfileController {
             }
 
             // 5️⃣ Profile completed → issue auth tokens
-            const accessToken = generateToken({ id: userId, role: "user" });
+            const accessToken = generateToken({ id: userId, role: "user", isProfileCompleted: true });
             const refreshToken = generateRefreshToken({ id: userId, role: "user" });
 
             // 6️⃣ Clear temp token
@@ -64,14 +64,14 @@ export class ProfileController {
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
+                sameSite: "lax",
                 maxAge: 15 * 60 * 1000,
             });
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
+                sameSite: "lax",
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
 

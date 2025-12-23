@@ -10,13 +10,15 @@ import { forgotPasswordSchema } from "../../dto/request/auth/forgot-password.dto
 import { forgotPasswordVerifyOtpSchema } from "../../dto/request/auth/forgot-password-verify-otp.dto";
 import { resetPasswordSchema } from "../../dto/request/auth/reset-password.dto";
 import { generateRefreshToken, generateToken, generateTempToken, verifyRefreshToken, verifyTempToken } from "../../utils/jwtHelper";
+import { IProfileService } from "../../service/profile/IProfileService";
 
 
 
 export class AuthController {
 
     constructor(
-        @inject(DI_TYPES.SERVICES.AUTH_SERVICE) private _authService: IAuthService
+        @inject(DI_TYPES.SERVICES.AUTH_SERVICE) private _authService: IAuthService,
+        @inject(DI_TYPES.SERVICES.PROFILE_SERVICE) private _profileService: IProfileService
     ) { }
 
     //* // // // // // //   signup  // // // // // // // *//
@@ -95,13 +97,13 @@ export class AuthController {
             res.cookie('accessToken', result.token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge: 15 * 60 * 1000
             })
             res.cookie('refreshToken', result.refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000
             })
 
@@ -225,20 +227,27 @@ export class AuthController {
                 return res.status(401).json({ message: 'Invalid refresh token' })
             }
 
+            //^ fetch profile status
+            const isProfileCompleted = await this._profileService.isProfileCompleted(decoded.id);
+
             //^ generate new access token
-            const newAccessToken = generateToken({ id: decoded.id, role: decoded.role });
+            const newAccessToken = generateToken({
+                id: decoded.id,
+                role: decoded.role,
+                isProfileCompleted
+            });
             const newRefreshToken = generateRefreshToken({ id: decoded.id, role: decoded.role });
 
             res.cookie('accessToken', newAccessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge: 15 * 60 * 1000
             });
             res.cookie('refreshToken', newRefreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000
             });
 
