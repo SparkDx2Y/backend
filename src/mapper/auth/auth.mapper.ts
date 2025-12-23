@@ -4,11 +4,12 @@ import { UserMapper } from "./user.mapper";
 
 
 export class AuthMapper {
-     static toAuthResponseDto(user: IUser, token: string, refreshToken: string): LoginResponseDto {
+    static toAuthResponseDto(user: IUser, token: string, refreshToken: string, isProfileCompleted: boolean): LoginResponseDto {
         return {
             token,
             refreshToken,
-            user: UserMapper.toUserResponseDto(user)
+            user: UserMapper.toUserResponseDto(user),
+            isProfileCompleted
         }
-     }
+    }
 }

@@ -1,0 +1,10 @@
+import { CompleteProfileDto } from "../../dto/request/profile/complete-profile.dto";
+import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
+
+export interface IProfileService {
+    completeProfile(userId: string, data: CompleteProfileDto): Promise<{ profile: ProfileResponseDto, isCompleted: boolean }>;
+
+    getProfileByUserId(userId: string): Promise<ProfileResponseDto | null>;
+
+    isProfileCompleted(userId: string): Promise<boolean>;
+}

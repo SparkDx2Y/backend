@@ -20,6 +20,7 @@ import { AuthMapper } from "../../mapper/auth/auth.mapper";
 import { ForgotPasswordDto } from "../../dto/request/auth/forgot-password.dto";
 import { ForgotPasswordVerifyOtpDto } from "../../dto/request/auth/forgot-password-verify-otp.dto";
 import { ResetPasswordDto } from "../../dto/request/auth/reset-password.dto";
+import { IProfileService } from "../profile/IProfileService";
 
 
 
@@ -29,14 +30,16 @@ export class AuthService implements IAuthService {
 
     constructor(
         @inject(DI_TYPES.REPOSITORIES.USER_REPOSITORY) private _userRepo: IUserRepository,
-        @inject(DI_TYPES.REPOSITORIES.OTP_REPOSITORY) private _otpRepo: IOtpRepository
-    ) {}
+        @inject(DI_TYPES.REPOSITORIES.OTP_REPOSITORY) private _otpRepo: IOtpRepository,
+        @inject(DI_TYPES.SERVICES.PROFILE_SERVICE)
+        private _profileService: IProfileService
+    ) { }
 
 
     //* // // // // // //   signUp  // // // // // // // *//
 
     async signup(data: SignupDto): Promise<{ tempToken: string; message: string; }> {
-        
+
         const existingUser = await this._userRepo.findByEmail(data.email);
         if (existingUser) {
             throw new Error('Email already exists');
@@ -65,18 +68,18 @@ export class AuthService implements IAuthService {
 
     //* // // // // // //   verifySignupOtp  // // // // // // // *//
 
- async verifySignupOtp(userId: string, data: VerifyOtpDto): Promise<{message: string}> {
+    async verifySignupOtp(userId: string, data: VerifyOtpDto): Promise<{ message: string }> {
 
         const storedOtp = await this._otpRepo.getOtp(userId);
 
-        if(!storedOtp || storedOtp !== data.otp) {
+        if (!storedOtp || storedOtp !== data.otp) {
             throw new Error('Invalid OTP');
         }
 
         await this._userRepo.markVerified(userId);
         await this._otpRepo.deleteOtp(userId);
 
-        return { message: 'Account verified successfully' };
+        return { message: 'Otp verified successfully' };
     }
 
 
@@ -84,10 +87,10 @@ export class AuthService implements IAuthService {
 
     //* // // // // // //   resendSignupOtp  // // // // // // // *//
 
-    async resendSignupOtp(userId: string): Promise<{message: string}> {
+    async resendSignupOtp(userId: string): Promise<{ message: string }> {
 
         const user = await this._userRepo.findById(userId);
-        if(!user) throw new Error('User not found');
+        if (!user) throw new Error('User not found');
 
         const newOtp = generateOtp();
 
@@ -104,26 +107,28 @@ export class AuthService implements IAuthService {
     async login(data: LoginDto): Promise<LoginResponseDto> {
 
         const user = await this._userRepo.findByEmail(data.email);
-        if(!user) throw new Error('User not found');
+        if (!user) throw new Error('User not found');
 
         const isMatch = await comparePassword(data.password, user.password);
-        if(!isMatch) throw new Error('Invalid credentials');
+        if (!isMatch) throw new Error('Invalid credentials');
 
-        if(user.isBlocked) throw new Error('User is blocked');
+        if (user.isBlocked) throw new Error('User is blocked');
 
-        if(!user.isVerified) throw new Error('User is not verified');
+        if (!user.isVerified) throw new Error('User is not verified');
         const token = generateToken({ id: user._id.toString(), role: user.role });
         const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
-        return AuthMapper.toAuthResponseDto(user,  token, refreshToken)
+        const isProfileCompleted = await this._profileService.isProfileCompleted(user._id.toString());
+
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted);
     }
 
     //* // // // // // //   forgotPassword  // // // // // // // *//
 
-    async forgotPassword(data: ForgotPasswordDto): Promise<{ userId: string, message: string}> {
+    async forgotPassword(data: ForgotPasswordDto): Promise<{ userId: string, message: string }> {
 
         const user = await this._userRepo.findByEmail(data.email)
-        if(!user) throw new Error('User not found');
+        if (!user) throw new Error('User not found');
 
         const otp = generateOtp();
         await this._otpRepo.saveOtp(user._id.toString(), otp, 300);
@@ -138,11 +143,11 @@ export class AuthService implements IAuthService {
 
     //* // // // // // //   forgotPasswordVerifyOtp  // // // // // // // *//
 
-    async forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{message: string}> {
+    async forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{ message: string }> {
 
         const storedOtp = await this._otpRepo.getOtp(userId);
 
-        if(!storedOtp || storedOtp !== data.otp) {
+        if (!storedOtp || storedOtp !== data.otp) {
             throw new Error('Invalid OTP or Expired OTP');
         }
 
@@ -154,7 +159,7 @@ export class AuthService implements IAuthService {
 
     //* // // // // // //   resetPassword  // // // // // // // *//
 
-    async resetPassword(userId: string, data: ResetPasswordDto): Promise<{message: string}> {
+    async resetPassword(userId: string, data: ResetPasswordDto): Promise<{ message: string }> {
         const hashedPassword = await hashPassword(data.newPassword);
 
         await this._userRepo.updatePassword(userId, hashedPassword);

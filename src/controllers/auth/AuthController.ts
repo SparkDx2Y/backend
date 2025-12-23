@@ -9,7 +9,7 @@ import { loginSchema } from "../../dto/request/auth/login.dto";
 import { forgotPasswordSchema } from "../../dto/request/auth/forgot-password.dto";
 import { forgotPasswordVerifyOtpSchema } from "../../dto/request/auth/forgot-password-verify-otp.dto";
 import { resetPasswordSchema } from "../../dto/request/auth/reset-password.dto";
-import { generateRefreshToken, generateToken, verifyRefreshToken, verifyTempToken } from "../../utils/jwtHelper";
+import { generateRefreshToken, generateToken, generateTempToken, verifyRefreshToken, verifyTempToken } from "../../utils/jwtHelper";
 
 
 
@@ -17,26 +17,26 @@ export class AuthController {
 
     constructor(
         @inject(DI_TYPES.SERVICES.AUTH_SERVICE) private _authService: IAuthService
-    ) {}
+    ) { }
 
     //* // // // // // //   signup  // // // // // // // *//
 
     signup = async (req: Request, res: Response) => {
         try {
             const data = signupSchema.parse(req.body);
-            const { tempToken, message} = await this._authService.signup(data);
-            
+            const { tempToken, message } = await this._authService.signup(data);
+
             //^ setting userId in the cookie for verifying the user in the next request
             res.cookie('temp_token', tempToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                maxAge:305 * 60 * 1000
+                maxAge: 30 * 60 * 1000
             });
 
             return res.status(201).json({ message })
         } catch (error: any) {
-            return res.status(400).json({message: error.message})
+            return res.status(400).json({ message: error.message })
         }
     }
 
@@ -49,19 +49,19 @@ export class AuthController {
             //^ getting userId from the cookie
             const token = req.cookies.temp_token;
 
-            if(!token) {
-                return res.status(401).json({message: 'Session expired'})
+            if (!token) {
+                return res.status(401).json({ message: 'Session expired' })
             }
 
             const { userId } = verifyTempToken(token)
 
             //^ verifying the otp
-            const result= await this._authService.verifySignupOtp(userId, data);
+            const result = await this._authService.verifySignupOtp(userId, data);
 
 
             return res.status(200).json(result)
         } catch (error: any) {
-            return res.status(400).json({message: error.message})
+            return res.status(400).json({ message: error.message })
         }
     }
 
@@ -69,18 +69,21 @@ export class AuthController {
 
     resendSignupOtp = async (req: Request, res: Response) => {
         try {
-            const userId = req.cookies.otp_userId
+            const token = req.cookies.temp_token;
+            if (!token) {
+                return res.status(401).json({ message: "Session expired" });
+            }
 
-        if(!userId) {
-            return res.status(401).json({message: 'OTP Session expired'})
-        }
+            const { userId } = verifyTempToken(token);
 
-        const result = await this._authService.resendSignupOtp(userId);
-        return res.status(200).json(result)
+            const result = await this._authService.resendSignupOtp(userId);
+            return res.status(200).json(result);
+
         } catch (error: any) {
-            return res.status(400).json({message: error.message})
+            return res.status(400).json({ message: error.message });
         }
-    }
+    };
+
 
     //* // // // // // //   login  // // // // // // // *//
 
@@ -91,24 +94,37 @@ export class AuthController {
 
             res.cookie('accessToken', result.token, {
                 httpOnly: true,
-                secure:true,
+                secure: process.env.NODE_ENV === "production",
                 sameSite: 'strict',
                 maxAge: 15 * 60 * 1000
             })
             res.cookie('refreshToken', result.refreshToken, {
                 httpOnly: true,
-                secure:true,
+                secure: process.env.NODE_ENV === "production",
                 sameSite: 'strict',
                 maxAge: 7 * 24 * 60 * 60 * 1000
             })
 
+            //^ If profile is incomplete, set tempToken cookie to allow profile completion flow
+            if (!result.isProfileCompleted) {
+                const tempToken = generateTempToken({ userId: result.user.id });
+                res.cookie('temp_token', tempToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                    maxAge: 30 * 60 * 1000
+                });
+            }
+
             return res.status(200).json({
-                message: 'Login successful',
-                user: result.user
-            })
+                message: "Login successful",
+                user: result.user,
+                isProfileCompleted: result.isProfileCompleted,
+            });
+
 
         } catch (error: any) {
-            return res.status(400).json({message: error.message})
+            return res.status(400).json({ message: error.message })
         }
     }
 
@@ -117,8 +133,8 @@ export class AuthController {
     forgotPassword = async (req: Request, res: Response) => {
         try {
             const data = forgotPasswordSchema.parse(req.body);
-            const {userId, message} = await this._authService.forgotPassword(data);
-            
+            const { userId, message } = await this._authService.forgotPassword(data);
+
             //^ setting userId in the cookie for verifying the user in the next request
             res.cookie('otp_userId', userId, {
                 httpOnly: true,
@@ -127,9 +143,9 @@ export class AuthController {
                 maxAge: 5 * 60 * 1000
             });
 
-            return res.status(200).json({message})
+            return res.status(200).json({ message })
         } catch (error: any) {
-            return res.status(400).json({message: error.message})
+            return res.status(400).json({ message: error.message })
         }
     }
 
@@ -139,9 +155,9 @@ export class AuthController {
         try {
             const data = forgotPasswordVerifyOtpSchema.parse(req.body);
 
-            const   userId = req.cookies.otp_userId;
-            if(!userId) {
-                return res.status(401).json({message: 'OTP Session expired'})
+            const userId = req.cookies.otp_userId;
+            if (!userId) {
+                return res.status(401).json({ message: 'OTP Session expired' })
             }
             const result = await this._authService.forgotPasswordVerifyOtp(userId, data);
 
@@ -155,7 +171,7 @@ export class AuthController {
 
             return res.status(200).json(result)
         } catch (error: any) {
-            return res.status(400).json({message: error.message})
+            return res.status(400).json({ message: error.message })
         }
     }
 
@@ -164,12 +180,12 @@ export class AuthController {
     resetPassword = async (req: Request, res: Response) => {
         try {
             const data = resetPasswordSchema.parse(req.body);
-            
+
             const userId = req.cookies.otp_userId;
             const otpVerified = req.cookies.otp_verified;
 
-            if(!userId || !otpVerified) {
-                return res.status(401).json({message: 'OTP Session expired or not verified'})
+            if (!userId || !otpVerified) {
+                return res.status(401).json({ message: 'OTP Session expired or not verified' })
             }
             const result = await this._authService.resetPassword(userId, data);
 
@@ -178,7 +194,7 @@ export class AuthController {
 
             return res.status(200).json(result)
         } catch (error: any) {
-            return res.status(400).json({message: error.message})
+            return res.status(400).json({ message: error.message })
         }
     }
 
@@ -188,9 +204,9 @@ export class AuthController {
         try {
             res.clearCookie('accessToken')
             res.clearCookie('refreshToken')
-            return res.status(200).json({message: 'Logout successful'})
+            return res.status(200).json({ message: 'Logout successful' })
         } catch (error: any) {
-            return res.status(400).json({message: error.message})
+            return res.status(400).json({ message: error.message })
         }
     }
 
@@ -200,35 +216,35 @@ export class AuthController {
     refreshToken = async (req: Request, res: Response) => {
         try {
             const refreshToken = req.cookies.refreshToken;
-            if(!refreshToken) {
-                return res.status(401).json({message: 'Refresh token not found'})
+            if (!refreshToken) {
+                return res.status(401).json({ message: 'Refresh token not found' })
             }
 
             const decoded = verifyRefreshToken(refreshToken);
-            if(!decoded) {
-                return res.status(401).json({message: 'Invalid refresh token'})
+            if (!decoded) {
+                return res.status(401).json({ message: 'Invalid refresh token' })
             }
 
             //^ generate new access token
-            const newAccessToken = generateToken({id: decoded.id, role: decoded.role});
-            const newRefreshToken = generateRefreshToken({id: decoded.id, role: decoded.role});
+            const newAccessToken = generateToken({ id: decoded.id, role: decoded.role });
+            const newRefreshToken = generateRefreshToken({ id: decoded.id, role: decoded.role });
 
             res.cookie('accessToken', newAccessToken, {
                 httpOnly: true,
-                secure:true,
+                secure: process.env.NODE_ENV === "production",
                 sameSite: 'strict',
                 maxAge: 15 * 60 * 1000
             });
             res.cookie('refreshToken', newRefreshToken, {
                 httpOnly: true,
-                secure:true,
+                secure: process.env.NODE_ENV === "production",
                 sameSite: 'strict',
                 maxAge: 7 * 24 * 60 * 60 * 1000
             });
 
             return res.status(200).json({ message: 'Token refreshed successfully' })
         } catch (error: any) {
-            return res.status(400).json({message: 'Refresh token Faile'})
+            return res.status(400).json({ message: 'Refresh token Faile' })
         }
     }
 }
