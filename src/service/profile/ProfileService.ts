@@ -1,13 +1,12 @@
 import { inject, injectable } from "inversify";
-import mongoose from "mongoose";
 import { IProfileService } from "./IProfileService";
 import { DI_TYPES } from "../../di/types";
 import { IProfileRepository } from "../../repositories/profile/IProfileRepository";
 import { IUserRepository } from "../../repositories/user/IUserRepository";
-import { IProfile } from "../../models/profile";
 import { CompleteProfileDto } from "../../dto/request/profile/complete-profile.dto";
 import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
 import { ProfileMapper } from "../../mapper/auth/profile.mapper";
+import { ProfileCompletionCheckDto } from "../../dto/internal/profile-completion-check.dto";
 
 
 
@@ -33,18 +32,22 @@ export class ProfileService implements IProfileService {
             throw new Error("User is not verified. Please verify your email first.");
         }
 
+        // 2. Filter out undefined values (only update provided fields)
         const updateData = Object.fromEntries(
             Object.entries(data).filter(([_, v]) => v !== undefined)
         );
 
+        // 3. Check if profile already exists
         let profile = await this._profileRepo.findByUserId(userId)
 
         if (!profile) {
+            // First time: Create new profile
             profile = await this._profileRepo.create({
-                userId: new mongoose.Types.ObjectId(userId),
+                userId: userId as any,  // Repository handles ObjectId conversion
                 ...updateData
             } as any);
         } else {
+            // Subsequent visits: Update existing profile
             profile = await this._profileRepo.updateById(profile._id.toString(), updateData)
         }
 
@@ -52,6 +55,7 @@ export class ProfileService implements IProfileService {
             throw new Error("Failed to create or update profile");
         }
 
+        // 4. Check if profile is now complete
         const isCompleted = this.checkProfileCompletion(profile);
         return {
             profile: ProfileMapper.toProfileResponse(profile),
@@ -71,10 +75,11 @@ export class ProfileService implements IProfileService {
         return this.checkProfileCompletion(profile);
     }
 
-    private checkProfileCompletion(profile: IProfile): boolean {
+    private checkProfileCompletion(profile: ProfileCompletionCheckDto): boolean {
         return Boolean(
             profile.age &&
             profile.gender &&
+            profile.interestedIn &&
             profile.photos &&
             profile.photos.length > 0
         );
