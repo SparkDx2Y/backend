@@ -21,7 +21,11 @@ export class ProfileService implements IProfileService {
         private readonly _userRepo: IUserRepository
     ) { }
 
-    // complete profile
+    /**
+     * Complete user profile
+     * Note: Frontend validation ensures ALL fields are required,
+     * so this always creates a complete profile (never partial updates)
+     */
     async completeProfile(userId: string, data: CompleteProfileDto): Promise<{ profile: ProfileResponseDto, isCompleted: boolean }> {
         // 1. Verify user exists and is verified
         const user = await this._userRepo.findById(userId);
@@ -32,31 +36,25 @@ export class ProfileService implements IProfileService {
             throw new Error("User is not verified. Please verify your email first.");
         }
 
-        // 2. Filter out undefined values (only update provided fields)
-        const updateData = Object.fromEntries(
-            Object.entries(data).filter(([_, v]) => v !== undefined)
-        );
-
-        // 3. Check if profile already exists
-        let profile = await this._profileRepo.findByUserId(userId)
-
-        if (!profile) {
-            // First time: Create new profile
-            profile = await this._profileRepo.create({
-                userId: userId as any,  // Repository handles ObjectId conversion
-                ...updateData
-            } as any);
-        } else {
-            // Subsequent visits: Update existing profile
-            profile = await this._profileRepo.updateById(profile._id.toString(), updateData)
+        // 2. Check if profile already exists (prevent duplicate creation)
+        const existingProfile = await this._profileRepo.findByUserId(userId);
+        if (existingProfile) {
+            throw new Error("Profile already exists. Please contact support.");
         }
 
+        // 3. Create new profile (all fields required by frontend validation)
+        const profile = await this._profileRepo.create({
+            userId: userId as any,  // Repository handles ObjectId conversion
+            ...data
+        } as any);
+
         if (!profile) {
-            throw new Error("Failed to create or update profile");
+            throw new Error("Failed to create profile");
         }
 
-        // 4. Check if profile is now complete
+        // 4. Verify profile is complete (should always be true due to frontend validation)
         const isCompleted = this.checkProfileCompletion(profile);
+
         return {
             profile: ProfileMapper.toProfileResponse(profile),
             isCompleted
