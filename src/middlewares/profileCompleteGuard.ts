@@ -19,8 +19,10 @@ export const profileCompleteGuard = async (
             DI_TYPES.SERVICES.PROFILE_SERVICE
         );
 
+        // Check if profile is completed
         const isCompleted = await profileService.isProfileCompleted(userId);
 
+        // If profile is NOT completed yet
         if (!isCompleted) {
             return res.status(403).json({
                 message: "Profile not completed",

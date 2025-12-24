@@ -14,6 +14,7 @@ import { IProfileService } from "../../service/profile/IProfileService";
 
 
 
+@injectable()
 export class AuthController {
 
     constructor(

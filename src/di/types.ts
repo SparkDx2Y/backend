@@ -13,7 +13,8 @@ export const DI_TYPES = {
     },
     CONTROLLERS: {
         AUTH_CONTROLLER: Symbol.for('AuthController'),
-        PROFILE_CONTROLLER: Symbol.for('ProfileController')
+        PROFILE_CONTROLLER: Symbol.for('ProfileController'),
+        FILE_CONTROLLER: Symbol.for('FileController')
     },
     External: {
         REDIS: Symbol.for('RedisClient')

@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { DI_TYPES } from "../../di/types";
 import { IProfileService } from "../../service/profile/IProfileService";
 import { verifyTempToken, verifyToken } from "../../utils/jwtHelper";
 import { generateToken, generateRefreshToken } from "../../utils/jwtHelper";
 import { completeProfileSchema } from "../../dto/request/profile/complete-profile.dto";
 
+@injectable()
 export class ProfileController {
 
     constructor(
