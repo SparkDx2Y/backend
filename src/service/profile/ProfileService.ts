@@ -23,8 +23,6 @@ export class ProfileService implements IProfileService {
 
     /**
      * Complete user profile
-     * Note: Frontend validation ensures ALL fields are required,
-     * so this always creates a complete profile (never partial updates)
      */
     async completeProfile(userId: string, data: CompleteProfileDto): Promise<{ profile: ProfileResponseDto, isCompleted: boolean }> {
         // 1. Verify user exists and is verified
@@ -44,7 +42,7 @@ export class ProfileService implements IProfileService {
 
         // 3. Create new profile (all fields required by frontend validation)
         const profile = await this._profileRepo.create({
-            userId: userId as any,  // Repository handles ObjectId conversion
+            userId: userId as any,  
             ...data
         } as any);
 
@@ -52,7 +50,7 @@ export class ProfileService implements IProfileService {
             throw new Error("Failed to create profile");
         }
 
-        // 4. Verify profile is complete (should always be true due to frontend validation)
+        // 4. Verify profile is complete 
         const isCompleted = this.checkProfileCompletion(profile);
 
         return {
