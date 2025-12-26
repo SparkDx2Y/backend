@@ -79,10 +79,17 @@ export class ProfileService implements IProfileService {
     // ----------------------------------
     // Get profile by user id
     // ----------------------------------
-    
+
     async getProfileByUserId(userId: string): Promise<ProfileResponseDto | null> {
 
         const profile = await this._profileRepo.findByUserId(userId);
+
+        if(!profile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_NOT_FOUND,
+                HTTP_STATUS.NOT_FOUND
+            )
+        }
         return profile ? ProfileMapper.toProfileResponse(profile) : null;
 
     }
