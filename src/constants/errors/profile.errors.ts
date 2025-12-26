@@ -6,5 +6,5 @@ export const PROFILE_ERRORS = {
   USER_NOT_VERIFIED: "User is not verified. Please verify your email first",
   PROFILE_ALREADY_EXISTS: "Profile already exists",
   PROFILE_CREATE_FAILED: "Failed to create profile",
-  
+  PROFILE_NOT_FOUND: "Profile not found",
 } as const;
