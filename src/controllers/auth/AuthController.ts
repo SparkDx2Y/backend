@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 
 import { DI_TYPES } from "../../di/types";
 import { IAuthService } from "../../service/auth/IAuthService";
@@ -11,6 +11,8 @@ import { forgotPasswordVerifyOtpSchema } from "../../dto/request/auth/forgot-pas
 import { resetPasswordSchema } from "../../dto/request/auth/reset-password.dto";
 import { generateRefreshToken, generateToken, generateTempToken, verifyRefreshToken, verifyTempToken } from "../../utils/jwtHelper";
 import { IProfileService } from "../../service/profile/IProfileService";
+import { HTTP_STATUS } from "../../constants/http-status.constants";
+import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 
 
 
@@ -24,7 +26,7 @@ export class AuthController {
 
     //* // // // // // //   signup  // // // // // // // *//
 
-    signup = async (req: Request, res: Response) => {
+    signup = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = signupSchema.parse(req.body);
             const { tempToken, message } = await this._authService.signup(data);
@@ -37,15 +39,15 @@ export class AuthController {
                 maxAge: 30 * 60 * 1000
             });
 
-            return res.status(201).json({ message })
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message })
+            return res.status(HTTP_STATUS.CREATED).json({ message })
+        } catch (error) {
+            next(error)
         }
     }
 
     //* // // // // // //   verifySignupOtp  // // // // // // // *//
 
-    verifySignupOtp = async (req: Request, res: Response) => {
+    verifySignupOtp = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = verifyOtpSchema.parse(req.body);
 
@@ -53,7 +55,7 @@ export class AuthController {
             const token = req.cookies.temp_token;
 
             if (!token) {
-                return res.status(401).json({ message: 'Session expired' })
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.SESSION_EXPIRED })
             }
 
             const { userId } = verifyTempToken(token)
@@ -62,35 +64,35 @@ export class AuthController {
             const result = await this._authService.verifySignupOtp(userId, data);
 
 
-            return res.status(200).json(result)
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message })
+            return res.status(HTTP_STATUS.OK).json(result)
+        } catch (error) {
+            next(error)
         }
     }
 
     //* // // // // // //   resendSignupOtp  // // // // // // // *//
 
-    resendSignupOtp = async (req: Request, res: Response) => {
+    resendSignupOtp = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const token = req.cookies.temp_token;
             if (!token) {
-                return res.status(401).json({ message: "Session expired" });
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.SESSION_EXPIRED });
             }
 
             const { userId } = verifyTempToken(token);
 
             const result = await this._authService.resendSignupOtp(userId);
-            return res.status(200).json(result);
+            return res.status(HTTP_STATUS.OK).json(result);
 
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message });
+        } catch (error) {
+            next(error)
         }
     };
 
 
     //* // // // // // //   login  // // // // // // // *//
 
-    login = async (req: Request, res: Response) => {
+    login = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = loginSchema.parse(req.body);
             const result = await this._authService.login(data);
@@ -119,21 +121,21 @@ export class AuthController {
                 });
             }
 
-            return res.status(200).json({
+            return res.status(HTTP_STATUS.OK).json({
                 message: "Login successful",
                 user: result.user,
                 isProfileCompleted: result.isProfileCompleted,
             });
 
 
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message })
+        } catch (error) {
+            next(error)
         }
     }
 
     //* // // // // // //   forgotPassword  // // // // // // // *//
 
-    forgotPassword = async (req: Request, res: Response) => {
+    forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = forgotPasswordSchema.parse(req.body);
             const { userId, message } = await this._authService.forgotPassword(data);
@@ -146,21 +148,21 @@ export class AuthController {
                 maxAge: 5 * 60 * 1000
             });
 
-            return res.status(200).json({ message })
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message })
+            return res.status(HTTP_STATUS.OK).json({ message })
+        } catch (error) {
+            next(error)
         }
     }
 
     //* // // // // // //   forgotPasswordVerifyOtp  // // // // // // // *//
 
-    forgotPasswordVerifyOtp = async (req: Request, res: Response) => {
+    forgotPasswordVerifyOtp = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = forgotPasswordVerifyOtpSchema.parse(req.body);
 
             const userId = req.cookies.otp_userId;
             if (!userId) {
-                return res.status(401).json({ message: 'OTP Session expired' })
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'OTP Session expired' })
             }
             const result = await this._authService.forgotPasswordVerifyOtp(userId, data);
 
@@ -172,15 +174,15 @@ export class AuthController {
             });
 
 
-            return res.status(200).json(result)
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message })
+            return res.status(HTTP_STATUS.OK).json(result)
+        } catch (error) {
+            next(error)
         }
     }
 
     //* // // // // // //   resetPassword  // // // // // // // *//
 
-    resetPassword = async (req: Request, res: Response) => {
+    resetPassword = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = resetPasswordSchema.parse(req.body);
 
@@ -188,44 +190,44 @@ export class AuthController {
             const otpVerified = req.cookies.otp_verified;
 
             if (!userId || !otpVerified) {
-                return res.status(401).json({ message: 'OTP Session expired or not verified' })
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'OTP Session expired or not verified' })
             }
             const result = await this._authService.resetPassword(userId, data);
 
             res.clearCookie('otp_userId');
             res.clearCookie('otp_verified');
 
-            return res.status(200).json(result)
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message })
+            return res.status(HTTP_STATUS.OK).json(result)
+        } catch (error) {
+            next(error)
         }
     }
 
     //* // // // // // //   logout  // // // // // // // *//
 
-    logout = async (req: Request, res: Response) => {
+    logout = async (req: Request, res: Response, next: NextFunction) => {
         try {
             res.clearCookie('accessToken')
             res.clearCookie('refreshToken')
-            return res.status(200).json({ message: 'Logout successful' })
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message })
+            return res.status(HTTP_STATUS.OK).json({ message: 'Logout successful' })
+        } catch (error) {
+            next(error)
         }
     }
 
 
     //* // // // // // //  refreshToken  // // // // // // // *//
 
-    refreshToken = async (req: Request, res: Response) => {
+    refreshToken = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const refreshToken = req.cookies.refreshToken;
             if (!refreshToken) {
-                return res.status(401).json({ message: 'Refresh token not found' })
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: "Refresh token not valid" })
             }
 
             const decoded = verifyRefreshToken(refreshToken);
             if (!decoded) {
-                return res.status(401).json({ message: 'Invalid refresh token' })
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Invalid refresh token' })
             }
 
             //^ fetch profile status
@@ -252,9 +254,9 @@ export class AuthController {
                 maxAge: 7 * 24 * 60 * 60 * 1000
             });
 
-            return res.status(200).json({ message: 'Token refreshed successfully' })
-        } catch (error: any) {
-            return res.status(400).json({ message: 'Refresh token Faile' })
+            return res.status(HTTP_STATUS.OK).json({ message: 'Token refreshed successfully' })
+        } catch (error) {
+            next(error)
         }
     }
 }

@@ -1,10 +1,12 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { inject, injectable } from "inversify";
 import { DI_TYPES } from "../../di/types";
 import { IProfileService } from "../../service/profile/IProfileService";
 import { verifyTempToken, verifyToken } from "../../utils/jwtHelper";
 import { generateToken, generateRefreshToken } from "../../utils/jwtHelper";
 import { completeProfileSchema } from "../../dto/request/profile/complete-profile.dto";
+import { HTTP_STATUS } from "../../constants/http-status.constants";
+import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 
 @injectable()
 export class ProfileController {
@@ -16,7 +18,7 @@ export class ProfileController {
     // ----------------------------------
     // Complete profile (onboarding)
     // ----------------------------------
-    completeProfile = async (req: Request, res: Response) => {
+    completeProfile = async (req: Request, res: Response, next: NextFunction) => {
         try {
             // 1️⃣ Get userId from tempToken or accessToken
             const tempToken = req.cookies.temp_token;
@@ -31,12 +33,17 @@ export class ProfileController {
                     const decoded = verifyToken(accessTokenFromCookie);
                     userId = decoded.id;
                 } catch (err) {
-                    return res.status(401).json({ message: "Invalid access token" });
+
+                    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+                        message: COMMON_ERRORS.UNAUTHORIZED
+                    });
                 }
             }
 
             if (!userId) {
-                return res.status(401).json({ message: "Session expired" });
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+                    message: COMMON_ERRORS.UNAUTHORIZED
+                });
             }
 
             const data = completeProfileSchema.parse(req.body);
@@ -46,7 +53,7 @@ export class ProfileController {
 
             // If profile is NOT completed yet
             if (!isCompleted) {
-                return res.status(200).json({
+                return res.status(HTTP_STATUS.OK).json({
                     message: "Profile saved partially",
                     isCompleted: false,
                     profile
@@ -75,38 +82,34 @@ export class ProfileController {
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
 
-            return res.status(200).json({
+            return res.status(HTTP_STATUS.OK).json({
                 message: "Profile completed successfully",
                 isCompleted: true,
                 profile
             });
 
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message });
+        } catch (error) {
+            next(error)
         }
     };
 
     // ----------------------------------
     // Get my profile (after login)
     // ----------------------------------
-    getMyProfile = async (req: Request, res: Response) => {
+    getMyProfile = async (req: Request, res: Response, next: NextFunction) => {
         try {
             // req.user is set by auth middleware (access token)
             if (!req.user) {
-                return res.status(401).json({ message: "Unauthorized" });
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
             }
             const userId = req.user.id;
 
             const profile = await this._profileService.getProfileByUserId(userId);
 
-            if (!profile) {
-                return res.status(404).json({ message: "Profile not found" });
-            }
+            return res.status(HTTP_STATUS.OK).json(profile);
 
-            return res.status(200).json(profile);
-
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message });
+        } catch (error) {
+            next(error)
         }
     };
 }
