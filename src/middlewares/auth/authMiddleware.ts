@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../../utils/jwtHelper";
+import { HTTP_STATUS } from "../../constants/http-status.constants";
+import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 
 
 export const authMiddleware = (
@@ -10,7 +12,7 @@ export const authMiddleware = (
   try {
     const token = req.cookies.accessToken;
     if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
     }
 
     const decoded = verifyToken(token);
@@ -22,6 +24,8 @@ export const authMiddleware = (
 
     next();
   } catch {
-    return res.status(401).json({ message: "Invalid token" });
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      message: COMMON_ERRORS.UNAUTHORIZED
+    });
   }
 };

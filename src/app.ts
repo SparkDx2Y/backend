@@ -12,6 +12,7 @@ const app = express()
 
 //? importing the routes
 import routes from './routes/route'
+import { errorHandler } from './middlewares/errorHandler'
 
 
 //? middleware
@@ -28,6 +29,9 @@ app.use(cors({
 
 //? routes
 app.use('/api', routes)
+
+//? error handler
+app.use(errorHandler)
 
 
 //? exporting the app

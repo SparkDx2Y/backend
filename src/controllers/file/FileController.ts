@@ -1,54 +1,57 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { inject, injectable } from "inversify";
 import { DI_TYPES } from "../../di/types";
 import { IFileService } from "../../service/file/IFileService";
+import { HTTP_STATUS } from "../../constants/http-status.constants";
+import { COMMON_ERRORS } from "../../constants/errors/common.erros";
+import { FILE_ERRORS } from "../../constants/errors/file.errors";
 
 
 @injectable()
 export class FileController {
     constructor(
         @inject(DI_TYPES.SERVICES.FILE_SERVICE) private readonly _fileService: IFileService
-    ) {}
+    ) { }
 
     // ----------------------------------
     // Upload single image
     // ----------------------------------
 
-  uploadSingle = async (req: Request, res: Response) => {
-    try {
-        
-        if (!req.file) {
-            return res.status(400).json({ message: "No file uploaded" });
+    uploadSingle = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+
+            if (!req.file) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: FILE_ERRORS.NO_FILE });
+            }
+
+            const url = await this._fileService.uploadImage(req.file);
+
+            return res.status(HTTP_STATUS.OK).json({ url });
+        } catch (error) {
+            next(error)
         }
-
-        const url = await this._fileService.uploadImage(req.file);
-
-        return res.status(200).json({ url });
-    } catch (error: any) {
-        return res.status(500).json({ message: error.message });
-    }
-};
+    };
 
     // ----------------------------------
     // Upload multiple images
     // ----------------------------------
 
-    uploadMultiple = async (req: Request, res: Response) => {
+    uploadMultiple = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
             const files = req.files as Express.Multer.File[];
 
             if (!files || files.length === 0) {
-                return res.status(400).json({ message: "No files uploaded" });
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: FILE_ERRORS.NO_FILE });
             }
 
             // Upload all files
             const urls = await this._fileService.uploadMultipleImages(files);
 
-            return res.status(200).json({ urls });
-            
-        } catch (error: any) {
-            return res.status(500).json({ message: error.message });
+            return res.status(HTTP_STATUS.OK).json({ urls });
+
+        } catch (error) {
+            next(error)
         }
     };
 
