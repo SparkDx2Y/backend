@@ -24,6 +24,7 @@ export class ProfileController {
             const tempToken = req.cookies.temp_token;
             const accessTokenFromCookie = req.cookies.accessToken;
             let userId: string | undefined;
+            let userRole: "user" | "admin" = "user";
 
             if (tempToken) {
                 const decoded = verifyTempToken(tempToken);
@@ -32,8 +33,8 @@ export class ProfileController {
                 try {
                     const decoded = verifyToken(accessTokenFromCookie);
                     userId = decoded.id;
+                    userRole = decoded.role as "user" | "admin";
                 } catch (err) {
-
                     return res.status(HTTP_STATUS.UNAUTHORIZED).json({
                         message: COMMON_ERRORS.UNAUTHORIZED
                     });
@@ -61,8 +62,8 @@ export class ProfileController {
             }
 
             // Profile completed → issue auth tokens
-            const accessToken = generateToken({ id: userId, role: "user", isProfileCompleted: true });
-            const refreshToken = generateRefreshToken({ id: userId, role: "user" });
+            const accessToken = generateToken({ id: userId, role: userRole, isProfileCompleted: true });
+            const refreshToken = generateRefreshToken({ id: userId, role: userRole });
 
             // Clear temp token
             res.clearCookie("temp_token");

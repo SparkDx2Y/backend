@@ -84,10 +84,10 @@ export class AuthService implements IAuthService {
         const storedOtp = await this._otpRepo.getOtp(userId);
 
         if (!storedOtp || storedOtp !== data.otp) {
-           throw new AppError(
-            AUTH_ERRORS.OTP_INVALID,
-            HTTP_STATUS.BAD_REQUEST
-           )
+            throw new AppError(
+                AUTH_ERRORS.OTP_INVALID,
+                HTTP_STATUS.BAD_REQUEST
+            )
         }
 
         await this._userRepo.markVerified(userId);
@@ -130,7 +130,7 @@ export class AuthService implements IAuthService {
 
         const user = await this._userRepo.findByEmail(data.email);
 
-        if(!user) {
+        if (!user) {
             throw new AppError(
                 AUTH_ERRORS.USER_NOT_FOUND,
                 HTTP_STATUS.NOT_FOUND
@@ -160,7 +160,11 @@ export class AuthService implements IAuthService {
             );
         }
 
-        const isProfileCompleted = await this._profileService.isProfileCompleted(user._id.toString());
+        let isProfileCompleted = true;
+
+        if (user.role === 'user') {
+            isProfileCompleted = await this._profileService.isProfileCompleted(user._id.toString());
+        }
 
         const token = generateToken({
             id: user._id.toString(),
