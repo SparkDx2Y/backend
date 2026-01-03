@@ -46,6 +46,12 @@ export class ProfileController {
                     message: COMMON_ERRORS.UNAUTHORIZED
                 });
             }
+            // ❌ BLOCK ADMINS FROM PROFILE FLOW
+            if (userRole === "admin") {
+                return res.status(HTTP_STATUS.FORBIDDEN).json({
+                    message: "Admins do not have profiles",
+                });
+            }
 
             const data = completeProfileSchema.parse(req.body);
 

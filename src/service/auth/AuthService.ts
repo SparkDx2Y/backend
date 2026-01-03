@@ -130,10 +130,19 @@ export class AuthService implements IAuthService {
 
         const user = await this._userRepo.findByEmail(data.email);
 
+
         if (!user) {
             throw new AppError(
                 AUTH_ERRORS.USER_NOT_FOUND,
                 HTTP_STATUS.NOT_FOUND
+            );
+        }
+
+        
+        if (user.role !== data.role) {
+            throw new AppError(
+                AUTH_ERRORS.ROLE_MISMATCH,
+                HTTP_STATUS.BAD_REQUEST
             );
         }
 
