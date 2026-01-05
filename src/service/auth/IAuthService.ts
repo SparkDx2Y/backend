@@ -13,16 +13,16 @@ export interface IAuthService {
 
   signup(data: SignupDto): Promise<{ tempToken: string; message: string; }>
 
-  verifySignupOtp(userId: string, data: VerifyOtpDto): Promise<{message: string}>
+  verifySignupOtp(userId: string, data: VerifyOtpDto): Promise<LoginResponseDto>
 
-  resendSignupOtp(userId: string): Promise<{message: string}>
+  resendSignupOtp(userId: string): Promise<{ message: string }>
 
   login(data: LoginDto): Promise<LoginResponseDto>
 
-  forgotPassword(data: ForgotPasswordDto): Promise<{userId: string, message: string}>
+  forgotPassword(data: ForgotPasswordDto): Promise<{ userId: string, message: string }>
 
-  forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{message: string}>
+  forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{ message: string }>
 
-  resetPassword(userID: string, data: ResetPasswordDto): Promise<{message: string}>
+  resetPassword(userID: string, data: ResetPasswordDto): Promise<{ message: string }>
 
 }

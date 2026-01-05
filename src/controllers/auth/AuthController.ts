@@ -63,8 +63,29 @@ export class AuthController {
             //^ verifying the otp
             const result = await this._authService.verifySignupOtp(userId, data);
 
+            // Clear the signup session token
+            res.clearCookie('temp_token');
 
-            return res.status(HTTP_STATUS.OK).json(result)
+            // Set cookies akin to login
+            res.cookie('accessToken', result.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: 'lax',
+                maxAge: 15 * 60 * 1000
+            });
+            res.cookie('refreshToken', result.refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: 'lax',
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            });
+
+            // Allow client to know user state
+            return res.status(HTTP_STATUS.OK).json({
+                message: "OTP Verified. Please complete your profile",
+                user: result.user,
+                isProfileCompleted: result.isProfileCompleted
+            });
         } catch (error) {
             next(error)
         }
@@ -110,16 +131,7 @@ export class AuthController {
                 maxAge: 7 * 24 * 60 * 60 * 1000
             })
 
-            //^ If profile is incomplete, set tempToken cookie to allow profile completion flow
-            if (!result.isProfileCompleted) {
-                const tempToken = generateTempToken({ userId: result.user.id });
-                res.cookie('temp_token', tempToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: 30 * 60 * 1000
-                });
-            }
+
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Login successful",

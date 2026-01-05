@@ -20,16 +20,12 @@ export class ProfileController {
     // ----------------------------------
     completeProfile = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            // 1️⃣ Get userId from tempToken or accessToken
-            const tempToken = req.cookies.temp_token;
+            // 1️⃣ Get userId from accessToken
             const accessTokenFromCookie = req.cookies.accessToken;
             let userId: string | undefined;
             let userRole: "user" | "admin" = "user";
 
-            if (tempToken) {
-                const decoded = verifyTempToken(tempToken);
-                userId = decoded.userId;
-            } else if (accessTokenFromCookie) {
+            if (accessTokenFromCookie) {
                 try {
                     const decoded = verifyToken(accessTokenFromCookie);
                     userId = decoded.id;
@@ -70,9 +66,6 @@ export class ProfileController {
             // Profile completed → issue auth tokens
             const accessToken = generateToken({ id: userId, role: userRole, isProfileCompleted: true });
             const refreshToken = generateRefreshToken({ id: userId, role: userRole });
-
-            // Clear temp token
-            res.clearCookie("temp_token");
 
             // Set auth cookies
             res.cookie("accessToken", accessToken, {

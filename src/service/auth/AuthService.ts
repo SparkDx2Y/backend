@@ -79,7 +79,7 @@ export class AuthService implements IAuthService {
     // Verify Signup Otp
     //* ----------------------------------
 
-    async verifySignupOtp(userId: string, data: VerifyOtpDto): Promise<{ message: string }> {
+    async verifySignupOtp(userId: string, data: VerifyOtpDto): Promise<LoginResponseDto> {
 
         const storedOtp = await this._otpRepo.getOtp(userId);
 
@@ -93,7 +93,22 @@ export class AuthService implements IAuthService {
         await this._userRepo.markVerified(userId);
         await this._otpRepo.deleteOtp(userId);
 
-        return { message: 'Otp verified successfully' };
+        const isProfileCompleted = false;
+
+        const token = generateToken({
+            id: userId,
+            role: 'user',
+            isProfileCompleted
+        });
+        const refreshToken = generateRefreshToken({ id: userId, role: 'user' });
+
+        const user = await this._userRepo.findById(userId);
+
+        if (!user) {
+            throw new AppError(AUTH_ERRORS.USER_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+        }
+
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted);
     }
 
 
@@ -138,7 +153,7 @@ export class AuthService implements IAuthService {
             );
         }
 
-        
+
         if (user.role !== data.role) {
             throw new AppError(
                 AUTH_ERRORS.ROLE_MISMATCH,
