@@ -2,6 +2,8 @@ import { Router } from "express";
 import AuthRoutes from "./auth/auth.routes";
 import profileRoutes from "./profile/profile.routes";
 import fileRoutes from "./fileRoutes";
+import matchRoutes from "./match/match.routes";
+
 
 const router = Router()
 
@@ -13,5 +15,8 @@ router.use('/profile', profileRoutes)
 
 //? File routes
 router.use('/files', fileRoutes)
+
+//? Match routes
+router.use('/match', matchRoutes)
 
 export default router
