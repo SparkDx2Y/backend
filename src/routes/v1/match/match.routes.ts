@@ -9,6 +9,6 @@ const router = Router();
 const matchController = container.get<MatchController>(DI_TYPES.CONTROLLERS.MATCH_CONTROLLER);
 
 router.get("/feed", authMiddleware, matchController.getFeed);
-router.post("/action", authMiddleware, matchController.action);
+router.post("/swipe", authMiddleware, matchController.swipe);
 
 export default router;
