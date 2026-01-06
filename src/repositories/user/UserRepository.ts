@@ -25,4 +25,12 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
         return this.model.findByIdAndUpdate( userId, { password: newPassword }, { new: true }).exec()
     }
 
+    async blockUser(userId: string): Promise<IUser | null> {
+        return this.model.findByIdAndUpdate( userId, { isBlocked: true }, { new: true }).exec()
+    }
+
+    async unblockUser(userId: string): Promise<IUser | null> {
+        return this.model.findByIdAndUpdate( userId, { isBlocked: false }, { new: true }).exec()
+    }
+
 }

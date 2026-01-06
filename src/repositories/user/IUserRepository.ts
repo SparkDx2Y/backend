@@ -12,5 +12,11 @@ export interface IUserRepository extends IBaseRepository<IUser> {
 
     //? update a user's password
     updatePassword(userId: string, newPassword: string): Promise<IUser | null>
+
+    //? block a user
+    blockUser(userId: string): Promise<IUser | null>
+
+    //? unblock a user
+    unblockUser(userId: string): Promise<IUser | null>
 }
 
