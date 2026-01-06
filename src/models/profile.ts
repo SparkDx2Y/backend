@@ -24,16 +24,20 @@ const profileSchema = new Schema<IProfile>({
     },
     gender: {
         type: String,
-        enum: ['male', 'female']
+        enum: ['male', 'female'],
+        required: true  
     },
     interestedIn: {
         type: String,
-        enum: ['male', 'female']
+        enum: ['male', 'female'],
+        required: true
     },
     photos: {
         type: [String],
         default: []
     }
 }, { timestamps: true })
+
+profileSchema.index({ gender: 1, interestedIn: 1 });
 
 export const Profile = mongoose.model<IProfile>("Profile", profileSchema);

@@ -1,19 +1,19 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IMatchAction extends Document {
-    actorId: mongoose.Types.ObjectId;   // The user performing the action
-    targetId: mongoose.Types.ObjectId;  // The user being acted upon
+    fromUserId: mongoose.Types.ObjectId;   
+    toUserId: mongoose.Types.ObjectId;  
     action: 'like' | 'pass';
     createdAt: Date;
 }
 
 const matchActionSchema = new Schema<IMatchAction>({
-    actorId: {
+    fromUserId: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    targetId: {
+    toUserId: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
@@ -26,6 +26,6 @@ const matchActionSchema = new Schema<IMatchAction>({
 }, { timestamps: { createdAt: true, updatedAt: false } });
 
 // Correcting the index compound definition
-matchActionSchema.index({ actorId: 1, targetId: 1 }, { unique: true });
+matchActionSchema.index({ fromUserId: 1, toUserId: 1 }, { unique: true });
 
 export const MatchAction = mongoose.model<IMatchAction>("MatchAction", matchActionSchema);
