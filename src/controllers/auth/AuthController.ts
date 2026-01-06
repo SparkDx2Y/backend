@@ -271,4 +271,21 @@ export class AuthController {
             next(error)
         }
     }
+
+    getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+            }
+
+            const result = await this._authService.getCurrentUser(req.user.id);
+
+            return res.status(HTTP_STATUS.OK).json({
+                user: result.user,
+                isProfileCompleted: result.isProfileCompleted
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

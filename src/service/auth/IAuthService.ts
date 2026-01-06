@@ -25,4 +25,6 @@ export interface IAuthService {
 
   resetPassword(userID: string, data: ResetPasswordDto): Promise<{ message: string }>
 
+  getCurrentUser(userId: string): Promise<LoginResponseDto>
+
 }

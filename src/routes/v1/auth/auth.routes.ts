@@ -2,6 +2,7 @@ import { Router } from "express";
 import { DI_TYPES } from "../../../di/types";
 import { AuthController } from "../../../controllers/auth/AuthController";
 import container from "../../../di";
+import { authMiddleware } from "../../../middlewares/auth/authMiddleware";
 
 const router = Router()
 
@@ -27,5 +28,7 @@ router.post('/reset-password', authController.resetPassword)
 router.post('/logout', authController.logout)
 
 router.post('/refresh-token', authController.refreshToken)
+
+router.get('/me', authMiddleware, authController.getCurrentUser)
 
 export default router

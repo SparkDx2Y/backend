@@ -259,6 +259,24 @@ export class AuthService implements IAuthService {
         return { message: 'Password reset successfully' };
     }
 
+    async getCurrentUser(userId: string): Promise<LoginResponseDto> {
+        const user = await this._userRepo.findById(userId);
+
+        if (!user) {
+            throw new AppError(AUTH_ERRORS.USER_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+        }
+
+        let isProfileCompleted = false;
+        if (user.role === 'user') {
+            isProfileCompleted = await this._profileService.isProfileCompleted(userId);
+        } else {
+            isProfileCompleted = true; // Admin has no profile
+        }
+
+        
+        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted);
+    }
+
 }
 
 
