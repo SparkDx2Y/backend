@@ -9,17 +9,18 @@ export class MatchRepository extends BaseRepository<IMatchAction> implements IMa
         super(MatchAction);
     }
 
-    async hasUserActedOn(actorId: string, targetId: string): Promise<boolean> {
-        const count = await this.model.countDocuments({ actorId, targetId });
+    async hasUserAlreadySwiped(fromUserId: string, toUserId: string): Promise<boolean> {
+        const count = await this.model.countDocuments({ fromUserId, toUserId });
         return count > 0;
     }
 
-    async getAction(actorId: string, targetId: string): Promise<IMatchAction | null> {
-        return this.model.findOne({ actorId, targetId }).exec();
+    async getAction(fromUserId: string, toUserId: string): Promise<IMatchAction | null> {
+        return this.model.findOne({ fromUserId, toUserId }).exec();
     }
 
-    async getUserHistory(actorId: string): Promise<string[]> {
-        const actions = await this.model.find({ actorId }).distinct('targetId');
+    async getSwipedUserIds(fromUserId: string): Promise<string[]> {
+        const actions = await this.model.find({ fromUserId }).distinct('toUserId');
         return actions.map(id => id.toString());
     }
+    
 }

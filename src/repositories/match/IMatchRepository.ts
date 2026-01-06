@@ -2,7 +2,14 @@ import { IBaseRepository } from "../base/IBaseRepository";
 import { IMatchAction } from "../../models/match-action";
 
 export interface IMatchRepository extends IBaseRepository<IMatchAction> {
-    hasUserActedOn(actorId: string, targetId: string): Promise<boolean>;
-    getAction(actorId: string, targetId: string): Promise<IMatchAction | null>;
-    getUserHistory(actorId: string): Promise<string[]>; // Returns IDs of people already swiped
+
+    //? Check if user has already swiped on another user (Swipe)
+    hasUserAlreadySwiped(fromUserId: string, toUserId: string): Promise<boolean>;
+    
+    //? Get action of a specific user on another user for match checking (Match detection)
+    getAction(fromUserId: string, toUserId: string): Promise<IMatchAction | null>;
+    
+    //? Get IDs of users swiped by a specific user for showing in feed who must be excluded from potential matches.
+    getSwipedUserIds(fromUserId: string): Promise<string[]>; 
+
 }
