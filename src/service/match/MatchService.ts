@@ -20,7 +20,7 @@ export class MatchService implements IMatchService {
     // ----------------------------------
     // Get Potential Matches (Feed)
     // ----------------------------------
-    async getPotentialMatches(userId: string): Promise<ProfileResponseDto[]> {
+    async getDiscoverProfiles(userId: string): Promise<ProfileResponseDto[]> {
         // 1. Get current user's preferences
         const userProfile = await this._profileRepo.findByUserId(userId);
         if (!userProfile || !userProfile.interestedIn) {
@@ -28,40 +28,42 @@ export class MatchService implements IMatchService {
         }
 
         // 2. Get IDs of users already acted upon (History)
-        const historyIds = await this._matchRepo.getUserHistory(userId);
+        const swipedUserIds = await this._matchRepo.getSwipedUserIds(userId);
 
-        // Add current user ID to exclusion list
-        const excludeIds = [...historyIds, userId];
+        // Doing this to exclude current user from potential matches
+        const excludeIds = [...swipedUserIds, userId];
 
         // 3. Find profiles matching preference AND NOT in history
         const profiles = await this._profileRepo.findPotentialMatches(excludeIds, userProfile.interestedIn);
 
-        return profiles.map((p: any) => ProfileMapper.toProfileResponse(p));
+        return profiles.map((profile) => ProfileMapper.toProfileResponse(profile));
     }
 
     // ----------------------------------
     // Swipe Action
     // ----------------------------------
-    async swipe(actorId: string, targetId: string, action: 'like' | 'pass'): Promise<{ isMatch: boolean }> {
-        // 1. Prevent duplicate actions
-        const existing = await this._matchRepo.hasUserActedOn(actorId, targetId);
+    async swipe(fromUserId: string, toUserId: string, action: 'like' | 'pass'): Promise<{ isMatch: boolean }> {
+
+        // 1. Prevent duplicate swipe action
+        const existing = await this._matchRepo.hasUserAlreadySwiped(fromUserId, toUserId);
+
         if (existing) {
-            throw new AppError("Already acted on this user", HTTP_STATUS.CONFLICT);
+            throw new AppError("You have already swiped on this user", HTTP_STATUS.CONFLICT);
         }
 
-        // 2. Record the action
+        // 2. Save swipe action
         await this._matchRepo.create({
-            actorId: actorId as any,
-            targetId: targetId as any,
+            fromUserId: fromUserId as any,
+            toUserId: toUserId as any,
             action
         });
 
         // 3. Check for Match (only if it's a 'like')
         if (action === 'like') {
-            const targetAction = await this._matchRepo.getAction(targetId, actorId);
+            const targetAction = await this._matchRepo.getAction(toUserId, fromUserId);
+
+            // 3.1. Check if target user also liked back. If so, it's a match!
             if (targetAction && targetAction.action === 'like') {
-                // IT'S A MATCH!
-                // TODO: Create a 'Match' record in a separate collection for chat purposes later
                 return { isMatch: true };
             }
         }

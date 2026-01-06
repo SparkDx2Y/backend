@@ -1,6 +1,9 @@
 import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
 
 export interface IMatchService {
-    getPotentialMatches(userId: string): Promise<ProfileResponseDto[]>;
-    swipe(actorId: string, targetId: string, action: 'like' | 'pass'): Promise<{ isMatch: boolean }>;
+    //? Get potential matches for a user (Feed)
+    getDiscoverProfiles(userId: string): Promise<ProfileResponseDto[]>;
+    
+    //? Perform a swipe action (Swipe)
+    swipe(fromUserId: string, toUserId: string, action: 'like' | 'pass'): Promise<{ isMatch: boolean }>;
 }
