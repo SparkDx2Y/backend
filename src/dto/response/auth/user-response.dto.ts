@@ -1,8 +1,8 @@
 export interface UserResponseDto {
-    id: string;
-    name: string;
-    email: string;
-    role: "user" | "admin";
-    isVerified: boolean;
-  }
-  
+  id: string;
+  name: string;
+  email: string;
+  role: "user" | "admin";
+  isVerified: boolean;
+  profilePhoto?: string | null;
+}

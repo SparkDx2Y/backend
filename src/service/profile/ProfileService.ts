@@ -22,7 +22,7 @@ export class ProfileService implements IProfileService {
         private readonly _profileRepo: IProfileRepository,
         @inject(DI_TYPES.REPOSITORIES.USER_REPOSITORY)
         private readonly _userRepo: IUserRepository
-    ) {}
+    ) { }
 
     // ----------------------------------
     // Complete user profile
@@ -56,7 +56,7 @@ export class ProfileService implements IProfileService {
 
         // 3. Create new profile (all fields required by frontend validation)
         const profile = await this._profileRepo.create({
-            userId: userId as any,  
+            userId: userId as any,
             ...data
         } as any);
 
@@ -83,15 +83,8 @@ export class ProfileService implements IProfileService {
     async getProfileByUserId(userId: string): Promise<ProfileResponseDto | null> {
 
         const profile = await this._profileRepo.findByUserId(userId);
-
-        if(!profile) {
-            throw new AppError(
-                PROFILE_ERRORS.PROFILE_NOT_FOUND,
-                HTTP_STATUS.NOT_FOUND
-            )
-        }
         return profile ? ProfileMapper.toProfileResponse(profile) : null;
-
+        
     }
 
     // ----------------------------------

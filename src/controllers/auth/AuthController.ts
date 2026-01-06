@@ -80,7 +80,7 @@ export class AuthController {
                 maxAge: 7 * 24 * 60 * 60 * 1000
             });
 
-            // Allow client to know user state
+
             return res.status(HTTP_STATUS.OK).json({
                 message: "OTP Verified. Please complete your profile",
                 user: result.user,

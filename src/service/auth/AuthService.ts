@@ -108,7 +108,10 @@ export class AuthService implements IAuthService {
             throw new AppError(AUTH_ERRORS.USER_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
         }
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted);
+        const profile = await this._profileService.getProfileByUserId(userId);
+        const profilePhoto = profile?.photos?.[0] || null;
+
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, profilePhoto);
     }
 
 
@@ -197,7 +200,10 @@ export class AuthService implements IAuthService {
         });
         const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted);
+        const profile = await this._profileService.getProfileByUserId(user._id.toString());
+        const profilePhoto = profile?.photos?.[0] || null;
+
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, profilePhoto);
     }
 
     //* ----------------------------------
@@ -273,8 +279,10 @@ export class AuthService implements IAuthService {
             isProfileCompleted = true; // Admin has no profile
         }
 
-        
-        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted);
+        const profile = await this._profileService.getProfileByUserId(userId);
+        const profilePhoto = profile?.photos?.[0] || null;
+
+        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, profilePhoto);
     }
 
 }

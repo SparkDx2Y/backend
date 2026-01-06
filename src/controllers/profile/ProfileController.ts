@@ -106,6 +106,10 @@ export class ProfileController {
 
             const profile = await this._profileService.getProfileByUserId(userId);
 
+            if (!profile) {
+                return res.status(HTTP_STATUS.NOT_FOUND).json({ message: "Profile not found" });
+            }
+
             return res.status(HTTP_STATUS.OK).json(profile);
 
         } catch (error) {
