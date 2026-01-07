@@ -1,3 +1,4 @@
+import { AdminUserListResponseDto } from "../../dto/response/admin/admin.userList.response";
 import { IUser } from "../../models/user";
 import { IBaseRepository } from "../base/IBaseRepository";
 
@@ -18,5 +19,8 @@ export interface IUserRepository extends IBaseRepository<IUser> {
 
     //? unblock a user
     unblockUser(userId: string): Promise<IUser | null>
+
+    //? find all users
+    findUsersForAdmin(search: string, page: number, limit: number): Promise<{ users: AdminUserListResponseDto[], total: number }>
 }
 
