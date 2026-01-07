@@ -30,7 +30,7 @@ export class ProfileService implements IProfileService {
     // ----------------------------------
     async completeProfile(userId: string, data: CompleteProfileDto): Promise<{ profile: ProfileResponseDto, isCompleted: boolean }> {
 
-        // 1. Verify user exists and is verified
+        
         const user = await this._userRepo.findById(userId);
 
         if (!user) {
@@ -46,7 +46,7 @@ export class ProfileService implements IProfileService {
             )
         }
 
-        // 2. Check if profile already exists (prevent duplicate creation)
+        
         const existingProfile = await this._profileRepo.findByUserId(userId);
         if (existingProfile) {
             throw new AppError(
@@ -55,12 +55,12 @@ export class ProfileService implements IProfileService {
             )
         }
 
-        // 3. Create new profile (all fields required by frontend validation)
+        
         const profile = await this._profileRepo.create({
             userId: userId as any,
-            profilePhoto: data.profilePhoto || data.photos?.[0] || null,
-            coverPhoto: data.coverPhoto || data.photos?.[1] || null,
-            ...data
+            ...data,
+            coverPhoto: null,
+            photos: [], 
         } as any);
 
         if (!profile) {
@@ -87,7 +87,7 @@ export class ProfileService implements IProfileService {
 
         const profile = await this._profileRepo.findByUserId(userId);
         return profile ? ProfileMapper.toProfileResponse(profile) : null;
-        
+
     }
 
     // ----------------------------------
@@ -113,18 +113,8 @@ export class ProfileService implements IProfileService {
             );
         }
 
+        
         const updateData: any = { ...data };
-
-        if (data.photos) {
-            updateData.photos = data.photos;
-            // Auto-sync profile/cover photos if not explicitly provided
-            if (!data.profilePhoto && data.photos.length > 0) {
-                updateData.profilePhoto = data.photos[0];
-            }
-            if (!data.coverPhoto && data.photos.length > 1) {
-                updateData.coverPhoto = data.photos[1];
-            }
-        }
 
         const updatedProfile = await this._profileRepo.updateById(
             profile._id.toString(),
@@ -146,8 +136,7 @@ export class ProfileService implements IProfileService {
             profile.age &&
             profile.gender &&
             profile.interestedIn &&
-            profile.photos &&
-            profile.photos.length > 0
+            profile.profilePhoto 
         );
     }
 }

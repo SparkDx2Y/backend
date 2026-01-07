@@ -24,7 +24,7 @@ export class MatchService implements IMatchService {
         // 1. Get current user's preferences
         const userProfile = await this._profileRepo.findByUserId(userId);
         if (!userProfile || !userProfile.interestedIn) {
-            return []; // Or throw error demanding profile completion
+            return []; 
         }
 
         // 2. Get IDs of users already acted upon (History)
