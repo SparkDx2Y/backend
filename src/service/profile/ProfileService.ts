@@ -4,6 +4,7 @@ import { DI_TYPES } from "../../di/types";
 import { IProfileRepository } from "../../repositories/profile/IProfileRepository";
 import { IUserRepository } from "../../repositories/user/IUserRepository";
 import { CompleteProfileDto } from "../../dto/request/profile/complete-profile.dto";
+import { UpdateProfileDto } from "../../dto/request/profile/update-profile.dto";
 import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
 import { ProfileMapper } from "../../mapper/auth/profile.mapper";
 import { ProfileCompletionCheckDto } from "../../dto/internal/profile-completion-check.dto";
@@ -57,6 +58,8 @@ export class ProfileService implements IProfileService {
         // 3. Create new profile (all fields required by frontend validation)
         const profile = await this._profileRepo.create({
             userId: userId as any,
+            profilePhoto: data.profilePhoto || data.photos?.[0] || null,
+            coverPhoto: data.coverPhoto || data.photos?.[1] || null,
             ...data
         } as any);
 
@@ -95,6 +98,47 @@ export class ProfileService implements IProfileService {
         const profile = await this._profileRepo.findByUserId(userId);
         if (!profile) return false;
         return this.checkProfileCompletion(profile);
+    }
+
+    // ----------------------------------
+    // Update profile (settings page)
+    // ----------------------------------
+    async updateProfile(userId: string, data: UpdateProfileDto): Promise<ProfileResponseDto> {
+        const profile = await this._profileRepo.findByUserId(userId);
+
+        if (!profile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_NOT_FOUND,
+                HTTP_STATUS.NOT_FOUND
+            );
+        }
+
+        const updateData: any = { ...data };
+
+        if (data.photos) {
+            updateData.photos = data.photos;
+            // Auto-sync profile/cover photos if not explicitly provided
+            if (!data.profilePhoto && data.photos.length > 0) {
+                updateData.profilePhoto = data.photos[0];
+            }
+            if (!data.coverPhoto && data.photos.length > 1) {
+                updateData.coverPhoto = data.photos[1];
+            }
+        }
+
+        const updatedProfile = await this._profileRepo.updateById(
+            profile._id.toString(),
+            updateData
+        );
+
+        if (!updatedProfile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_UPDATE_FAILED,
+                HTTP_STATUS.INTERNAL_SERVER_ERROR
+            );
+        }
+
+        return ProfileMapper.toProfileResponse(updatedProfile);
     }
 
     private checkProfileCompletion(profile: ProfileCompletionCheckDto): boolean {

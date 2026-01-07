@@ -5,6 +5,8 @@ export interface IProfile extends Document {
     age?: number;
     gender: 'male' | 'female';
     interestedIn?: 'male' | 'female';
+    profilePhoto?: string | null;
+    coverPhoto?: string | null;
     photos?: string[];
     createdAt: Date;
     updatedAt: Date;
@@ -31,6 +33,14 @@ const profileSchema = new Schema<IProfile>({
         type: String,
         enum: ['male', 'female'],
         required: true
+    },
+    profilePhoto: {
+        type: String,
+        default: null
+    },
+    coverPhoto: {
+        type: String,
+        default: null
     },
     photos: {
         type: [String],

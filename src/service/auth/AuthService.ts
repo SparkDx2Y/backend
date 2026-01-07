@@ -109,7 +109,7 @@ export class AuthService implements IAuthService {
         }
 
         const profile = await this._profileService.getProfileByUserId(userId);
-        const profilePhoto = profile?.photos?.[0] || null;
+        const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
 
         return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, profilePhoto);
     }
@@ -201,7 +201,7 @@ export class AuthService implements IAuthService {
         const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
-        const profilePhoto = profile?.photos?.[0] || null;
+        const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
 
         return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, profilePhoto);
     }
@@ -280,7 +280,7 @@ export class AuthService implements IAuthService {
         }
 
         const profile = await this._profileService.getProfileByUserId(userId);
-        const profilePhoto = profile?.photos?.[0] || null;
+        const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
 
         return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, profilePhoto);
     }

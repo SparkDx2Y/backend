@@ -12,6 +12,16 @@ export const completeProfileSchema = z.object({
   interestedIn: z
     .enum(["male", "female"]),
 
+  profilePhoto: z
+    .string()
+    .url("Invalid photo URL")
+    .optional(),
+
+  coverPhoto: z
+    .string()
+    .url("Invalid photo URL")
+    .optional(),
+
   photos: z
     .array(z.string().url("Invalid photo URL"))
     .min(2, "Please upload at least 2 photos")

@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { inject, injectable } from "inversify";
 import { DI_TYPES } from "../../di/types";
 import { IProfileService } from "../../service/profile/IProfileService";
-import { verifyTempToken, verifyToken } from "../../utils/jwtHelper";
+import { verifyToken } from "../../utils/jwtHelper";
 import { generateToken, generateRefreshToken } from "../../utils/jwtHelper";
 import { completeProfileSchema } from "../../dto/request/profile/complete-profile.dto";
+import { updateProfileSchema } from "../../dto/request/profile/update-profile.dto";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 
@@ -114,6 +115,27 @@ export class ProfileController {
 
         } catch (error) {
             next(error)
+        }
+    };
+
+    // ----------------------------------
+    // Update my profile (settings)
+    // ----------------------------------
+    updateProfile = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+            }
+
+            const data = updateProfileSchema.parse(req.body);
+            const updatedProfile = await this._profileService.updateProfile(req.user.id, data);
+
+            return res.status(HTTP_STATUS.OK).json({
+                message: "Profile updated successfully",
+                profile: updatedProfile
+            });
+        } catch (error) {
+            next(error);
         }
     };
 }
