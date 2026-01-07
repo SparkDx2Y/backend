@@ -22,5 +22,8 @@ export interface IUserRepository extends IBaseRepository<IUser> {
 
     //? find all users
     findUsersForAdmin(search: string, page: number, limit: number): Promise<{ users: AdminUserListResponseDto[], total: number }>
+
+    //? check if a user is blocked
+    isUserBlocked(userId: string): Promise<boolean>;
 }
 

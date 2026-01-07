@@ -83,4 +83,9 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
         }
     }
 
+    async isUserBlocked(userId: string): Promise<boolean> {
+        const user = await this.model.findById(userId).select('isBlocked').lean()
+        return user?.isBlocked ?? false
+    }
+
 }
