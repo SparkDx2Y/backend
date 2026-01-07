@@ -17,17 +17,34 @@ export class AdminController {
     // ----------------------------------
     getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const users = await this._adminService.getAllUsers();
-
+            const search = (req.query.search as string) || '';
+            const page = Number(req.query.page) || 1;
+            const limit = Number(req.query.limit) || 10;
+        
+            const { users, total } =
+              await this._adminService.getAllUsers(
+                search,
+                page,
+                limit
+              );
+        
             return res.status(HTTP_STATUS.OK).json({
-                message: "Users retrieved successfully",
-                users: users
+              message: "Users fetched successfully",
+              data: {
+                users,
+                pagination: {
+                  page,
+                  limit,
+                  total,
+                  totalPages: Math.ceil(total / limit)
+                }
+              }
             });
-
-        } catch (error) {
+        
+          } catch (error) {
             next(error);
-        }
-    };
+          }
+        };
 
     // ----------------------------------
     // Update user block status (admin only)
@@ -49,22 +66,10 @@ export class AdminController {
                 });
             }
 
-            const user = await this._adminService.updateUserBlockStatus(userId, isBlocked);
-
-            if (!user) {
-                return res.status(HTTP_STATUS.NOT_FOUND).json({
-                    message: "User not found"
-                });
-            }
+            await this._adminService.updateUserBlockStatus(userId, isBlocked);
 
             return res.status(HTTP_STATUS.OK).json({
-                message: user.isBlocked ? "User blocked successfully" : "User unblocked successfully",
-                user: {
-                    _id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    isBlocked: user.isBlocked
-                }
+                message: isBlocked ? "User blocked successfully" : "User unblocked successfully"
             });
 
         } catch (error) {
