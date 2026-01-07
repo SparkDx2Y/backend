@@ -8,5 +8,6 @@ export interface ProfileCompletionCheckDto {
     age?: number;
     gender?: 'male' | 'female';
     interestedIn?: 'male' | 'female';
+    profilePhoto?: string | null;
     photos?: string[];
 }

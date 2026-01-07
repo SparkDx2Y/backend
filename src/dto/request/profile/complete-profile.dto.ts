@@ -15,17 +15,7 @@ export const completeProfileSchema = z.object({
   profilePhoto: z
     .string()
     .url("Invalid photo URL")
-    .optional(),
-
-  coverPhoto: z
-    .string()
-    .url("Invalid photo URL")
-    .optional(),
-
-  photos: z
-    .array(z.string().url("Invalid photo URL"))
-    .min(2, "Please upload at least 2 photos")
-    .max(6, "Please upload a maximum of 6 photos")
+    .min(1, "Profile photo is required"),
 });
 
 export type CompleteProfileDto = z.infer<typeof completeProfileSchema>;
