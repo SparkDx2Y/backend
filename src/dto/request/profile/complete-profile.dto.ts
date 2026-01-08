@@ -4,7 +4,8 @@ export const completeProfileSchema = z.object({
   age: z
     .number()
     .int()
-    .min(18, "Age must be at least 18"),
+    .min(18, "Age must be at least 18")
+    .max(50, 'age cannot more than 50'),
 
   gender: z
     .enum(["male", "female"]),

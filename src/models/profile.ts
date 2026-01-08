@@ -22,7 +22,8 @@ const profileSchema = new Schema<IProfile>({
     },
     age: {
         type: Number,
-        min: 18
+        min: 18,
+        max:50,
     },
     gender: {
         type: String,
