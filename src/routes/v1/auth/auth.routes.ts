@@ -19,6 +19,9 @@ router.post('/resend-otp', authController.resendSignupOtp)
 
 router.post('/login', authController.login)
 
+router.post('/google-login', authController.googleLogin)
+
+
 router.post('/forgot-password', authController.forgotPassword)
 
 router.post('/forgot-password/verify-otp', authController.forgotPasswordVerifyOtp)
