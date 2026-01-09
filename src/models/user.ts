@@ -1,10 +1,11 @@
-import mongoose, { Document }  from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 
 export interface IUser extends Document {
     name: string;
     email: string;
-    password: string;
+    googleId?: string;
+    password?: string;
     isVerified: boolean;
     role: 'user' | 'admin';
     isBlocked: boolean;
@@ -23,9 +24,14 @@ const userSchema = new mongoose.Schema<IUser>({
         required: true,
         unique: true
     },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
     password: {
         type: String,
-        required: true
+        required: false
     },
     isVerified: {
         type: Boolean,
@@ -47,4 +53,4 @@ userSchema.index(
     { expireAfterSeconds: 3600, partialFilterExpression: { isVerified: false, role: 'user' } }
 )
 
-export const User = mongoose.model<IUser>('User',userSchema)
+export const User = mongoose.model<IUser>('User', userSchema)
