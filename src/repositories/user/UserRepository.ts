@@ -18,20 +18,28 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
         return this.model.findOne({ email }).exec()
     }
 
+    async findByGoogleId(googleId: string): Promise<IUser | null> {
+        return this.model.findOne({ googleId }).exec()
+    }
+
+    async updateGoogleId(userId: string, googleId: string): Promise<IUser | null> {
+        return this.model.findByIdAndUpdate(userId, { googleId }, { new: true }).exec()
+    }
+
     async markVerified(userId: string): Promise<IUser | null> {
-        return this.model.findByIdAndUpdate( userId, { isVerified: true }, { new: true }).exec()
+        return this.model.findByIdAndUpdate(userId, { isVerified: true }, { new: true }).exec()
     }
 
     async updatePassword(userId: string, newPassword: string): Promise<IUser | null> {
-        return this.model.findByIdAndUpdate( userId, { password: newPassword }, { new: true }).exec()
+        return this.model.findByIdAndUpdate(userId, { password: newPassword }, { new: true }).exec()
     }
 
     async blockUser(userId: string): Promise<IUser | null> {
-        return this.model.findByIdAndUpdate( userId, { isBlocked: true }, { new: true }).exec()
+        return this.model.findByIdAndUpdate(userId, { isBlocked: true }, { new: true }).exec()
     }
 
     async unblockUser(userId: string): Promise<IUser | null> {
-        return this.model.findByIdAndUpdate( userId, { isBlocked: false }, { new: true }).exec()
+        return this.model.findByIdAndUpdate(userId, { isBlocked: false }, { new: true }).exec()
     }
 
     async findUsersForAdmin(search: string, page: number, limit: number): Promise<{ users: AdminUserListResponseDto[], total: number }> {
@@ -45,25 +53,29 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
         }
 
         const skip = (page - 1) * limit
-        const [result] =  await this.model.aggregate([
+        const [result] = await this.model.aggregate([
             { $match: matchStage },
             { $lookup: { from: 'profiles', localField: '_id', foreignField: 'userId', as: 'profile' } },
-            { $unwind: {
-                path: '$profile',
-                preserveNullAndEmptyArrays: true
-            } },
-            { $project: {   
-                name: 1,
-                email: 1,
-                isVerified: 1,
-                role: 1,
-                isBlocked: 1,
-                createdAt: 1,
-                updatedAt: 1,
-                profilePhoto: {
-                    $arrayElemAt: ['$profile.photos', 0]
+            {
+                $unwind: {
+                    path: '$profile',
+                    preserveNullAndEmptyArrays: true
                 }
-            } },
+            },
+            {
+                $project: {
+                    name: 1,
+                    email: 1,
+                    isVerified: 1,
+                    role: 1,
+                    isBlocked: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    profilePhoto: {
+                        $arrayElemAt: ['$profile.photos', 0]
+                    }
+                }
+            },
             {
                 $facet: {
                     users: [
