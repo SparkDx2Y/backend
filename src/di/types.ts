@@ -23,6 +23,7 @@ export const DI_TYPES = {
     },
 
     External: {
-        REDIS: Symbol.for('RedisClient')
+        REDIS: Symbol.for('RedisClient'),
+        GOOGLE_CLIENT: Symbol.for('GoogleClient')
     }
 }

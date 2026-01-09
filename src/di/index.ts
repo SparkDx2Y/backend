@@ -1,17 +1,15 @@
 import { Container } from "inversify";
 import { bindServices } from "./service.bindings";
 import { bindRepositories } from "./repository.bindings";
-import { DI_TYPES } from "./types";
-import redis from "../config/redisConfig";
+import { bindExternalDependencies } from "./external.bindings";
 import { bindControllers } from "./controller.bindings";
-const container = new Container({defaultScope: 'Singleton'});
 
+const container = new Container({ defaultScope: 'Singleton' });
 
 //? register bindings
-container.bind(DI_TYPES.External.REDIS).toConstantValue(redis)
-
+bindExternalDependencies(container);
 bindRepositories(container);
 bindServices(container);
-bindControllers(container)
+bindControllers(container);
 
 export default container       
