@@ -3,29 +3,43 @@
     /* File Layout */
     "rootDir": "./src",
     "outDir": "./dist",
-
     /* Environment Settings */
     "module": "commonjs",
     "target": "es2020",
     "moduleResolution": "node",
-    "types": ["node"],
-    "lib": ["es2020"],
-
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "es2020"
+    ],
     /* Other Outputs */
     "sourceMap": true,
     "declaration": false,
     "declarationMap": false,
-
     /* Stricter Typechecking */
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-
     /* Recommended Options */
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    /* Experimental Features */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "typeRoots": [
+      "./node_modules/@types"
+    ]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "ts-node": {
+    "files": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
