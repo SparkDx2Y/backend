@@ -6,7 +6,13 @@ import { IBaseRepository } from "../base/IBaseRepository";
 export interface IUserRepository extends IBaseRepository<IUser> {
 
     //? find a user by email
-    findByEmail(email: string) : Promise<IUser | null>
+    findByEmail(email: string): Promise<IUser | null>
+
+    //? find a user by googleId
+    findByGoogleId(googleId: string): Promise<IUser | null>
+
+    //? update googleId for a user
+    updateGoogleId(userId: string, googleId: string): Promise<IUser | null>
 
     //? mark a user as verified
     markVerified(userId: string): Promise<IUser | null>

@@ -145,6 +145,34 @@ export class AuthController {
         }
     }
 
+    googleLogin = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { token } = req.body;
+            const result = await this._authService.googleLogin(token);
+
+            res.cookie('accessToken', result.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: 'lax',
+                maxAge: 15 * 60 * 1000
+            })
+            res.cookie('refreshToken', result.refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: 'lax',
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            })
+
+            return res.status(HTTP_STATUS.OK).json({
+                message: "Login successful",
+                user: result.user,
+                isProfileCompleted: result.isProfileCompleted,
+            });
+        } catch (error) {
+            next(error)
+        }
+    }
+
     //* // // // // // //   forgotPassword  // // // // // // // *//
 
     forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
