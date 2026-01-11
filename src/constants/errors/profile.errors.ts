@@ -7,4 +7,5 @@ export const PROFILE_ERRORS = {
   PROFILE_ALREADY_EXISTS: "Profile already exists",
   PROFILE_CREATE_FAILED: "Failed to create profile",
   PROFILE_NOT_FOUND: "Profile not found",
+  PROFILE_UPDATE_FAILED: "Failed to update profile",
 } as const;

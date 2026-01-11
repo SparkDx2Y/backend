@@ -4,7 +4,8 @@ export const completeProfileSchema = z.object({
   age: z
     .number()
     .int()
-    .min(18, "Age must be at least 18"),
+    .min(18, "Age must be at least 18")
+    .max(50, 'age cannot more than 50'),
 
   gender: z
     .enum(["male", "female"]),
@@ -12,10 +13,10 @@ export const completeProfileSchema = z.object({
   interestedIn: z
     .enum(["male", "female"]),
 
-  photos: z
-    .array(z.string().url("Invalid photo URL"))
-    .min(2, "Please upload at least 2 photos")
-    .max(6, "Please upload a maximum of 6 photos")
+  profilePhoto: z
+    .string()
+    .url("Invalid photo URL")
+    .min(1, "Profile photo is required"),
 });
 
 export type CompleteProfileDto = z.infer<typeof completeProfileSchema>;

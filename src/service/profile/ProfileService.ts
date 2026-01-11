@@ -4,6 +4,7 @@ import { DI_TYPES } from "../../di/types";
 import { IProfileRepository } from "../../repositories/profile/IProfileRepository";
 import { IUserRepository } from "../../repositories/user/IUserRepository";
 import { CompleteProfileDto } from "../../dto/request/profile/complete-profile.dto";
+import { UpdateProfileDto } from "../../dto/request/profile/update-profile.dto";
 import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
 import { ProfileMapper } from "../../mapper/auth/profile.mapper";
 import { ProfileCompletionCheckDto } from "../../dto/internal/profile-completion-check.dto";
@@ -29,7 +30,7 @@ export class ProfileService implements IProfileService {
     // ----------------------------------
     async completeProfile(userId: string, data: CompleteProfileDto): Promise<{ profile: ProfileResponseDto, isCompleted: boolean }> {
 
-        // 1. Verify user exists and is verified
+        
         const user = await this._userRepo.findById(userId);
 
         if (!user) {
@@ -45,7 +46,7 @@ export class ProfileService implements IProfileService {
             )
         }
 
-        // 2. Check if profile already exists (prevent duplicate creation)
+        
         const existingProfile = await this._profileRepo.findByUserId(userId);
         if (existingProfile) {
             throw new AppError(
@@ -54,10 +55,12 @@ export class ProfileService implements IProfileService {
             )
         }
 
-        // 3. Create new profile (all fields required by frontend validation)
+        
         const profile = await this._profileRepo.create({
             userId: userId as any,
-            ...data
+            ...data,
+            coverPhoto: null,
+            photos: [], 
         } as any);
 
         if (!profile) {
@@ -84,7 +87,7 @@ export class ProfileService implements IProfileService {
 
         const profile = await this._profileRepo.findByUserId(userId);
         return profile ? ProfileMapper.toProfileResponse(profile) : null;
-        
+
     }
 
     // ----------------------------------
@@ -97,13 +100,43 @@ export class ProfileService implements IProfileService {
         return this.checkProfileCompletion(profile);
     }
 
+    // ----------------------------------
+    // Update profile (settings page)
+    // ----------------------------------
+    async updateProfile(userId: string, data: UpdateProfileDto): Promise<ProfileResponseDto> {
+        const profile = await this._profileRepo.findByUserId(userId);
+
+        if (!profile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_NOT_FOUND,
+                HTTP_STATUS.NOT_FOUND
+            );
+        }
+
+        
+        const updateData: any = { ...data };
+
+        const updatedProfile = await this._profileRepo.updateById(
+            profile._id.toString(),
+            updateData
+        );
+
+        if (!updatedProfile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_UPDATE_FAILED,
+                HTTP_STATUS.INTERNAL_SERVER_ERROR
+            );
+        }
+
+        return ProfileMapper.toProfileResponse(updatedProfile);
+    }
+
     private checkProfileCompletion(profile: ProfileCompletionCheckDto): boolean {
         return Boolean(
             profile.age &&
             profile.gender &&
             profile.interestedIn &&
-            profile.photos &&
-            profile.photos.length > 0
+            profile.profilePhoto 
         );
     }
 }

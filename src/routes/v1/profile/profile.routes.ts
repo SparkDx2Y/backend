@@ -28,4 +28,11 @@ router.get(
     profileController.getMyProfile
 );
 
+// Update my profile (settings)
+router.put(
+    "/profile",
+    authMiddleware,
+    profileController.updateProfile
+);
+
 export default router;

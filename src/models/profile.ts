@@ -5,6 +5,8 @@ export interface IProfile extends Document {
     age?: number;
     gender: 'male' | 'female';
     interestedIn?: 'male' | 'female';
+    profilePhoto?: string | null;
+    coverPhoto?: string | null;
     photos?: string[];
     createdAt: Date;
     updatedAt: Date;
@@ -20,20 +22,33 @@ const profileSchema = new Schema<IProfile>({
     },
     age: {
         type: Number,
-        min: 18
+        min: 18,
+        max:50,
     },
     gender: {
         type: String,
-        enum: ['male', 'female']
+        enum: ['male', 'female'],
+        required: true  
     },
     interestedIn: {
         type: String,
-        enum: ['male', 'female']
+        enum: ['male', 'female'],
+        required: true
+    },
+    profilePhoto: {
+        type: String,
+        default: null
+    },
+    coverPhoto: {
+        type: String,
+        default: null
     },
     photos: {
         type: [String],
         default: []
     }
 }, { timestamps: true })
+
+profileSchema.index({ gender: 1, interestedIn: 1 });
 
 export const Profile = mongoose.model<IProfile>("Profile", profileSchema);

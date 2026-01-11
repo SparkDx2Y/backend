@@ -10,6 +10,7 @@ import { comparePassword, hashPassword } from "../../utils/password";
 import { generateOtp } from "../../utils/generate-otp";
 import { sendOtpEmail } from "../../utils/sendEmail";
 import { generateRefreshToken, generateTempToken, generateToken } from "../../utils/jwtHelper";
+import { OAuth2Client } from "google-auth-library";
 
 import { SignupDto } from "../../dto/request/auth/register.dto";
 import { VerifyOtpDto } from "../../dto/request/auth/verify-otp.dto";
@@ -35,7 +36,9 @@ export class AuthService implements IAuthService {
         @inject(DI_TYPES.REPOSITORIES.USER_REPOSITORY) private _userRepo: IUserRepository,
         @inject(DI_TYPES.REPOSITORIES.OTP_REPOSITORY) private _otpRepo: IOtpRepository,
         @inject(DI_TYPES.SERVICES.PROFILE_SERVICE)
-        private _profileService: IProfileService
+        private _profileService: IProfileService,
+        @inject(DI_TYPES.External.GOOGLE_CLIENT)
+        private _googleClient: OAuth2Client
     ) { }
 
 
@@ -109,7 +112,7 @@ export class AuthService implements IAuthService {
         }
 
         const profile = await this._profileService.getProfileByUserId(userId);
-        const profilePhoto = profile?.photos?.[0] || null;
+        const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
 
         return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, profilePhoto);
     }
@@ -164,6 +167,13 @@ export class AuthService implements IAuthService {
             );
         }
 
+        if (!user.password) {
+            throw new AppError(
+                "This account is linked with social login. Please use Google to sign in.",
+                HTTP_STATUS.BAD_REQUEST
+            );
+        }
+
         const isMatch = await comparePassword(data.password, user.password);
 
         if (!isMatch) {
@@ -201,7 +211,7 @@ export class AuthService implements IAuthService {
         const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
-        const profilePhoto = profile?.photos?.[0] || null;
+        const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
 
         return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, profilePhoto);
     }
@@ -280,9 +290,73 @@ export class AuthService implements IAuthService {
         }
 
         const profile = await this._profileService.getProfileByUserId(userId);
-        const profilePhoto = profile?.photos?.[0] || null;
+        const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
 
         return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, profilePhoto);
+    }
+
+    async googleLogin(idToken: string): Promise<LoginResponseDto> {
+
+        const ticket = await this._googleClient.verifyIdToken({
+            idToken
+        });
+
+        const payload = ticket.getPayload();
+
+        if (!payload || !payload.email) {
+            throw new AppError("Invalid Google token", HTTP_STATUS.UNAUTHORIZED);
+        }
+
+        const googleUser = {
+            email: payload.email,
+            name: payload.name || "Google User",
+            sub: payload.sub,
+        };
+
+
+
+        // 1. Search by Google ID first (Safest)
+        let user = await this._userRepo.findByGoogleId(googleUser.sub);
+
+        if (!user) {
+            // 2. Search by email to see if they have a manual account
+            user = await this._userRepo.findByEmail(googleUser.email);
+
+            if (user) {
+                // Link Google ID to existing manual account
+                user = await this._userRepo.updateGoogleId(user._id.toString(), googleUser.sub);
+
+                if (!user) {
+                    throw new AppError("Failed to link Google account", HTTP_STATUS.INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                // 3. Create brand new account
+                user = await this._userRepo.create({
+                    name: googleUser.name,
+                    email: googleUser.email,
+                    googleId: googleUser.sub,
+                    role: 'user',
+                    isVerified: true,
+                });
+            }
+        }
+
+        if (user.isBlocked) {
+            throw new AppError(AUTH_ERRORS.USER_BLOCKED, HTTP_STATUS.FORBIDDEN);
+        }
+
+        const isProfileCompleted = await this._profileService.isProfileCompleted(user._id.toString());
+        const accessToken = generateToken({
+            id: user._id.toString(),
+            role: user.role,
+            isProfileCompleted
+        });
+        const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
+
+        const profile = await this._profileService.getProfileByUserId(user._id.toString());
+        const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
+
+        return AuthMapper.toAuthResponseDto(user, accessToken, refreshToken, isProfileCompleted, profilePhoto);
     }
 
 }
