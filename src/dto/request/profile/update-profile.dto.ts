@@ -27,7 +27,7 @@ export const updateProfileSchema = z.object({
 
   photos: z
     .array(z.string().url("Invalid photo URL"))
-    .min(1, "Please upload at least 1 photo")
+    .min(0)
     .max(6, "Please upload a maximum of 6 photos")
     .optional(),
 }).refine(
