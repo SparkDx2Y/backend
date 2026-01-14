@@ -3,7 +3,7 @@ import AuthRoutes from "./auth/auth.routes";
 import profileRoutes from "./profile/profile.routes";
 import fileRoutes from "./fileRoutes";
 import matchRoutes from "./match/match.routes";
-import adminRoutes from "./admin/admin.routes";
+import adminRoutes from "./admin";
 
 
 const router = Router()
