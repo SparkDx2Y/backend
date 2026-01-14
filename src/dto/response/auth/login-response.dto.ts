@@ -5,4 +5,5 @@ export interface LoginResponseDto {
   refreshToken: string;
   user: UserResponseDto;
   isProfileCompleted: boolean;
+  isInterestsSelected: boolean;
 }
