@@ -5,6 +5,7 @@ import { ProfileService } from "../service/profile/ProfileService";
 import { FileService } from "../service/file/FileService";
 import { MatchService } from "../service/match/MatchService";
 import { AdminService } from "../service/admin/AdminService";
+import { AdminInterestService } from "../service/interest/AdminInterestService";
 
 
 export function bindServices(container: Container) {
@@ -13,4 +14,5 @@ export function bindServices(container: Container) {
     container.bind(DI_TYPES.SERVICES.FILE_SERVICE).to(FileService).inSingletonScope();
     container.bind(DI_TYPES.SERVICES.MATCH_SERVICE).to(MatchService).inSingletonScope();
     container.bind(DI_TYPES.SERVICES.ADMIN_SERVICE).to(AdminService).inSingletonScope();
+    container.bind(DI_TYPES.SERVICES.ADMIN_INTEREST_SERVICE).to(AdminInterestService).inSingletonScope();
 }
