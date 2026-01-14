@@ -16,47 +16,24 @@ export class InterestRepository extends BaseRepository<IInterest> implements IIn
     }
 
     async createInterest(name: string, categoryId: string): Promise<IInterest> {
-        return this.create({ name, categoryId: new Types.ObjectId(categoryId) });
+        const interest = await this.create({ name, categoryId: new Types.ObjectId(categoryId) });
+        return (await interest.populate('categoryId')) as IInterest;
     }
 
     async findActiveByIds(ids: string[]): Promise<IInterest[]> {
-        return this.find({ _id: { $in: ids }, isActive: true })
+        return this.model.find({ _id: { $in: ids }, isActive: true }).populate('categoryId').exec();
     }
 
-    async findActiveGrouped(): Promise<{ _id: string; categoryName: string; interests: { _id: string; name: string }[] }[]> {
-        return this.model.aggregate([
-            { $match: { isActive: true } },
-            {
-                $lookup: {
-                    from: "interestcategories",
-                    localField: "categoryId",
-                    foreignField: "_id",
-                    as: "category",
-                },
-            },
-            { $unwind: "$category" },
-            { $match: { "category.isActive": true } },
-            {
-                $group: {
-                    _id: "$category._id",
-                    categoryName: { $first: "$category.name" },
-                    interests: {
-                        $push: {
-                            _id: "$_id",
-                            name: "$name",
-                        },
-                    },
-                },
-            },
-        ]) as any;
-    }
 
     async setActive(id: string, isActive: boolean): Promise<IInterest | null> {
-        return this.updateById(id, { isActive })
+        return this.model.findByIdAndUpdate(id, { isActive }, { new: true }).populate('categoryId').exec();
     }
 
     async findAll(): Promise<IInterest[]> {
-        return this.find()
+        return this.model.find().populate('categoryId').exec();
     }
 
+    async findById(id: string): Promise<IInterest | null> {
+        return this.model.findById(id).populate('categoryId').exec();
+    }
 }
