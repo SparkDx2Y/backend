@@ -6,6 +6,8 @@ import { verifyToken } from "../../utils/jwtHelper";
 import { generateToken, generateRefreshToken } from "../../utils/jwtHelper";
 import { completeProfileSchema } from "../../dto/request/profile/complete-profile.dto";
 import { updateProfileSchema } from "../../dto/request/profile/update-profile.dto";
+import { updateInterestsSchema } from "../../dto/request/profile/update-interests.dto";
+import { IAdminInterestService } from "../../service/interest/IAdminInterestService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 
@@ -13,7 +15,8 @@ import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 export class ProfileController {
 
     constructor(
-        @inject(DI_TYPES.SERVICES.PROFILE_SERVICE) private readonly _profileService: IProfileService
+        @inject(DI_TYPES.SERVICES.PROFILE_SERVICE) private readonly _profileService: IProfileService,
+        @inject(DI_TYPES.SERVICES.ADMIN_INTEREST_SERVICE) private readonly _interestService: IAdminInterestService
     ) { }
 
     // ----------------------------------
@@ -65,7 +68,7 @@ export class ProfileController {
             }
 
             // Profile completed → issue auth tokens
-            const accessToken = generateToken({ id: userId, role: userRole, isProfileCompleted: true });
+            const accessToken = generateToken({ id: userId, role: userRole, isProfileCompleted: true, isInterestsSelected: false });
             const refreshToken = generateRefreshToken({ id: userId, role: userRole });
 
             // Set auth cookies
@@ -133,6 +136,65 @@ export class ProfileController {
             return res.status(HTTP_STATUS.OK).json({
                 message: "Profile updated successfully",
                 profile: updatedProfile
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // ----------------------------------
+    // Get Interests for selection
+    // ----------------------------------
+    getInterests = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const categories = await this._interestService.getInterestsGroupedByCategory();
+            return res.status(HTTP_STATUS.OK).json(categories);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // ----------------------------------
+    // Update user interests
+    // ----------------------------------
+    updateInterests = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+            }
+
+            const { interests } = updateInterestsSchema.parse(req.body);
+            await this._profileService.updateInterests(req.user.id, interests);
+
+            // Re-issue tokens with isInterestsSelected = true
+            const accessToken = generateToken({
+                id: req.user.id,
+                role: req.user.role,
+                isProfileCompleted: true,
+                isInterestsSelected: true
+            });
+            const refreshToken = generateRefreshToken({
+                id: req.user.id,
+                role: req.user.role
+            });
+
+            res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                maxAge: 15 * 60 * 1000,
+            });
+
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
+
+            return res.status(HTTP_STATUS.OK).json({
+                message: "Interests updated successfully",
+                isInterestsSelected: true
             });
         } catch (error) {
             next(error);
