@@ -15,7 +15,7 @@ export const DI_TYPES = {
         FILE_SERVICE: Symbol.for('FileService'),
         MATCH_SERVICE: Symbol.for('MatchService'),
         ADMIN_SERVICE: Symbol.for('AdminService'),
-        ADMIN_INTEREST_SERVICE: Symbol.for('AdminInterestService')
+        INTEREST_SERVICE: Symbol.for('InterestService')
     },
     CONTROLLERS: {
         AUTH_CONTROLLER: Symbol.for('AuthController'),
@@ -23,7 +23,7 @@ export const DI_TYPES = {
         FILE_CONTROLLER: Symbol.for('FileController'),
         MATCH_CONTROLLER: Symbol.for('MatchController'),
         ADMIN_CONTROLLER: Symbol.for('AdminController'),
-        ADMIN_INTEREST_CONTROLLER: Symbol.for('AdminInterestController')
+        INTEREST_CONTROLLER: Symbol.for('InterestController')
     },
 
     External: {

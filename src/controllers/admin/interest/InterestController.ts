@@ -1,17 +1,17 @@
 import { inject, injectable } from "inversify";
 import { Request, Response, NextFunction } from "express";
 import { DI_TYPES } from "../../../di/types";
-import { IAdminInterestService } from "../../../service/interest/IAdminInterestService";
+import { IInterestService } from "../../../service/interest/IInterestService";
 import { createCategorySchema, createInterestSchema, idParamSchema, setActiveSchema, updateCategorySchema, updateInterestSchema } from "../../../dto/request/interest/admin-interest.dto";
 import { HTTP_STATUS } from "../../../constants/http-status.constants";
 
 
 
 @injectable()
-export class AdminInterestController {
+export class InterestController {
 
     constructor(
-        @inject(DI_TYPES.SERVICES.ADMIN_INTEREST_SERVICE) private readonly _adminInterestService: IAdminInterestService
+        @inject(DI_TYPES.SERVICES.INTEREST_SERVICE) private readonly _adminInterestService: IInterestService
     ) { }
 
 

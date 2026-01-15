@@ -7,7 +7,7 @@ import { generateToken, generateRefreshToken } from "../../utils/jwtHelper";
 import { completeProfileSchema } from "../../dto/request/profile/complete-profile.dto";
 import { updateProfileSchema } from "../../dto/request/profile/update-profile.dto";
 import { updateInterestsSchema } from "../../dto/request/profile/update-interests.dto";
-import { IAdminInterestService } from "../../service/interest/IAdminInterestService";
+import { IInterestService } from "../../service/interest/IInterestService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 
@@ -16,7 +16,7 @@ export class ProfileController {
 
     constructor(
         @inject(DI_TYPES.SERVICES.PROFILE_SERVICE) private readonly _profileService: IProfileService,
-        @inject(DI_TYPES.SERVICES.ADMIN_INTEREST_SERVICE) private readonly _interestService: IAdminInterestService
+        @inject(DI_TYPES.SERVICES.INTEREST_SERVICE) private readonly _interestService: IInterestService
     ) { }
 
     // ----------------------------------
@@ -142,13 +142,10 @@ export class ProfileController {
         }
     };
 
-    // ----------------------------------
-    // Get Interests for selection
-    // ----------------------------------
     getInterests = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const categories = await this._interestService.getInterestsGroupedByCategory();
-            return res.status(HTTP_STATUS.OK).json(categories);
+            const interests = await this._interestService.getActiveInterests();
+            return res.status(HTTP_STATUS.OK).json(interests);
         } catch (error) {
             next(error);
         }

@@ -1,14 +1,14 @@
 import { Router } from "express";
 import container from "../../../di";
 import { DI_TYPES } from "../../../di/types";
-import { AdminInterestController } from "../../../controllers/admin/interest/AdminInterestController";
+import { InterestController } from "../../../controllers/admin/interest/InterestController";
 import { authMiddleware } from "../../../middlewares/auth/authMiddleware";
 import { requireAdmin } from "../../../middlewares/auth/roleMiddleware";
 
 const router = Router();
 
-const controller = container.get<AdminInterestController>(
-    DI_TYPES.CONTROLLERS.ADMIN_INTEREST_CONTROLLER
+const controller = container.get<InterestController>(
+    DI_TYPES.CONTROLLERS.INTEREST_CONTROLLER
 );
 
 // =====================

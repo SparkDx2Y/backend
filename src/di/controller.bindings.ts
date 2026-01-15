@@ -5,7 +5,7 @@ import { ProfileController } from "../controllers/profile/ProfileController";
 import { FileController } from "../controllers/file/FileController";
 import { MatchController } from "../controllers/match/MatchController";
 import { AdminController } from "../controllers/admin/AdminController";
-import { AdminInterestController } from "../controllers/admin/interest/AdminInterestController";
+import { InterestController } from "../controllers/admin/interest/InterestController";
 
 
 export function bindControllers(container: Container) {
@@ -14,5 +14,5 @@ export function bindControllers(container: Container) {
     container.bind(DI_TYPES.CONTROLLERS.FILE_CONTROLLER).to(FileController).inSingletonScope()
     container.bind(DI_TYPES.CONTROLLERS.MATCH_CONTROLLER).to(MatchController).inSingletonScope()
     container.bind(DI_TYPES.CONTROLLERS.ADMIN_CONTROLLER).to(AdminController).inSingletonScope()
-    container.bind(DI_TYPES.CONTROLLERS.ADMIN_INTEREST_CONTROLLER).to(AdminInterestController).inSingletonScope()
+    container.bind(DI_TYPES.CONTROLLERS.INTEREST_CONTROLLER).to(InterestController).inSingletonScope()
 }
