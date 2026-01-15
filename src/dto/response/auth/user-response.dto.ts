@@ -5,4 +5,5 @@ export interface UserResponseDto {
   role: "user" | "admin";
   isVerified: boolean;
   profilePhoto?: string | null;
+  interests?: string[];
 }

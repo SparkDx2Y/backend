@@ -115,8 +115,9 @@ export class AuthService implements IAuthService {
 
         const profile = await this._profileService.getProfileByUserId(userId);
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
+        const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto);
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto, interests);
     }
 
 
@@ -219,8 +220,9 @@ export class AuthService implements IAuthService {
 
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
+        const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto);
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto, interests);
     }
 
     //* ----------------------------------
@@ -282,6 +284,10 @@ export class AuthService implements IAuthService {
         return { message: 'Password reset successfully' };
     }
 
+    //* ----------------------------------
+    // Get Current User
+    //* ----------------------------------
+
     async getCurrentUser(userId: string): Promise<LoginResponseDto> {
         const user = await this._userRepo.findById(userId);
 
@@ -298,13 +304,18 @@ export class AuthService implements IAuthService {
 
         const profile = await this._profileService.getProfileByUserId(userId);
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
+        const interests = profile?.interests || [];
         let isInterestsSelected = true;
         if (user.role === 'user') {
             isInterestsSelected = await this._profileService.isInterestsSelected(userId);
         }
 
-        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, isInterestsSelected, profilePhoto);
+        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, isInterestsSelected, profilePhoto, interests);
     }
+
+    //* ----------------------------------
+    // Google Login
+    //* ----------------------------------
 
     async googleLogin(idToken: string): Promise<LoginResponseDto> {
 
@@ -369,8 +380,9 @@ export class AuthService implements IAuthService {
 
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
+        const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, accessToken, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto);
+        return AuthMapper.toAuthResponseDto(user, accessToken, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto, interests);
     }
 
 }
