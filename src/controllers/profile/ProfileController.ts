@@ -161,7 +161,7 @@ export class ProfileController {
             }
 
             const { interests } = updateInterestsSchema.parse(req.body);
-            await this._profileService.updateInterests(req.user.id, interests);
+            const updatedProfile = await this._profileService.updateInterests(req.user.id, interests);
 
             // Re-issue tokens with isInterestsSelected = true
             const accessToken = generateToken({
@@ -191,7 +191,8 @@ export class ProfileController {
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Interests updated successfully",
-                isInterestsSelected: true
+                isInterestsSelected: true,
+                profile: updatedProfile
             });
         } catch (error) {
             next(error);
