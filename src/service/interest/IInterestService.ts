@@ -2,7 +2,7 @@ import { InterestCategoryResponseDto } from "../../dto/response/interest/interes
 import { InterestResponseDto } from "../../dto/response/interest/interest.response.dto";
 
 
-export interface IAdminInterestService {
+export interface IInterestService {
 
     createCategory(name: string): Promise<InterestCategoryResponseDto>;
 
@@ -18,7 +18,7 @@ export interface IAdminInterestService {
 
     getAllInterests(): Promise<InterestResponseDto[]>;
 
-
+    getActiveInterests(): Promise<InterestResponseDto[]>;
 
     updateInterest(id: string, name: string): Promise<InterestResponseDto>;
 

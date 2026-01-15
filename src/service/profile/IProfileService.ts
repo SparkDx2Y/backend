@@ -8,6 +8,8 @@ export interface IProfileService {
     getProfileByUserId(userId: string): Promise<ProfileResponseDto | null>;
 
     isProfileCompleted(userId: string): Promise<boolean>;
+    isInterestsSelected(userId: string): Promise<boolean>;
 
     updateProfile(userId: string, data: UpdateProfileDto): Promise<ProfileResponseDto>;
+    updateInterests(userId: string, interestIds: string[]): Promise<ProfileResponseDto>;
 }

@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { IAdminInterestService } from "./IAdminInterestService";
+import { IInterestService } from "./IInterestService";
 import { DI_TYPES } from "../../di/types";
 import { IInterestCategoryRepository } from "../../repositories/interest/IInterestCategoryRepository";
 import { IInterestRepository } from "../../repositories/interest/IInterestRepository";
@@ -14,7 +14,7 @@ import { InterestResponseDto } from "../../dto/response/interest/interest.respon
 
 
 @injectable()
-export class AdminInterestService implements IAdminInterestService {
+export class InterestService implements IInterestService {
 
     constructor(
         @inject(DI_TYPES.REPOSITORIES.INTEREST_CATEGORY_REPOSITORY) private readonly _categoryRepo: IInterestCategoryRepository,
@@ -132,7 +132,7 @@ export class AdminInterestService implements IAdminInterestService {
             )
         }
 
-        if(!existingCategory.isActive){
+        if (!existingCategory.isActive) {
             throw new AppError(
                 INTEREST_ERRORS.CATEGORY_INACTIVE,
                 HTTP_STATUS.BAD_REQUEST
@@ -205,6 +205,23 @@ export class AdminInterestService implements IAdminInterestService {
     async getAllInterests(): Promise<InterestResponseDto[]> {
         const interests = await this._interestRepo.findAll();
         return interests.map(InterestMapper.toInterestResponseDto);
+    }
+
+
+    //* ----------------------------------
+    // Get Active Interests
+    //* ----------------------------------
+    
+    async getActiveInterests(): Promise<InterestResponseDto[]> {
+        const interests = await this._interestRepo.findAll();
+
+        // Filter: 1. Interest must be active 2. Parent Category must be active
+        const activeInterests = interests.filter(i =>
+            i.isActive &&
+            (i.categoryId as any).isActive !== false
+        );
+
+        return activeInterests.map(InterestMapper.toInterestResponseDto);
     }
 
 }
