@@ -36,4 +36,8 @@ export class InterestRepository extends BaseRepository<IInterest> implements IIn
     async findById(id: string): Promise<IInterest | null> {
         return this.model.findById(id).populate('categoryId').exec();
     }
+
+    async findByCategoryId(categoryId: string): Promise<IInterest[]> {
+        return this.model.find({ categoryId: new Types.ObjectId(categoryId) }).populate('categoryId').exec();
+    }
 }

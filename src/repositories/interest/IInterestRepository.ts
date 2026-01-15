@@ -9,5 +9,6 @@ export interface IInterestRepository extends IBaseRepository<IInterest> {
     findActiveByIds(ids: string[]): Promise<IInterest[]>;
     setActive(id: string, isActive: boolean): Promise<IInterest | null>;
     findAll(): Promise<IInterest[]>;
+    findByCategoryId(categoryId: string): Promise<IInterest[]>;
 
 }
