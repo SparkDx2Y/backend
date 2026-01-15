@@ -12,7 +12,10 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
     }
 
     async findByUserId(userId: string): Promise<IProfile | null> {
-        return this.model.findOne({ userId }).populate("userId").exec();
+        return this.model.findOne({ userId })
+            .populate("userId")
+            .populate('interests', 'name')
+            .exec();
     }
 
     async findPotentialMatches(excludeUserIds: string[], interestedIn: string, userGender: string, interests?: any[]): Promise<IProfile[]> {
@@ -29,6 +32,7 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
 
         return this.model.find(query)
             .populate('userId', 'name profilePhoto')
+            .populate('interests', 'name')
             .limit(20)
             .exec();
     }
