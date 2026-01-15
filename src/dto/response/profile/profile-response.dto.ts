@@ -8,5 +8,6 @@ export interface ProfileResponseDto {
     profilePhoto?: string | null;
     coverPhoto?: string | null;
     photos: string[];
+    interests: string[];
 }
 

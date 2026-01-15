@@ -24,7 +24,7 @@ export class MatchService implements IMatchService {
         // 1. Get current user's preferences
         const userProfile = await this._profileRepo.findByUserId(userId);
         if (!userProfile || !userProfile.interestedIn) {
-            return []; 
+            return [];
         }
 
         // 2. Get IDs of users already acted upon (History)
@@ -33,8 +33,8 @@ export class MatchService implements IMatchService {
         // Doing this to exclude current user from potential matches
         const excludeIds = [...swipedUserIds, userId];
 
-        // 3. Find profiles matching preference AND NOT in history
-        const profiles = await this._profileRepo.findPotentialMatches(excludeIds, userProfile.interestedIn);
+        // 3. Find profiles matching preference AND sharing interests
+        const profiles = await this._profileRepo.findPotentialMatches(excludeIds, userProfile.interestedIn, userProfile.gender!, userProfile.interests);
 
         return profiles.map((profile) => ProfileMapper.toProfileResponse(profile));
     }

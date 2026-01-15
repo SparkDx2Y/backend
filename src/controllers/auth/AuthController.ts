@@ -84,7 +84,8 @@ export class AuthController {
             return res.status(HTTP_STATUS.OK).json({
                 message: "OTP Verified. Please complete your profile",
                 user: result.user,
-                isProfileCompleted: result.isProfileCompleted
+                isProfileCompleted: result.isProfileCompleted,
+                isInterestsSelected: result.isInterestsSelected
             });
         } catch (error) {
             next(error)
@@ -137,6 +138,7 @@ export class AuthController {
                 message: "Login successful",
                 user: result.user,
                 isProfileCompleted: result.isProfileCompleted,
+                isInterestsSelected: result.isInterestsSelected
             });
 
 
@@ -167,6 +169,7 @@ export class AuthController {
                 message: "Login successful",
                 user: result.user,
                 isProfileCompleted: result.isProfileCompleted,
+                isInterestsSelected: result.isInterestsSelected
             });
         } catch (error) {
             next(error)
@@ -271,13 +274,20 @@ export class AuthController {
             }
 
             //^ fetch profile status
-            const isProfileCompleted = await this._profileService.isProfileCompleted(decoded.id);
+            let isProfileCompleted = true;
+            let isInterestsSelected = true;
+
+            if (decoded.role === 'user') {
+                isProfileCompleted = await this._profileService.isProfileCompleted(decoded.id);
+                isInterestsSelected = await this._profileService.isInterestsSelected(decoded.id);
+            }
 
             //^ generate new access token
             const newAccessToken = generateToken({
                 id: decoded.id,
                 role: decoded.role,
-                isProfileCompleted
+                isProfileCompleted,
+                isInterestsSelected
             });
             const newRefreshToken = generateRefreshToken({ id: decoded.id, role: decoded.role });
 
@@ -310,7 +320,8 @@ export class AuthController {
 
             return res.status(HTTP_STATUS.OK).json({
                 user: result.user,
-                isProfileCompleted: result.isProfileCompleted
+                isProfileCompleted: result.isProfileCompleted,
+                isInterestsSelected: result.isInterestsSelected
             });
         } catch (error) {
             next(error);

@@ -15,13 +15,13 @@ const profileController =
 // Profile routes
 // -------------------------------
 
-// Complete profile (onboarding – uses temp_token)
+// Complete profile
 router.post(
     "/complete",
     profileController.completeProfile
 );
 
-// Get my profile (after login – uses accessToken)
+// Get my profile
 router.get(
     "/profile",
     authMiddleware,
@@ -33,6 +33,20 @@ router.put(
     "/profile",
     authMiddleware,
     profileController.updateProfile
+);
+
+// Get interests for selection
+router.get(
+    "/interests",
+    authMiddleware,
+    profileController.getInterests
+);
+
+// Save user interests
+router.post(
+    "/interests",
+    authMiddleware,
+    profileController.updateInterests
 );
 
 export default router;

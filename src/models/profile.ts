@@ -5,6 +5,7 @@ export interface IProfile extends Document {
     age?: number;
     gender: 'male' | 'female';
     interestedIn?: 'male' | 'female';
+    interests: mongoose.Types.ObjectId[];
     profilePhoto?: string | null;
     coverPhoto?: string | null;
     photos?: string[];
@@ -23,17 +24,22 @@ const profileSchema = new Schema<IProfile>({
     age: {
         type: Number,
         min: 18,
-        max:50,
+        max: 50,
     },
     gender: {
         type: String,
         enum: ['male', 'female'],
-        required: true  
+        required: true
     },
     interestedIn: {
         type: String,
         enum: ['male', 'female'],
         required: true
+    },
+    interests: {
+        type: [Schema.Types.ObjectId],
+        ref: 'Interest',
+        default: []
     },
     profilePhoto: {
         type: String,

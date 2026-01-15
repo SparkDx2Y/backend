@@ -97,11 +97,13 @@ export class AuthService implements IAuthService {
         await this._otpRepo.deleteOtp(userId);
 
         const isProfileCompleted = false;
+        const isInterestsSelected = false;
 
         const token = generateToken({
             id: userId,
             role: 'user',
-            isProfileCompleted
+            isProfileCompleted,
+            isInterestsSelected
         });
         const refreshToken = generateRefreshToken({ id: userId, role: 'user' });
 
@@ -114,7 +116,7 @@ export class AuthService implements IAuthService {
         const profile = await this._profileService.getProfileByUserId(userId);
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, profilePhoto);
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto);
     }
 
 
@@ -198,22 +200,27 @@ export class AuthService implements IAuthService {
         }
 
         let isProfileCompleted = true;
-
         if (user.role === 'user') {
             isProfileCompleted = await this._profileService.isProfileCompleted(user._id.toString());
+        }
+
+        let isInterestsSelected = true;
+        if (user.role === 'user') {
+            isInterestsSelected = await this._profileService.isInterestsSelected(user._id.toString());
         }
 
         const token = generateToken({
             id: user._id.toString(),
             role: user.role,
-            isProfileCompleted
+            isProfileCompleted,
+            isInterestsSelected
         });
         const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, profilePhoto);
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto);
     }
 
     //* ----------------------------------
@@ -291,8 +298,12 @@ export class AuthService implements IAuthService {
 
         const profile = await this._profileService.getProfileByUserId(userId);
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
+        let isInterestsSelected = true;
+        if (user.role === 'user') {
+            isInterestsSelected = await this._profileService.isInterestsSelected(userId);
+        }
 
-        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, profilePhoto);
+        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, isInterestsSelected, profilePhoto);
     }
 
     async googleLogin(idToken: string): Promise<LoginResponseDto> {
@@ -346,17 +357,20 @@ export class AuthService implements IAuthService {
         }
 
         const isProfileCompleted = await this._profileService.isProfileCompleted(user._id.toString());
+        const isInterestsSelected = await this._profileService.isInterestsSelected(user._id.toString());
+
         const accessToken = generateToken({
             id: user._id.toString(),
             role: user.role,
-            isProfileCompleted
+            isProfileCompleted,
+            isInterestsSelected
         });
         const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
 
-        return AuthMapper.toAuthResponseDto(user, accessToken, refreshToken, isProfileCompleted, profilePhoto);
+        return AuthMapper.toAuthResponseDto(user, accessToken, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto);
     }
 
 }

@@ -22,7 +22,7 @@ export class ProfileService implements IProfileService {
         @inject(DI_TYPES.REPOSITORIES.PROFILE_REPOSITORY)
         private readonly _profileRepo: IProfileRepository,
         @inject(DI_TYPES.REPOSITORIES.USER_REPOSITORY)
-        private readonly _userRepo: IUserRepository
+        private readonly _userRepo: IUserRepository,
     ) { }
 
     // ----------------------------------
@@ -30,7 +30,7 @@ export class ProfileService implements IProfileService {
     // ----------------------------------
     async completeProfile(userId: string, data: CompleteProfileDto): Promise<{ profile: ProfileResponseDto, isCompleted: boolean }> {
 
-        
+
         const user = await this._userRepo.findById(userId);
 
         if (!user) {
@@ -46,7 +46,7 @@ export class ProfileService implements IProfileService {
             )
         }
 
-        
+
         const existingProfile = await this._profileRepo.findByUserId(userId);
         if (existingProfile) {
             throw new AppError(
@@ -55,12 +55,13 @@ export class ProfileService implements IProfileService {
             )
         }
 
-        
+
         const profile = await this._profileRepo.create({
             userId: userId as any,
             ...data,
+            interests: [],
             coverPhoto: null,
-            photos: [], 
+            photos: [],
         } as any);
 
         if (!profile) {
@@ -100,6 +101,17 @@ export class ProfileService implements IProfileService {
         return this.checkProfileCompletion(profile);
     }
 
+
+    // ----------------------------------
+    // Check if interests are selected
+    // ----------------------------------
+
+    async isInterestsSelected(userId: string): Promise<boolean> {
+        const profile = await this._profileRepo.findByUserId(userId);
+        if (!profile) return false;
+        return profile.interests && profile.interests.length > 0;
+    }
+
     // ----------------------------------
     // Update profile (settings page)
     // ----------------------------------
@@ -113,7 +125,7 @@ export class ProfileService implements IProfileService {
             );
         }
 
-        
+
         const updateData: any = { ...data };
 
         const updatedProfile = await this._profileRepo.updateById(
@@ -131,12 +143,41 @@ export class ProfileService implements IProfileService {
         return ProfileMapper.toProfileResponse(updatedProfile);
     }
 
+    // ----------------------------------
+    // Update interests
+    // ----------------------------------
+
+    async updateInterests(userId: string, interestIds: string[]): Promise<ProfileResponseDto> {
+        const profile = await this._profileRepo.findByUserId(userId);
+
+        if (!profile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_NOT_FOUND,
+                HTTP_STATUS.NOT_FOUND
+            );
+        }
+
+        const updatedProfile = await this._profileRepo.updateById(
+            profile._id.toString(),
+            { interests: interestIds as any }
+        );
+
+        if (!updatedProfile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_UPDATE_FAILED,
+                HTTP_STATUS.INTERNAL_SERVER_ERROR
+            );
+        }
+
+        return ProfileMapper.toProfileResponse(updatedProfile);
+    }
+
     private checkProfileCompletion(profile: ProfileCompletionCheckDto): boolean {
         return Boolean(
             profile.age &&
             profile.gender &&
             profile.interestedIn &&
-            profile.profilePhoto 
+            profile.profilePhoto
         );
     }
 }
