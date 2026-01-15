@@ -16,7 +16,7 @@ export class ProfileMapper {
       profilePhoto: profile.profilePhoto ?? profile.photos?.[0] ?? null,
       coverPhoto: profile.coverPhoto ?? null,
       photos: profile.photos ?? [],
-      interests: (profile.interests || []).map((id) => id.toString())
+      interests: (profile.interests || []).map((interest: any) => interest?.name || 'Unknown')
     };
   }
 }
