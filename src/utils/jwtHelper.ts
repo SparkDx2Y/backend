@@ -7,7 +7,7 @@ interface RefreshPayload {
 }
 
 
-export const generateToken = (payload: { id: string, role: string, isProfileCompleted: boolean, isInterestsSelected: boolean }): string => {
+export const generateToken = (payload: { id: string, role: string, isProfileCompleted: boolean, isInterestsSelected: boolean, isLocationCompleted: boolean }): string => {
   return jwt.sign(payload, jwtConfig.accessTokenSecret, {
     expiresIn: jwtConfig.accessTokenExpiresIn,
   });
