@@ -12,4 +12,7 @@ export interface IProfileService {
 
     updateProfile(userId: string, data: UpdateProfileDto): Promise<ProfileResponseDto>;
     updateInterests(userId: string, interestIds: string[]): Promise<ProfileResponseDto>;
+
+    updateLocation(userId: string, latitude: number, longitude: number): Promise<void>;
+    isLocationCompleted(userId: string): Promise<boolean>;
 }

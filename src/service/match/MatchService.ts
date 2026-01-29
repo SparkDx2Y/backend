@@ -33,8 +33,24 @@ export class MatchService implements IMatchService {
         // Doing this to exclude current user from potential matches
         const excludeIds = [...swipedUserIds, userId];
 
+        const MAX_DISTANCE_KM = 20;
+
+        if(!userProfile.location) {
+            throw new AppError("User location not found", HTTP_STATUS.BAD_REQUEST);
+        }
+
         // 3. Find profiles matching preference AND sharing interests
-        const profiles = await this._profileRepo.findPotentialMatches(excludeIds, userProfile.interestedIn, userProfile.gender!, userProfile.interests);
+        const profiles = await this._profileRepo.findPotentialMatches({
+            excludeUserIds: excludeIds,
+            interestedIn: userProfile.interestedIn,
+            userGender: userProfile.gender,
+            interests: userProfile.interests.map(id => id.toString()),
+            location: {
+                longitude: userProfile.location.coordinates[0],
+                latitude: userProfile.location.coordinates[1]
+            },
+            maxDistanceKm: MAX_DISTANCE_KM
+        });
 
         return profiles.map((profile) => ProfileMapper.toProfileResponse(profile));
     }
@@ -52,9 +68,9 @@ export class MatchService implements IMatchService {
         }
 
         // 2. Save swipe action
-        await this._matchRepo.create({
-            fromUserId: fromUserId as any,
-            toUserId: toUserId as any,
+        await this._matchRepo.createSwipe({
+            fromUserId,
+            toUserId,
             action
         });
 

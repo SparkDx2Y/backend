@@ -172,6 +172,45 @@ export class ProfileService implements IProfileService {
         return ProfileMapper.toProfileResponse(updatedProfile);
     }
 
+    // ----------------------------------
+    // Update location
+    // ----------------------------------
+
+    async updateLocation(userId: string, latitude: number, longitude: number): Promise<void> {
+        const profile = await this._profileRepo.findByUserId(userId);
+
+        if (!profile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_NOT_FOUND,
+                HTTP_STATUS.NOT_FOUND
+            );
+        }
+
+        const updatedProfile = await this._profileRepo.updateById(
+            profile._id.toString(),
+            { location: { type: "Point", coordinates: [longitude, latitude] } }
+        );
+
+        if (!updatedProfile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_UPDATE_FAILED,
+                HTTP_STATUS.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    // ----------------------------------
+    // Check if location is completed
+    // ----------------------------------
+
+    async isLocationCompleted(userId: string): Promise<boolean> {
+        const profile = await this._profileRepo.findByUserId(userId);
+        if (!profile) return false;
+        return Boolean(
+            profile.location && Array.isArray(profile.location.coordinates) && profile.location.coordinates.length === 2
+        )
+    }
+
     private checkProfileCompletion(profile: ProfileCompletionCheckDto): boolean {
         return Boolean(
             profile.age &&

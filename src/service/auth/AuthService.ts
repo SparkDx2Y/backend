@@ -98,12 +98,14 @@ export class AuthService implements IAuthService {
 
         const isProfileCompleted = false;
         const isInterestsSelected = false;
+        const isLocationCompleted = false;
 
         const token = generateToken({
             id: userId,
             role: 'user',
             isProfileCompleted,
-            isInterestsSelected
+            isInterestsSelected,
+            isLocationCompleted
         });
         const refreshToken = generateRefreshToken({ id: userId, role: 'user' });
 
@@ -117,7 +119,7 @@ export class AuthService implements IAuthService {
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected,isLocationCompleted, profilePhoto, interests);
     }
 
 
@@ -210,11 +212,17 @@ export class AuthService implements IAuthService {
             isInterestsSelected = await this._profileService.isInterestsSelected(user._id.toString());
         }
 
+        let isLocationCompleted = true;
+        if (user.role === 'user') {
+            isLocationCompleted = await this._profileService.isLocationCompleted(user._id.toString());
+        }
+
         const token = generateToken({
             id: user._id.toString(),
             role: user.role,
             isProfileCompleted,
-            isInterestsSelected
+            isInterestsSelected,
+            isLocationCompleted
         });
         const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
@@ -222,7 +230,7 @@ export class AuthService implements IAuthService {
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected,isLocationCompleted, profilePhoto, interests);
     }
 
     //* ----------------------------------
@@ -302,6 +310,11 @@ export class AuthService implements IAuthService {
             isProfileCompleted = true; // Admin has no profile
         }
 
+        let isLocationCompleted = true;
+        if (user.role === 'user') {
+            isLocationCompleted = await this._profileService.isLocationCompleted(userId);
+        }
+
         const profile = await this._profileService.getProfileByUserId(userId);
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
@@ -310,7 +323,7 @@ export class AuthService implements IAuthService {
             isInterestsSelected = await this._profileService.isInterestsSelected(userId);
         }
 
-        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, isInterestsSelected, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, isInterestsSelected,isLocationCompleted, profilePhoto, interests);
     }
 
     //* ----------------------------------
@@ -369,12 +382,14 @@ export class AuthService implements IAuthService {
 
         const isProfileCompleted = await this._profileService.isProfileCompleted(user._id.toString());
         const isInterestsSelected = await this._profileService.isInterestsSelected(user._id.toString());
+        const isLocationCompleted = await this._profileService.isLocationCompleted(user._id.toString());
 
         const accessToken = generateToken({
             id: user._id.toString(),
             role: user.role,
             isProfileCompleted,
-            isInterestsSelected
+            isInterestsSelected,
+            isLocationCompleted
         });
         const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
 
@@ -382,7 +397,7 @@ export class AuthService implements IAuthService {
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, accessToken, refreshToken, isProfileCompleted, isInterestsSelected, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, accessToken, refreshToken, isProfileCompleted, isInterestsSelected,isLocationCompleted, profilePhoto, interests);
     }
 
 }
