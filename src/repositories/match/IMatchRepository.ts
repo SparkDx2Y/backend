@@ -1,7 +1,9 @@
 import { IBaseRepository } from "../base/IBaseRepository";
 import { IMatchAction } from "../../models/match-action";
 
-export interface IMatchRepository extends IBaseRepository<IMatchAction> {
+export interface IMatchRepository {
+
+    createSwipe(data: { fromUserId: string; toUserId:string; action: 'like' | 'pass' }): Promise<IMatchAction>;
 
     //? Check if user has already swiped on another user (Swipe)
     hasUserAlreadySwiped(fromUserId: string, toUserId: string): Promise<boolean>;

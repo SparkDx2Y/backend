@@ -1,7 +1,7 @@
-import { FilterQuery } from "mongoose";
+import { Types } from "mongoose";
 import { IProfile, Profile } from "../../models/profile";
 import { BaseRepository } from "../base/BaseRepository";
-import { IProfileRepository } from "./IProfileRepository";
+import { IProfileRepository, MatchQuery, ProfileWithDistance } from "./IProfileRepository";
 
 
 
@@ -18,23 +18,51 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
             .exec();
     }
 
-    async findPotentialMatches(excludeUserIds: string[], interestedIn: string, userGender: string, interests?: any[]): Promise<IProfile[]> {
-        const query: FilterQuery<IProfile> = {
-            userId: { $nin: excludeUserIds },
-            gender: interestedIn,
-            interestedIn: userGender // Mutual matching
-        };
+    async findPotentialMatches(queryInput: MatchQuery): Promise<ProfileWithDistance[]> {
 
-        // Strict Interest Matching: Only show users with at least one common interest
-        if (interests && interests.length > 0) {
-            query.interests = { $in: interests };
+        const pipeline: any[] = [
+            {
+                $geoNear: {
+                    near: {
+                        type: "Point",
+                        coordinates: [
+                            queryInput.location.longitude,
+                            queryInput.location.latitude
+                        ]
+                    },
+                    distanceField: "distanceMeters",
+                    spherical: true,
+                    maxDistance: queryInput.maxDistanceKm * 1000,
+                }
+            },
+            {
+                $match: {
+                    userId: {
+                        $nin: queryInput.excludeUserIds.map(id => new Types.ObjectId(id))
+                    },
+                    gender: queryInput.interestedIn,
+                    interestedIn: queryInput.userGender
+                }
+            }
+        ];
+
+        if(queryInput.interests?.length) {
+            pipeline.push({
+                $match: {
+                    interests: { $in: queryInput.interests.map(id => new Types.ObjectId(id))}
+                }
+            })
         }
 
-        return this.model.find(query)
-            .populate('userId', 'name profilePhoto')
-            .populate('interests', 'name')
-            .limit(20)
-            .exec();
+        pipeline.push({ $limit: 20})
+
+        const result = await this.model.aggregate(pipeline);
+
+        return result.map((p) => ({
+            ...p,
+            distanceKm: Math.round((p.distanceMeters / 1000) * 10) / 10
+        }));
     }
+
 }
 
