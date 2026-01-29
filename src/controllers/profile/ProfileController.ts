@@ -10,6 +10,7 @@ import { updateInterestsSchema } from "../../dto/request/profile/update-interest
 import { IInterestService } from "../../service/interest/IInterestService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
+import { updateLocationSchema } from "../../dto/request/profile/update-location.dto";
 
 @injectable()
 export class ProfileController {
@@ -68,7 +69,7 @@ export class ProfileController {
             }
 
             // Profile completed → issue auth tokens
-            const accessToken = generateToken({ id: userId, role: userRole, isProfileCompleted: true, isInterestsSelected: false });
+            const accessToken = generateToken({ id: userId, role: userRole, isProfileCompleted: true, isInterestsSelected: false, isLocationCompleted: false });
             const refreshToken = generateRefreshToken({ id: userId, role: userRole });
 
             // Set auth cookies
@@ -163,12 +164,16 @@ export class ProfileController {
             const { interests } = updateInterestsSchema.parse(req.body);
             const updatedProfile = await this._profileService.updateInterests(req.user.id, interests);
 
-            // Re-issue tokens with isInterestsSelected = true
+            // Check verified status for other steps
+            const isLocationCompleted = await this._profileService.isLocationCompleted(req.user.id);
+
+            // Re-issue tokens
             const accessToken = generateToken({
                 id: req.user.id,
                 role: req.user.role,
                 isProfileCompleted: true,
-                isInterestsSelected: true
+                isInterestsSelected: true,
+                isLocationCompleted: isLocationCompleted
             });
             const refreshToken = generateRefreshToken({
                 id: req.user.id,
@@ -193,6 +198,57 @@ export class ProfileController {
                 message: "Interests updated successfully",
                 isInterestsSelected: true,
                 profile: updatedProfile
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // ----------------------------------
+    // Update user location
+    // ----------------------------------
+    updateLocation = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+            }
+
+            const { latitude, longitude } = updateLocationSchema.parse(req.body);
+            await this._profileService.updateLocation(req.user.id, latitude, longitude);
+
+            // Check verified status for other steps
+            const isInterestsSelected = await this._profileService.isInterestsSelected(req.user.id);
+
+            // Re-issue tokens
+            const accessToken = generateToken({
+                id: req.user.id,
+                role: req.user.role,
+                isProfileCompleted: true,
+                isInterestsSelected: isInterestsSelected,
+                isLocationCompleted: true
+            });
+            const refreshToken = generateRefreshToken({
+                id: req.user.id,
+                role: req.user.role
+            });
+
+            res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                maxAge: 15 * 60 * 1000,
+            });
+
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
+
+            return res.status(HTTP_STATUS.OK).json({
+                message: "Location updated successfully",
+                isLocationCompleted: true,
             });
         } catch (error) {
             next(error);

@@ -85,7 +85,8 @@ export class AuthController {
                 message: "OTP Verified. Please complete your profile",
                 user: result.user,
                 isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected
+                isInterestsSelected: result.isInterestsSelected,
+                isLocationCompleted: result.isLocationCompleted
             });
         } catch (error) {
             next(error)
@@ -138,7 +139,8 @@ export class AuthController {
                 message: "Login successful",
                 user: result.user,
                 isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected
+                isInterestsSelected: result.isInterestsSelected,
+                isLocationCompleted: result.isLocationCompleted
             });
 
 
@@ -169,7 +171,8 @@ export class AuthController {
                 message: "Login successful",
                 user: result.user,
                 isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected
+                isInterestsSelected: result.isInterestsSelected,
+                isLocationCompleted: result.isLocationCompleted
             });
         } catch (error) {
             next(error)
@@ -276,10 +279,12 @@ export class AuthController {
             //^ fetch profile status
             let isProfileCompleted = true;
             let isInterestsSelected = true;
+            let isLocationCompleted = true;
 
             if (decoded.role === 'user') {
                 isProfileCompleted = await this._profileService.isProfileCompleted(decoded.id);
                 isInterestsSelected = await this._profileService.isInterestsSelected(decoded.id);
+                isLocationCompleted = await this._profileService.isLocationCompleted(decoded.id);
             }
 
             //^ generate new access token
@@ -287,7 +292,8 @@ export class AuthController {
                 id: decoded.id,
                 role: decoded.role,
                 isProfileCompleted,
-                isInterestsSelected
+                isInterestsSelected,
+                isLocationCompleted
             });
             const newRefreshToken = generateRefreshToken({ id: decoded.id, role: decoded.role });
 
@@ -321,7 +327,8 @@ export class AuthController {
             return res.status(HTTP_STATUS.OK).json({
                 user: result.user,
                 isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected
+                isInterestsSelected: result.isInterestsSelected,
+                isLocationCompleted: result.isLocationCompleted
             });
         } catch (error) {
             next(error);
