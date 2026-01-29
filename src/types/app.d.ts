@@ -6,6 +6,9 @@ declare module 'express' {
         user?: {
             id: string;
             role: string;
+            isProfileCompleted: boolean;
+            isInterestsSelected: boolean;
+            isLocationCompleted: boolean;
         };
     }
 }

@@ -6,4 +6,5 @@ export interface LoginResponseDto {
   user: UserResponseDto;
   isProfileCompleted: boolean;
   isInterestsSelected: boolean;
+  isLocationCompleted: boolean;
 }
