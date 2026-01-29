@@ -31,6 +31,9 @@ export const authMiddleware = async (
     req.user = {
       id: decoded.id,
       role: decoded.role,
+      isProfileCompleted: decoded.isProfileCompleted,
+      isInterestsSelected: decoded.isInterestsSelected,
+      isLocationCompleted: decoded.isLocationCompleted
     };
 
     next();
