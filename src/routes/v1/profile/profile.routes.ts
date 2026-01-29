@@ -49,4 +49,11 @@ router.post(
     profileController.updateInterests
 );
 
+// update user location
+router.put(
+    "/location",
+    authMiddleware,
+    profileController.updateLocation
+);
+
 export default router;
