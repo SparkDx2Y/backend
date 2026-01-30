@@ -46,15 +46,39 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
             }
         ];
 
-        if(queryInput.interests?.length) {
+        if (queryInput.interests?.length) {
             pipeline.push({
                 $match: {
-                    interests: { $in: queryInput.interests.map(id => new Types.ObjectId(id))}
+                    interests: { $in: queryInput.interests.map(id => new Types.ObjectId(id)) }
                 }
             })
         }
 
-        pipeline.push({ $limit: 20})
+        // LOOKUP (Populate) User Details
+        pipeline.push({
+            $lookup: {
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "userId"
+            }
+        });
+        pipeline.push({
+            $unwind: { path: "$userId", preserveNullAndEmptyArrays: true }
+        });
+
+        // LOOKUP (Populate) Interests
+        pipeline.push({
+            $lookup: {
+                from: "interests",
+                localField: "interests",
+                foreignField: "_id",
+                as: "interests"
+            }
+        });
+
+
+        pipeline.push({ $limit: 20 })
 
         const result = await this.model.aggregate(pipeline);
 
