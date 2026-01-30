@@ -30,3 +30,17 @@ export const clearAuthCookies = (res: Response) => {
     res.clearCookie('accessToken', options);
     res.clearCookie('refreshToken', options);
 };
+
+export const setTempCookie = (res: Response, cookieName: string, cookieValue: string) => {
+    const options = getCookieOptions();
+
+    res.cookie(cookieName, cookieValue, {
+        ...options,
+        maxAge: 5 * 60 * 1000 // 5 minutes
+    });
+};
+
+export const clearTempCookie = (res: Response, cookieName: string) => {
+    const options = getCookieOptions();
+    res.clearCookie(cookieName, options);
+};
