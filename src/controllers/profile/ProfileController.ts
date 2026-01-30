@@ -11,6 +11,7 @@ import { IInterestService } from "../../service/interest/IInterestService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 import { updateLocationSchema } from "../../dto/request/profile/update-location.dto";
+import { setAuthCookies } from "../../utils/cookieHelper";
 
 @injectable()
 export class ProfileController {
@@ -73,19 +74,7 @@ export class ProfileController {
             const refreshToken = generateRefreshToken({ id: userId, role: userRole });
 
             // Set auth cookies
-            res.cookie("accessToken", accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 15 * 60 * 1000,
-            });
-
-            res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            });
+            setAuthCookies(res, accessToken, refreshToken);
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Profile completed successfully",
@@ -180,19 +169,7 @@ export class ProfileController {
                 role: req.user.role
             });
 
-            res.cookie("accessToken", accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 15 * 60 * 1000,
-            });
-
-            res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            });
+            setAuthCookies(res, accessToken, refreshToken);
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Interests updated successfully",
@@ -232,19 +209,7 @@ export class ProfileController {
                 role: req.user.role
             });
 
-            res.cookie("accessToken", accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 15 * 60 * 1000,
-            });
-
-            res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            });
+            setAuthCookies(res, accessToken, refreshToken);
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Location updated successfully",

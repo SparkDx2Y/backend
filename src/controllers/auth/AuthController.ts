@@ -13,6 +13,7 @@ import { generateRefreshToken, generateToken, generateTempToken, verifyRefreshTo
 import { IProfileService } from "../../service/profile/IProfileService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
+import { clearAuthCookies, setAuthCookies } from "../../utils/cookieHelper";
 
 
 
@@ -66,19 +67,7 @@ export class AuthController {
             // Clear the signup session token
             res.clearCookie('temp_token');
 
-            // Set cookies akin to login
-            res.cookie('accessToken', result.token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 15 * 60 * 1000
-            });
-            res.cookie('refreshToken', result.refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000
-            });
+            setAuthCookies(res, result.token, result.refreshToken);
 
 
             return res.status(HTTP_STATUS.OK).json({
@@ -117,18 +106,7 @@ export class AuthController {
             const data = loginSchema.parse(req.body);
             const result = await this._authService.login(data);
 
-            res.cookie('accessToken', result.token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 15 * 60 * 1000
-            })
-            res.cookie('refreshToken', result.refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000
-            })
+            setAuthCookies(res, result.token, result.refreshToken);
 
 
 
@@ -148,18 +126,7 @@ export class AuthController {
             const { token } = req.body;
             const result = await this._authService.googleLogin(token);
 
-            res.cookie('accessToken', result.token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 15 * 60 * 1000
-            })
-            res.cookie('refreshToken', result.refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000
-            })
+            setAuthCookies(res, result.token, result.refreshToken);
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Login successful",
@@ -244,8 +211,7 @@ export class AuthController {
 
     logout = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            res.clearCookie('accessToken')
-            res.clearCookie('refreshToken')
+            clearAuthCookies(res);
             return res.status(HTTP_STATUS.OK).json({ message: 'Logout successful' })
         } catch (error) {
             next(error)
@@ -288,18 +254,7 @@ export class AuthController {
             });
             const newRefreshToken = generateRefreshToken({ id: decoded.id, role: decoded.role });
 
-            res.cookie('accessToken', newAccessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 15 * 60 * 1000
-            });
-            res.cookie('refreshToken', newRefreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000
-            });
+            setAuthCookies(res, newAccessToken, newRefreshToken);
 
             return res.status(HTTP_STATUS.OK).json({ message: 'Token refreshed successfully' })
         } catch (error) {
