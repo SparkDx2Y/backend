@@ -83,10 +83,7 @@ export class AuthController {
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "OTP Verified. Please complete your profile",
-                user: result.user,
-                isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected,
-                isLocationCompleted: result.isLocationCompleted
+                user: result.user
             });
         } catch (error) {
             next(error)
@@ -137,10 +134,7 @@ export class AuthController {
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Login successful",
-                user: result.user,
-                isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected,
-                isLocationCompleted: result.isLocationCompleted
+                user: result.user
             });
 
 
@@ -169,10 +163,7 @@ export class AuthController {
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Login successful",
-                user: result.user,
-                isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected,
-                isLocationCompleted: result.isLocationCompleted
+                user: result.user
             });
         } catch (error) {
             next(error)
@@ -325,10 +316,7 @@ export class AuthController {
             const result = await this._authService.getCurrentUser(req.user.id);
 
             return res.status(HTTP_STATUS.OK).json({
-                user: result.user,
-                isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected,
-                isLocationCompleted: result.isLocationCompleted
+                user: result.user
             });
         } catch (error) {
             next(error);
