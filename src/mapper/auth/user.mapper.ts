@@ -3,7 +3,7 @@ import { IUser } from "../../models/user";
 
 
 export class UserMapper {
-    static toUserResponseDto(user: IUser, profilePhoto?: string | null, interests?: string[]): UserResponseDto {
+    static toUserResponseDto(user: IUser, isProfileCompleted: boolean, isInterestsSelected: boolean, isLocationCompleted: boolean, profilePhoto?: string | null, interests?: string[]): UserResponseDto {
         return {
             id: user._id.toString(),
             name: user.name,
@@ -11,7 +11,10 @@ export class UserMapper {
             role: user.role,
             isVerified: user.isVerified,
             profilePhoto: profilePhoto || null,
-            interests: interests || []
+            interests: interests || [],
+            isProfileCompleted,
+            isInterestsSelected,
+            isLocationCompleted
         }
     }
 }
