@@ -21,9 +21,9 @@ export interface IAuthService {
 
   forgotPassword(data: ForgotPasswordDto): Promise<{ userId: string, message: string }>
 
-  forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{ message: string }>
+  forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{ resetToken: string; message: string }>
 
-  resetPassword(userID: string, data: ResetPasswordDto): Promise<{ message: string }>
+  resetPassword(resetToken: string, data: ResetPasswordDto): Promise<{ message: string }>
 
   googleLogin(token: string): Promise<LoginResponseDto>
 
