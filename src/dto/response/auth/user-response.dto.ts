@@ -6,4 +6,7 @@ export interface UserResponseDto {
   isVerified: boolean;
   profilePhoto?: string | null;
   interests?: string[];
+  isProfileCompleted: boolean;
+  isInterestsSelected: boolean;
+  isLocationCompleted: boolean;
 }
