@@ -35,7 +35,7 @@ export class MatchService implements IMatchService {
 
         const MAX_DISTANCE_KM = 20;
 
-        if(!userProfile.location) {
+        if (!userProfile.location) {
             throw new AppError("User location not found", HTTP_STATUS.BAD_REQUEST);
         }
 
@@ -44,7 +44,7 @@ export class MatchService implements IMatchService {
             excludeUserIds: excludeIds,
             interestedIn: userProfile.interestedIn,
             userGender: userProfile.gender,
-            interests: userProfile.interests.map(id => id.toString()),
+            interests: userProfile.interests.map((interest: any) => interest._id ? interest._id.toString() : interest.toString()),
             location: {
                 longitude: userProfile.location.coordinates[0],
                 latitude: userProfile.location.coordinates[1]
