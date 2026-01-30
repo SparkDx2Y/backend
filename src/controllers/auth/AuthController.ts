@@ -13,7 +13,7 @@ import { generateRefreshToken, generateToken, generateTempToken, verifyRefreshTo
 import { IProfileService } from "../../service/profile/IProfileService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
-import { clearAuthCookies, setAuthCookies } from "../../utils/cookieHelper";
+import { clearAuthCookies, clearTempCookie, setAuthCookies, setTempCookie } from "../../utils/cookieHelper";
 
 
 
@@ -33,12 +33,8 @@ export class AuthController {
             const { tempToken, message } = await this._authService.signup(data);
 
             //^ setting userId in the cookie for verifying the user in the next request
-            res.cookie('temp_token', tempToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                maxAge: 30 * 60 * 1000
-            });
+            //^ setting userId in the cookie for verifying the user in the next request
+            setTempCookie(res, 'temp_token', tempToken);
 
             return res.status(HTTP_STATUS.CREATED).json({ message })
         } catch (error) {
@@ -65,7 +61,8 @@ export class AuthController {
             const result = await this._authService.verifySignupOtp(userId, data);
 
             // Clear the signup session token
-            res.clearCookie('temp_token');
+            // Clear the signup session token
+            clearTempCookie(res, 'temp_token');
 
             setAuthCookies(res, result.token, result.refreshToken);
 
@@ -145,12 +142,8 @@ export class AuthController {
             const { userId, message } = await this._authService.forgotPassword(data);
 
             //^ setting userId in the cookie for verifying the user in the next request
-            res.cookie('otp_userId', userId, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                maxAge: 5 * 60 * 1000
-            });
+            //^ setting userId in the cookie for verifying the user in the next request
+            setTempCookie(res, 'otp_userId', userId);
 
             return res.status(HTTP_STATUS.OK).json({ message })
         } catch (error) {
@@ -168,17 +161,15 @@ export class AuthController {
             if (!userId) {
                 return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'OTP Session expired' })
             }
-            const result = await this._authService.forgotPasswordVerifyOtp(userId, data);
+            const { resetToken, message } = await this._authService.forgotPasswordVerifyOtp(userId, data);
 
-            res.cookie('otp_verified', 'true', {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                maxAge: 5 * 60 * 1000
-            });
+            // Set the secure reset token
+            setTempCookie(res, 'reset_token', resetToken);
 
+            // Clean up the previous step's cookie
+            clearTempCookie(res, 'otp_userId');
 
-            return res.status(HTTP_STATUS.OK).json(result)
+            return res.status(HTTP_STATUS.OK).json({ message })
         } catch (error) {
             next(error)
         }
@@ -190,16 +181,15 @@ export class AuthController {
         try {
             const data = resetPasswordSchema.parse(req.body);
 
-            const userId = req.cookies.otp_userId;
-            const otpVerified = req.cookies.otp_verified;
+            const resetToken = req.cookies.reset_token;
 
-            if (!userId || !otpVerified) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'OTP Session expired or not verified' })
+            if (!resetToken) {
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Reset session expired' })
             }
-            const result = await this._authService.resetPassword(userId, data);
 
-            res.clearCookie('otp_userId');
-            res.clearCookie('otp_verified');
+            const result = await this._authService.resetPassword(resetToken, data);
+
+            clearTempCookie(res, 'reset_token');
 
             return res.status(HTTP_STATUS.OK).json(result)
         } catch (error) {
