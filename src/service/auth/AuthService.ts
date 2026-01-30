@@ -9,7 +9,7 @@ import { IOtpRepository } from "../../repositories/otp/IOtpRepository";
 import { comparePassword, hashPassword } from "../../utils/password";
 import { generateOtp } from "../../utils/generate-otp";
 import { sendOtpEmail } from "../../utils/sendEmail";
-import { generateRefreshToken, generateTempToken, generateToken } from "../../utils/jwtHelper";
+import { generateRefreshToken, generateResetToken, generateTempToken, generateToken, verifyResetToken } from "../../utils/jwtHelper";
 import { OAuth2Client } from "google-auth-library";
 
 import { SignupDto } from "../../dto/request/auth/register.dto";
@@ -119,7 +119,7 @@ export class AuthService implements IAuthService {
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected,isLocationCompleted, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, isLocationCompleted, profilePhoto, interests);
     }
 
 
@@ -230,7 +230,7 @@ export class AuthService implements IAuthService {
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected,isLocationCompleted, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, isLocationCompleted, profilePhoto, interests);
     }
 
     //* ----------------------------------
@@ -263,7 +263,7 @@ export class AuthService implements IAuthService {
     // Forgot Password Verify Otp
     //* ----------------------------------
 
-    async forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{ message: string }> {
+    async forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{ resetToken: string; message: string }> {
 
         const storedOtp = await this._otpRepo.getOtp(userId);
 
@@ -276,7 +276,10 @@ export class AuthService implements IAuthService {
 
         await this._otpRepo.deleteOtp(userId);
 
-        return { message: 'OTP verified successfully' };
+        // Generate a secure token for the next step (Reset Password)
+        const resetToken = generateResetToken(userId);
+
+        return { resetToken, message: 'OTP verified successfully' };
     }
 
 
@@ -284,7 +287,11 @@ export class AuthService implements IAuthService {
     // Reset Password
     //* ----------------------------------
 
-    async resetPassword(userId: string, data: ResetPasswordDto): Promise<{ message: string }> {
+    async resetPassword(resetToken: string, data: ResetPasswordDto): Promise<{ message: string }> {
+        // 1. Verify the token signature and expiration
+        const { userId } = verifyResetToken(resetToken);
+
+        // 2. Hash and update password
         const hashedPassword = await hashPassword(data.newPassword);
 
         await this._userRepo.updatePassword(userId, hashedPassword);
@@ -323,7 +330,7 @@ export class AuthService implements IAuthService {
             isInterestsSelected = await this._profileService.isInterestsSelected(userId);
         }
 
-        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, isInterestsSelected,isLocationCompleted, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, isInterestsSelected, isLocationCompleted, profilePhoto, interests);
     }
 
     //* ----------------------------------
@@ -397,10 +404,7 @@ export class AuthService implements IAuthService {
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, accessToken, refreshToken, isProfileCompleted, isInterestsSelected,isLocationCompleted, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, accessToken, refreshToken, isProfileCompleted, isInterestsSelected, isLocationCompleted, profilePhoto, interests);
     }
 
 }
-
-
-
