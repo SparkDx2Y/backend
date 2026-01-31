@@ -18,6 +18,7 @@ const profileController =
 // Complete profile
 router.post(
     "/complete",
+    authMiddleware,
     profileController.completeProfile
 );
 

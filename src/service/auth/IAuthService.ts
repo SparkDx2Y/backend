@@ -31,4 +31,6 @@ export interface IAuthService {
 
   refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }>
 
+  generateTokens(userId: string, role: string): Promise<{ accessToken: string; refreshToken: string; isProfileCompleted: boolean; isInterestsSelected: boolean; isLocationCompleted: boolean; }>
+
 }
