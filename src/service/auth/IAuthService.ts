@@ -29,4 +29,6 @@ export interface IAuthService {
 
   getCurrentUser(userId: string): Promise<LoginResponseDto>
 
+  refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }>
+
 }
