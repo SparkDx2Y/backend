@@ -9,7 +9,7 @@ import { IOtpRepository } from "../../repositories/otp/IOtpRepository";
 import { comparePassword, hashPassword } from "../../utils/password";
 import { generateOtp } from "../../utils/generate-otp";
 import { sendOtpEmail } from "../../utils/sendEmail";
-import { generateRefreshToken, generateResetToken, generateTempToken, generateToken, verifyResetToken } from "../../utils/jwtHelper";
+import { generateRefreshToken, generateResetToken, generateTempToken, generateToken, RefreshPayload, verifyRefreshToken, verifyResetToken } from "../../utils/jwtHelper";
 import { OAuth2Client } from "google-auth-library";
 
 import { SignupDto } from "../../dto/request/auth/register.dto";
@@ -195,42 +195,15 @@ export class AuthService implements IAuthService {
             );
         }
 
-        if (!user.isVerified) {
-            throw new AppError(
-                AUTH_ERRORS.USER_NOT_VERIFIED,
-                HTTP_STATUS.FORBIDDEN
-            );
-        }
+        // Issue Tokens
+        const auth = await this.issueTokens(user._id.toString(), user.role);
 
-        let isProfileCompleted = true;
-        if (user.role === 'user') {
-            isProfileCompleted = await this._profileService.isProfileCompleted(user._id.toString());
-        }
-
-        let isInterestsSelected = true;
-        if (user.role === 'user') {
-            isInterestsSelected = await this._profileService.isInterestsSelected(user._id.toString());
-        }
-
-        let isLocationCompleted = true;
-        if (user.role === 'user') {
-            isLocationCompleted = await this._profileService.isLocationCompleted(user._id.toString());
-        }
-
-        const token = generateToken({
-            id: user._id.toString(),
-            role: user.role,
-            isProfileCompleted,
-            isInterestsSelected,
-            isLocationCompleted
-        });
-        const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
-
+        // Get Profile
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, isLocationCompleted, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, auth.accessToken, auth.refreshToken, auth.isProfileCompleted, auth.isInterestsSelected, auth.isLocationCompleted, profilePhoto, interests);
     }
 
     //* ----------------------------------
@@ -310,27 +283,13 @@ export class AuthService implements IAuthService {
             throw new AppError(AUTH_ERRORS.USER_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
         }
 
-        let isProfileCompleted = false;
-        if (user.role === 'user') {
-            isProfileCompleted = await this._profileService.isProfileCompleted(userId);
-        } else {
-            isProfileCompleted = true; // Admin has no profile
-        }
-
-        let isLocationCompleted = true;
-        if (user.role === 'user') {
-            isLocationCompleted = await this._profileService.isLocationCompleted(userId);
-        }
+        const flags = await this.getProfileStatus(userId, user.role);
 
         const profile = await this._profileService.getProfileByUserId(userId);
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
-        let isInterestsSelected = true;
-        if (user.role === 'user') {
-            isInterestsSelected = await this._profileService.isInterestsSelected(userId);
-        }
 
-        return AuthMapper.toAuthResponseDto(user, "", "", isProfileCompleted, isInterestsSelected, isLocationCompleted, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, "", "", flags.isProfileCompleted, flags.isInterestsSelected, flags.isLocationCompleted, profilePhoto, interests);
     }
 
     //* ----------------------------------
@@ -354,8 +313,6 @@ export class AuthService implements IAuthService {
             name: payload.name || "Google User",
             sub: payload.sub,
         };
-
-
 
         // 1. Search by Google ID first (Safest)
         let user = await this._userRepo.findByGoogleId(googleUser.sub);
@@ -387,24 +344,77 @@ export class AuthService implements IAuthService {
             throw new AppError(AUTH_ERRORS.USER_BLOCKED, HTTP_STATUS.FORBIDDEN);
         }
 
-        const isProfileCompleted = await this._profileService.isProfileCompleted(user._id.toString());
-        const isInterestsSelected = await this._profileService.isInterestsSelected(user._id.toString());
-        const isLocationCompleted = await this._profileService.isLocationCompleted(user._id.toString());
-
-        const accessToken = generateToken({
-            id: user._id.toString(),
-            role: user.role,
-            isProfileCompleted,
-            isInterestsSelected,
-            isLocationCompleted
-        });
-        const refreshToken = generateRefreshToken({ id: user._id.toString(), role: user.role });
+        const auth = await this.issueTokens(user._id.toString(), user.role);
 
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, accessToken, refreshToken, isProfileCompleted, isInterestsSelected, isLocationCompleted, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, auth.accessToken, auth.refreshToken, auth.isProfileCompleted, auth.isInterestsSelected, auth.isLocationCompleted, profilePhoto, interests);
+    }
+
+    //* ----------------------------------
+    // Refresh Token
+    //* ----------------------------------
+
+    async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+        
+        let decoded : RefreshPayload;
+        try {
+            decoded = verifyRefreshToken(refreshToken);
+        } catch (error) {
+            throw new AppError(
+                AUTH_ERRORS.INVALID_REFRESH_TOKEN,
+                HTTP_STATUS.UNAUTHORIZED
+            )
+        }
+
+        const flags = await this.getProfileStatus(decoded.id, decoded.role);
+
+        const newAccessToken = generateToken({
+            id: decoded.id,
+            role: decoded.role,
+            ...flags
+        });
+        return { accessToken: newAccessToken, refreshToken };
+    }
+
+    //* ----------------------------------
+    // Private Helper: Get Profile Status
+    //* ----------------------------------
+    private async getProfileStatus(userId: string, role: string) {
+        
+        if(role !== 'user') {
+            return {
+                isProfileCompleted: true,
+                isInterestsSelected: true,
+                isLocationCompleted: true
+            }
+        }
+
+        const isProfileCompleted = await this._profileService.isProfileCompleted(userId);
+        const isInterestsSelected = await this._profileService.isInterestsSelected(userId);
+        const isLocationCompleted = await this._profileService.isLocationCompleted(userId);
+
+        return {
+            isProfileCompleted,
+            isInterestsSelected,
+            isLocationCompleted
+        }
+    }
+
+    //* ----------------------------------
+    // Private Helper: Issue Tokens
+    //* ----------------------------------
+    private async issueTokens(userId: string, role: string) {
+        const  flags = await this.getProfileStatus(userId, role);
+        const accessToken = generateToken({
+            id: userId,
+            role,
+            ...flags
+        });
+        const refreshToken = generateRefreshToken({ id: userId, role });
+        return { accessToken, refreshToken, ...flags };
     }
 
 }
