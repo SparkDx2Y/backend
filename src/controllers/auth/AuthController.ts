@@ -63,7 +63,7 @@ export class AuthController {
             // Clear the signup session token
             clearTempCookie(res, 'temp_token');
 
-            setAuthCookies(res, result.token, result.refreshToken);
+            setAuthCookies(res, result.accessToken, result.refreshToken);
 
 
             return res.status(HTTP_STATUS.OK).json({
@@ -102,7 +102,7 @@ export class AuthController {
             const data = loginSchema.parse(req.body);
             const result = await this._authService.login(data);
 
-            setAuthCookies(res, result.token, result.refreshToken);
+            setAuthCookies(res, result.accessToken, result.refreshToken);
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Login successful",
@@ -120,7 +120,7 @@ export class AuthController {
             const { token } = req.body;
             const result = await this._authService.googleLogin(token);
 
-            setAuthCookies(res, result.token, result.refreshToken);
+            setAuthCookies(res, result.accessToken, result.refreshToken);
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Login successful",
