@@ -196,7 +196,7 @@ export class AuthService implements IAuthService {
         }
 
         // Issue Tokens
-        const auth = await this.issueTokens(user._id.toString(), user.role);
+        const auth = await this.generateTokens(user._id.toString(), user.role);
 
         // Get Profile
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
@@ -344,7 +344,7 @@ export class AuthService implements IAuthService {
             throw new AppError(AUTH_ERRORS.USER_BLOCKED, HTTP_STATUS.FORBIDDEN);
         }
 
-        const auth = await this.issueTokens(user._id.toString(), user.role);
+        const auth = await this.generateTokens(user._id.toString(), user.role);
 
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
@@ -358,8 +358,8 @@ export class AuthService implements IAuthService {
     //* ----------------------------------
 
     async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
-        
-        let decoded : RefreshPayload;
+
+        let decoded: RefreshPayload;
         try {
             decoded = verifyRefreshToken(refreshToken);
         } catch (error) {
@@ -383,8 +383,8 @@ export class AuthService implements IAuthService {
     // Private Helper: Get Profile Status
     //* ----------------------------------
     private async getProfileStatus(userId: string, role: string) {
-        
-        if(role !== 'user') {
+
+        if (role !== 'user') {
             return {
                 isProfileCompleted: true,
                 isInterestsSelected: true,
@@ -404,10 +404,10 @@ export class AuthService implements IAuthService {
     }
 
     //* ----------------------------------
-    // Private Helper: Issue Tokens
+    // Generate Tokens (Public)
     //* ----------------------------------
-    private async issueTokens(userId: string, role: string) {
-        const  flags = await this.getProfileStatus(userId, role);
+    public async generateTokens(userId: string, role: string) {
+        const flags = await this.getProfileStatus(userId, role);
         const accessToken = generateToken({
             id: userId,
             role,
