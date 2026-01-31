@@ -33,7 +33,6 @@ export class AuthController {
             const { tempToken, message } = await this._authService.signup(data);
 
             //^ setting userId in the cookie for verifying the user in the next request
-            //^ setting userId in the cookie for verifying the user in the next request
             setTempCookie(res, 'temp_token', tempToken);
 
             return res.status(HTTP_STATUS.CREATED).json({ message })
@@ -60,7 +59,7 @@ export class AuthController {
             //^ verifying the otp
             const result = await this._authService.verifySignupOtp(userId, data);
 
-            // Clear the signup session token
+
             // Clear the signup session token
             clearTempCookie(res, 'temp_token');
 
@@ -105,8 +104,6 @@ export class AuthController {
 
             setAuthCookies(res, result.token, result.refreshToken);
 
-
-
             return res.status(HTTP_STATUS.OK).json({
                 message: "Login successful",
                 user: result.user
@@ -141,7 +138,6 @@ export class AuthController {
             const data = forgotPasswordSchema.parse(req.body);
             const { userId, message } = await this._authService.forgotPassword(data);
 
-            //^ setting userId in the cookie for verifying the user in the next request
             //^ setting userId in the cookie for verifying the user in the next request
             setTempCookie(res, 'otp_userId', userId);
 
@@ -218,33 +214,9 @@ export class AuthController {
                 return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: "Refresh token not valid" })
             }
 
-            const decoded = verifyRefreshToken(refreshToken);
-            if (!decoded) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Invalid refresh token' })
-            }
+            const result = await this._authService.refreshToken(refreshToken);
 
-            //^ fetch profile status
-            let isProfileCompleted = true;
-            let isInterestsSelected = true;
-            let isLocationCompleted = true;
-
-            if (decoded.role === 'user') {
-                isProfileCompleted = await this._profileService.isProfileCompleted(decoded.id);
-                isInterestsSelected = await this._profileService.isInterestsSelected(decoded.id);
-                isLocationCompleted = await this._profileService.isLocationCompleted(decoded.id);
-            }
-
-            //^ generate new access token
-            const newAccessToken = generateToken({
-                id: decoded.id,
-                role: decoded.role,
-                isProfileCompleted,
-                isInterestsSelected,
-                isLocationCompleted
-            });
-            const newRefreshToken = generateRefreshToken({ id: decoded.id, role: decoded.role });
-
-            setAuthCookies(res, newAccessToken, newRefreshToken);
+            setAuthCookies(res, result.accessToken, result.refreshToken);
 
             return res.status(HTTP_STATUS.OK).json({ message: 'Token refreshed successfully' })
         } catch (error) {
