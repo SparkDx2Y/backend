@@ -4,9 +4,9 @@ import { UserMapper } from "./user.mapper";
 
 
 export class AuthMapper {
-    static toAuthResponseDto(user: IUser, token: string, refreshToken: string, isProfileCompleted: boolean, isInterestsSelected: boolean, isLocationCompleted: boolean, profilePhoto?: string | null, interests?: string[]): LoginResponseDto {
+    static toAuthResponseDto(user: IUser, accessToken: string, refreshToken: string, isProfileCompleted: boolean, isInterestsSelected: boolean, isLocationCompleted: boolean, profilePhoto?: string | null, interests?: string[]): LoginResponseDto {
         return {
-            token,
+            accessToken,
             refreshToken,
             user: UserMapper.toUserResponseDto(user, isProfileCompleted, isInterestsSelected, isLocationCompleted, profilePhoto, interests)
         }
