@@ -1,7 +1,7 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { jwtConfig } from "../config/jwtConfig";
 
-interface RefreshPayload {
+export interface RefreshPayload {
   id: string;
   role: string;
 }
