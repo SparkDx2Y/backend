@@ -9,4 +9,5 @@ export const AUTH_ERRORS = {
   OTP_INVALID: "Invalid or expired OTP",
   USER_NOT_VERIFIED: "User is not verified",
   ROLE_MISMATCH: "Role mismatch",
+  INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
 } as const;
