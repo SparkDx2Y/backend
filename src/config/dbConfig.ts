@@ -10,6 +10,9 @@ const connectDB = async () => {
         await mongoose.connect(mongoURI)
         console.log(`MongoDB connected successfully ${mongoose.connection.host}`);
 
+        // Ensure all indexes are created/synced
+        await mongoose.connection.syncIndexes();
+
     } catch (error) {
         console.log(`MongoDB connection Failed: ${error}`);
         process.exit(1)
