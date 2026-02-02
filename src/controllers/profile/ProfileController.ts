@@ -64,7 +64,7 @@ export class ProfileController {
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Profile completed successfully",
-                isCompleted: true,
+                isCompleted,
                 profile
             });
 

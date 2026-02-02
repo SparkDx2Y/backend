@@ -96,18 +96,7 @@ export class AuthService implements IAuthService {
         await this._userRepo.markVerified(userId);
         await this._otpRepo.deleteOtp(userId);
 
-        const isProfileCompleted = false;
-        const isInterestsSelected = false;
-        const isLocationCompleted = false;
-
-        const token = generateToken({
-            id: userId,
-            role: 'user',
-            isProfileCompleted,
-            isInterestsSelected,
-            isLocationCompleted
-        });
-        const refreshToken = generateRefreshToken({ id: userId, role: 'user' });
+        const auth = await this.generateTokens(userId, 'user');
 
         const user = await this._userRepo.findById(userId);
 
@@ -119,7 +108,7 @@ export class AuthService implements IAuthService {
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
 
-        return AuthMapper.toAuthResponseDto(user, token, refreshToken, isProfileCompleted, isInterestsSelected, isLocationCompleted, profilePhoto, interests);
+        return AuthMapper.toAuthResponseDto(user, auth.accessToken, auth.refreshToken, auth.isProfileCompleted, auth.isInterestsSelected, auth.isLocationCompleted, profilePhoto, interests);
     }
 
 
