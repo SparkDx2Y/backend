@@ -5,9 +5,11 @@ import { IMatchedUsersRepository } from "./IMatchedUsersRepository";
 
 import { Types } from "mongoose";
 
+
 @injectable()
 export class MatchedUsersRepository implements IMatchedUsersRepository {
 
+    // create a new match
     async createMatch(users: [string, string]): Promise<IMatch> {
         // Sort users to ensure consistent ordering (prevents duplicate matches)
         const sortedUsers = [
@@ -21,6 +23,7 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
         });
     }
 
+    // find a match by id
     async findMatchById(matchId: string): Promise<IMatch | null> {
         const match = await Match.findById(matchId)
             .populate('users', 'name')
@@ -45,6 +48,7 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
         return match as unknown as IMatch;
     }
 
+    // find all matches for a user
     async findMatchesByUserId(userId: string): Promise<IMatch[]> {
         const matches = await Match.find({
             users: new Types.ObjectId(userId)
@@ -70,7 +74,6 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
     }
 
 
-
     async hasMatch(userId1: string, userId2: string): Promise<boolean> {
         const count = await Match.countDocuments({
             users: {
@@ -83,6 +86,7 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
         return count > 0;
     }
 
+    // update last message at
     async updateLastMessageAt(matchId: string, timestamp: Date): Promise<void> {
         await Match.findByIdAndUpdate(matchId, {
             lastMessageAt: timestamp
