@@ -9,6 +9,8 @@ export interface ProfileResponseDto {
     coverPhoto?: string | null;
     photos: string[];
     interests: string[];
-    distanceKm?:number;
+    distanceKm?: number;
+    hasSwiped?: boolean;
 }
+
 
