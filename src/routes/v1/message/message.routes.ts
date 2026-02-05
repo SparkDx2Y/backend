@@ -10,6 +10,7 @@ const messageController = container.get<MessageController>(DI_TYPES.CONTROLLERS.
 
 router.post("/", authMiddleware, messageController.sendMessage);
 router.get("/matches", authMiddleware, messageController.getMatches);
+router.get("/count", authMiddleware, messageController.getUnreadCount);
 router.get("/:matchId", authMiddleware, messageController.getMessages);
 router.put("/:matchId/read", authMiddleware, messageController.markAsRead);
 

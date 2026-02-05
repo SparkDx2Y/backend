@@ -27,7 +27,7 @@ export class MessageService implements IMessageService {
     // Send Message
     // ==============================================
     async sendMessage(matchId: string, senderId: string, content: string): Promise<MessageResponseDto> {
-        
+
         // verify match exists
         const match = await this._matchedUsersRepo.findMatchById(matchId);
         if (!match) {
@@ -57,7 +57,7 @@ export class MessageService implements IMessageService {
 
         // EMIT REAL-TIME MESSAGE TO RECIPIENT (recipient means the other user in the match)
         if (recipientId) {
-            
+
             const messageResponse = MessageMapper.toMessageResponse(message);
             // Send message event (updates Chat UI)
             this._socketService.sendMessage(recipientId, {
@@ -110,5 +110,9 @@ export class MessageService implements IMessageService {
     // ==============================================    
     async markMessagesAsRead(matchId: string, userId: string): Promise<void> {
         await this._messageRepo.markMatchMessagesAsRead(matchId, userId);
+    }
+
+    async getUnreadCount(userId: string): Promise<number> {
+        return this._messageRepo.getUnreadCount(userId);
     }
 }

@@ -81,4 +81,18 @@ export class MessageController {
             next(error);
         }
     };
+
+    //? Get unread messages count for a user
+    getUnreadCount = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+            }
+
+            const count = await this._messageService.getUnreadCount(req.user.id);
+            res.status(HTTP_STATUS.OK).json({ count });
+        } catch (error) {
+            next(error);
+        }
+    };
 }

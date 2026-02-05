@@ -6,6 +6,8 @@ export interface IMessageService {
     getMessages(matchId: string, userId: string, limit?: number): Promise<MessageResponseDto[]>;
 
     getMatches(userId: string): Promise<MatchResponseDto[]>;
-    
+
     markMessagesAsRead(matchId: string, userId: string): Promise<void>;
+    
+    getUnreadCount(userId: string): Promise<number>;
 }
