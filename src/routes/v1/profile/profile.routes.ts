@@ -57,4 +57,12 @@ router.put(
     profileController.updateLocation
 );
 
+// Get public profile (for other users)
+router.get(
+    "/:userId",
+    authMiddleware,
+    profileController.getPublicProfile
+);
+
+
 export default router;
