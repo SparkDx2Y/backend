@@ -1,17 +1,13 @@
 import 'reflect-metadata'
 import dotenv from 'dotenv'
-import http from 'http'
-import connectDB from './config/dbConfig'
-import { SocketServer } from './socket/SocketServer'
 
 //? dotenv config
 dotenv.config();
 
+import http from 'http'
+import connectDB from './config/dbConfig'
 
-
-import container from './di/index'
-import { DI_TYPES } from './di/types'
-import { SocketServiceWrapper } from './service/socket/SocketServiceWrapper'
+import { initSocket } from './socket';
 //? importing the app
 import app from './app'
 
@@ -26,12 +22,7 @@ const startServer = async () => {
     const httpServer = http.createServer(app);
 
     // Initialize Socket.IO
-    const socketServer = new SocketServer(httpServer);
-
-    // Initialize the SocketServiceWrapper through DI container
-    // This allows services (like MatchService) to have already been created with the wrapper injected
-    const socketServiceWrapper = container.get<SocketServiceWrapper>(DI_TYPES.SERVICES.SOCKET_SERVICE);
-    socketServiceWrapper.initialize(socketServer);
+    initSocket(httpServer);
 
     httpServer.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
