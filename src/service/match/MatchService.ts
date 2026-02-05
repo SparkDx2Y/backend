@@ -2,19 +2,29 @@ import { inject, injectable } from "inversify";
 import { IMatchService } from "./IMatchService";
 import { DI_TYPES } from "../../di/types";
 import { IMatchRepository } from "../../repositories/match/IMatchRepository";
+import { IMatchedUsersRepository } from "../../repositories/match/IMatchedUsersRepository";
+import { INotificationRepository } from "../../repositories/notification/INotificationRepository";
 import { IProfileRepository } from "../../repositories/profile/IProfileRepository";
 import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
 import { ProfileMapper } from "../../mapper/auth/profile.mapper";
 import { AppError } from "../../utils/AppError";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 
+import { ISocketService } from "../socket/ISocketService";
+
 @injectable()
 export class MatchService implements IMatchService {
     constructor(
         @inject(DI_TYPES.REPOSITORIES.MATCH_REPOSITORY)
         private readonly _matchRepo: IMatchRepository,
+        @inject(DI_TYPES.REPOSITORIES.MATCHED_USERS_REPOSITORY)
+        private readonly _matchedUsersRepo: IMatchedUsersRepository,
+        @inject(DI_TYPES.REPOSITORIES.NOTIFICATION_REPOSITORY)
+        private readonly _notificationRepo: INotificationRepository,
         @inject(DI_TYPES.REPOSITORIES.PROFILE_REPOSITORY)
-        private readonly _profileRepo: IProfileRepository
+        private readonly _profileRepo: IProfileRepository,
+        @inject(DI_TYPES.SERVICES.SOCKET_SERVICE)
+        private readonly _socketService: ISocketService
     ) { }
 
     // ----------------------------------
@@ -58,7 +68,7 @@ export class MatchService implements IMatchService {
     // ----------------------------------
     // Swipe Action
     // ----------------------------------
-    async swipe(fromUserId: string, toUserId: string, action: 'like' | 'pass'): Promise<{ isMatch: boolean }> {
+    async swipe(fromUserId: string, toUserId: string, action: 'like' | 'pass'): Promise<{ isMatch: boolean; matchId?: string }> {
 
         // 1. Prevent duplicate swipe action
         const existing = await this._matchRepo.hasUserAlreadySwiped(fromUserId, toUserId);
@@ -74,16 +84,76 @@ export class MatchService implements IMatchService {
             action
         });
 
-        // 3. Check for Match (only if it's a 'like')
+        // 3. If it's a LIKE, create notification for the person being liked
         if (action === 'like') {
+            const notification = await this._notificationRepo.create({
+                userId: toUserId,
+                type: 'like',
+                fromUserId: fromUserId
+            });
+
+            // EMIT REAL-TIME NOTIFICATION
+            this._socketService.sendNotification(toUserId, {
+                type: 'like',
+                message: 'Someone liked you!',
+                data: notification
+            });
+
+            // 4. Check for mutual match
             const targetAction = await this._matchRepo.getAction(toUserId, fromUserId);
 
-            // 3.1. Check if target user also liked back. If so, it's a match!
+            // 4.1. If target user also liked back, create Match and notifications
             if (targetAction && targetAction.action === 'like') {
-                return { isMatch: true };
+                // Prevent duplicate match record creation
+                const alreadyMatched = await this._matchedUsersRepo.hasMatch(fromUserId, toUserId);
+                if (alreadyMatched) {
+                    return { isMatch: true }; // Already matched, just return success
+                }
+
+                // Create Match record
+                const match = await this._matchedUsersRepo.createMatch([fromUserId, toUserId]);
+
+
+                // Create match notifications for BOTH users
+                const matchNotification1 = await this._notificationRepo.create({
+                    userId: toUserId,
+                    type: 'match',
+                    fromUserId: fromUserId,
+                    matchId: match._id.toString()
+                });
+
+                const matchNotification2 = await this._notificationRepo.create({
+                    userId: fromUserId,
+                    type: 'match',
+                    fromUserId: toUserId,
+                    matchId: match._id.toString()
+                });
+
+                // EMIT REAL-TIME MATCH NOTIFICATIONS TO BOTH USERS
+                this._socketService.sendMatch(toUserId, {
+                    type: 'match',
+                    message: "It's a Match!",
+                    matchId: match._id.toString(),
+                    data: matchNotification1
+                });
+
+                this._socketService.sendMatch(fromUserId, {
+                    type: 'match',
+                    message: "It's a Match!",
+                    matchId: match._id.toString(),
+                    data: matchNotification2
+                });
+
+                return { isMatch: true, matchId: match._id.toString() };
             }
         }
 
         return { isMatch: false };
     }
+
+    async hasUserSwipedOn(fromUserId: string, toUserId: string): Promise<boolean> {
+        return this._matchRepo.hasUserAlreadySwiped(fromUserId, toUserId);
+    }
 }
+
+
