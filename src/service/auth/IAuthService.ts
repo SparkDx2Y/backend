@@ -21,12 +21,16 @@ export interface IAuthService {
 
   forgotPassword(data: ForgotPasswordDto): Promise<{ userId: string, message: string }>
 
-  forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{ message: string }>
+  forgotPasswordVerifyOtp(userId: string, data: ForgotPasswordVerifyOtpDto): Promise<{ resetToken: string; message: string }>
 
-  resetPassword(userID: string, data: ResetPasswordDto): Promise<{ message: string }>
+  resetPassword(resetToken: string, data: ResetPasswordDto): Promise<{ message: string }>
 
   googleLogin(token: string): Promise<LoginResponseDto>
 
   getCurrentUser(userId: string): Promise<LoginResponseDto>
+
+  refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }>
+
+  generateTokens(userId: string, role: string): Promise<{ accessToken: string; refreshToken: string; isProfileCompleted: boolean; isInterestsSelected: boolean; isLocationCompleted: boolean; }>
 
 }

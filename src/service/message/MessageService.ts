@@ -1,0 +1,118 @@
+import { inject, injectable } from "inversify";
+import { IMessageService } from "./IMessageService";
+import { DI_TYPES } from "../../di/types";
+import { IMessageRepository } from "../../repositories/message/IMessageRepository";
+import { IMatchedUsersRepository } from "../../repositories/match/IMatchedUsersRepository";
+import { INotificationRepository } from "../../repositories/notification/INotificationRepository";
+import { MessageResponseDto, MatchResponseDto } from "../../dto/response/message/message-response.dto";
+import { MessageMapper } from "../../mapper/message/message.mapper";
+import { AppError } from "../../utils/AppError";
+import { HTTP_STATUS } from "../../constants/http-status.constants";
+
+import { ISocketService } from "../socket/ISocketService";
+
+@injectable()
+export class MessageService implements IMessageService {
+    constructor(
+        @inject(DI_TYPES.REPOSITORIES.MESSAGE_REPOSITORY)
+        private readonly _messageRepo: IMessageRepository,
+        @inject(DI_TYPES.REPOSITORIES.MATCHED_USERS_REPOSITORY)
+        private readonly _matchedUsersRepo: IMatchedUsersRepository,
+        @inject(DI_TYPES.SERVICES.SOCKET_SERVICE)
+        private readonly _socketService: ISocketService
+    ) { }
+
+
+    // ==============================================
+    // Send Message
+    // ==============================================
+    async sendMessage(matchId: string, senderId: string, content: string): Promise<MessageResponseDto> {
+
+        // verify match exists
+        const match = await this._matchedUsersRepo.findMatchById(matchId);
+        if (!match) {
+            throw new AppError("Match not found", HTTP_STATUS.NOT_FOUND);
+        }
+
+        const userIds = match.users.map((userId) =>
+            typeof userId === "string" ? userId : userId._id.toString()
+        );
+        // verify sender is part of the match
+        if (!userIds.includes(senderId)) {
+            throw new AppError("You are not part of this match", HTTP_STATUS.FORBIDDEN);
+        }
+
+        // create message
+        const message = await this._messageRepo.createMessage({
+            matchId,
+            senderId,
+            content
+        });
+
+        // update match's lastMessageAt
+        await this._matchedUsersRepo.updateLastMessageAt(matchId, new Date());
+
+        // get recipient ID and create notification
+        const recipientId = userIds.find((userId) => userId !== senderId);
+
+        // EMIT REAL-TIME MESSAGE TO RECIPIENT (recipient means the other user in the match)
+        if (recipientId) {
+
+            const messageResponse = MessageMapper.toMessageResponse(message);
+            // Send message event (updates Chat UI)
+            this._socketService.sendMessage(recipientId, {
+                type: 'message',
+                matchId: matchId,
+                message: messageResponse
+            });
+
+        }
+        return MessageMapper.toMessageResponse(message);
+    }
+
+    // ==============================================
+    // Get Messages
+    // ==============================================
+    async getMessages(matchId: string, userId: string, limit?: number): Promise<MessageResponseDto[]> {
+        // 1. Verify user is part of the match
+        const match = await this._matchedUsersRepo.findMatchById(matchId);
+
+        if (!match) {
+            throw new AppError("Match not found", HTTP_STATUS.NOT_FOUND);
+        }
+
+        const userIds = match.users.map((user) =>
+            typeof user === "string" ? user : user._id.toString()
+        );
+
+        if (!userIds.includes(userId)) {
+            throw new AppError("You are not part of this match", HTTP_STATUS.FORBIDDEN);
+        }
+
+        // 2. Get messages
+        const messages = await this._messageRepo.findMessagesByMatchId(matchId, limit);
+
+        return messages.map(msg => MessageMapper.toMessageResponse(msg));
+
+
+    }
+
+    // ==============================================    
+    // Get Matches
+    // ==============================================    
+    async getMatches(userId: string): Promise<MatchResponseDto[]> {
+        const matches = await this._matchedUsersRepo.findMatchesByUserId(userId);
+        return matches.map(match => MessageMapper.toMatchResponse(match));
+    }
+
+    // ==============================================    
+    // Mark Messages As Read
+    // ==============================================    
+    async markMessagesAsRead(matchId: string, userId: string): Promise<void> {
+        await this._messageRepo.markMatchMessagesAsRead(matchId, userId);
+    }
+
+    async getUnreadCount(userId: string): Promise<number> {
+        return this._messageRepo.getUnreadCount(userId);
+    }
+}

@@ -18,6 +18,7 @@ const profileController =
 // Complete profile
 router.post(
     "/complete",
+    authMiddleware,
     profileController.completeProfile
 );
 
@@ -48,5 +49,20 @@ router.post(
     authMiddleware,
     profileController.updateInterests
 );
+
+// update user location
+router.put(
+    "/location",
+    authMiddleware,
+    profileController.updateLocation
+);
+
+// Get public profile (for other users)
+router.get(
+    "/:userId",
+    authMiddleware,
+    profileController.getPublicProfile
+);
+
 
 export default router;

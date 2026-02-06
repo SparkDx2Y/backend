@@ -13,6 +13,7 @@ import { generateRefreshToken, generateToken, generateTempToken, verifyRefreshTo
 import { IProfileService } from "../../service/profile/IProfileService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
+import { clearAuthCookies, clearTempCookie, setAuthCookies, setTempCookie } from "../../utils/cookieHelper";
 
 
 
@@ -32,12 +33,7 @@ export class AuthController {
             const { tempToken, message } = await this._authService.signup(data);
 
             //^ setting userId in the cookie for verifying the user in the next request
-            res.cookie('temp_token', tempToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                maxAge: 30 * 60 * 1000
-            });
+            setTempCookie(res, 'temp_token', tempToken);
 
             return res.status(HTTP_STATUS.CREATED).json({ message })
         } catch (error) {
@@ -63,29 +59,16 @@ export class AuthController {
             //^ verifying the otp
             const result = await this._authService.verifySignupOtp(userId, data);
 
-            // Clear the signup session token
-            res.clearCookie('temp_token');
 
-            // Set cookies akin to login
-            res.cookie('accessToken', result.token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 15 * 60 * 1000
-            });
-            res.cookie('refreshToken', result.refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000
-            });
+            // Clear the signup session token
+            clearTempCookie(res, 'temp_token');
+
+            setAuthCookies(res, result.accessToken, result.refreshToken);
 
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "OTP Verified. Please complete your profile",
-                user: result.user,
-                isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected
+                user: result.user
             });
         } catch (error) {
             next(error)
@@ -119,26 +102,11 @@ export class AuthController {
             const data = loginSchema.parse(req.body);
             const result = await this._authService.login(data);
 
-            res.cookie('accessToken', result.token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 15 * 60 * 1000
-            })
-            res.cookie('refreshToken', result.refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000
-            })
-
-
+            setAuthCookies(res, result.accessToken, result.refreshToken);
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Login successful",
-                user: result.user,
-                isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected
+                user: result.user
             });
 
 
@@ -152,24 +120,11 @@ export class AuthController {
             const { token } = req.body;
             const result = await this._authService.googleLogin(token);
 
-            res.cookie('accessToken', result.token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 15 * 60 * 1000
-            })
-            res.cookie('refreshToken', result.refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000
-            })
+            setAuthCookies(res, result.accessToken, result.refreshToken);
 
             return res.status(HTTP_STATUS.OK).json({
                 message: "Login successful",
-                user: result.user,
-                isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected
+                user: result.user
             });
         } catch (error) {
             next(error)
@@ -184,12 +139,7 @@ export class AuthController {
             const { userId, message } = await this._authService.forgotPassword(data);
 
             //^ setting userId in the cookie for verifying the user in the next request
-            res.cookie('otp_userId', userId, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                maxAge: 5 * 60 * 1000
-            });
+            setTempCookie(res, 'otp_userId', userId);
 
             return res.status(HTTP_STATUS.OK).json({ message })
         } catch (error) {
@@ -207,17 +157,15 @@ export class AuthController {
             if (!userId) {
                 return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'OTP Session expired' })
             }
-            const result = await this._authService.forgotPasswordVerifyOtp(userId, data);
+            const { resetToken, message } = await this._authService.forgotPasswordVerifyOtp(userId, data);
 
-            res.cookie('otp_verified', 'true', {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                maxAge: 5 * 60 * 1000
-            });
+            // Set the secure reset token
+            setTempCookie(res, 'reset_token', resetToken);
 
+            // Clean up the previous step's cookie
+            clearTempCookie(res, 'otp_userId');
 
-            return res.status(HTTP_STATUS.OK).json(result)
+            return res.status(HTTP_STATUS.OK).json({ message })
         } catch (error) {
             next(error)
         }
@@ -229,16 +177,15 @@ export class AuthController {
         try {
             const data = resetPasswordSchema.parse(req.body);
 
-            const userId = req.cookies.otp_userId;
-            const otpVerified = req.cookies.otp_verified;
+            const resetToken = req.cookies.reset_token;
 
-            if (!userId || !otpVerified) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'OTP Session expired or not verified' })
+            if (!resetToken) {
+                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Reset session expired' })
             }
-            const result = await this._authService.resetPassword(userId, data);
 
-            res.clearCookie('otp_userId');
-            res.clearCookie('otp_verified');
+            const result = await this._authService.resetPassword(resetToken, data);
+
+            clearTempCookie(res, 'reset_token');
 
             return res.status(HTTP_STATUS.OK).json(result)
         } catch (error) {
@@ -250,8 +197,7 @@ export class AuthController {
 
     logout = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            res.clearCookie('accessToken')
-            res.clearCookie('refreshToken')
+            clearAuthCookies(res);
             return res.status(HTTP_STATUS.OK).json({ message: 'Logout successful' })
         } catch (error) {
             next(error)
@@ -268,41 +214,9 @@ export class AuthController {
                 return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: "Refresh token not valid" })
             }
 
-            const decoded = verifyRefreshToken(refreshToken);
-            if (!decoded) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Invalid refresh token' })
-            }
+            const result = await this._authService.refreshToken(refreshToken);
 
-            //^ fetch profile status
-            let isProfileCompleted = true;
-            let isInterestsSelected = true;
-
-            if (decoded.role === 'user') {
-                isProfileCompleted = await this._profileService.isProfileCompleted(decoded.id);
-                isInterestsSelected = await this._profileService.isInterestsSelected(decoded.id);
-            }
-
-            //^ generate new access token
-            const newAccessToken = generateToken({
-                id: decoded.id,
-                role: decoded.role,
-                isProfileCompleted,
-                isInterestsSelected
-            });
-            const newRefreshToken = generateRefreshToken({ id: decoded.id, role: decoded.role });
-
-            res.cookie('accessToken', newAccessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 15 * 60 * 1000
-            });
-            res.cookie('refreshToken', newRefreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000
-            });
+            setAuthCookies(res, result.accessToken, result.refreshToken);
 
             return res.status(HTTP_STATUS.OK).json({ message: 'Token refreshed successfully' })
         } catch (error) {
@@ -319,9 +233,7 @@ export class AuthController {
             const result = await this._authService.getCurrentUser(req.user.id);
 
             return res.status(HTTP_STATUS.OK).json({
-                user: result.user,
-                isProfileCompleted: result.isProfileCompleted,
-                isInterestsSelected: result.isInterestsSelected
+                user: result.user
             });
         } catch (error) {
             next(error);

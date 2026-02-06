@@ -1,13 +1,13 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { jwtConfig } from "../config/jwtConfig";
 
-interface RefreshPayload {
+export interface RefreshPayload {
   id: string;
   role: string;
 }
 
 
-export const generateToken = (payload: { id: string, role: string, isProfileCompleted: boolean, isInterestsSelected: boolean }): string => {
+export const generateToken = (payload: { id: string, role: string, isProfileCompleted: boolean, isInterestsSelected: boolean, isLocationCompleted: boolean }): string => {
   return jwt.sign(payload, jwtConfig.accessTokenSecret, {
     expiresIn: jwtConfig.accessTokenExpiresIn,
   });
@@ -41,5 +41,20 @@ export const verifyTempToken = (token: string) => {
   return jwt.verify(token, jwtConfig.tempTokenSecret) as {
     userId: string;
     type: "TEMP";
+  };
+};
+
+export const generateResetToken = (userId: string) => {
+  return jwt.sign(
+    { userId, type: "RESET_PASSWORD" },
+    jwtConfig.resetTokenSecret,
+    { expiresIn: jwtConfig.resetTokenExpiresIn }
+  );
+};
+
+export const verifyResetToken = (token: string) => {
+  return jwt.verify(token, jwtConfig.resetTokenSecret) as {
+    userId: string;
+    type: "RESET_PASSWORD";
   };
 };

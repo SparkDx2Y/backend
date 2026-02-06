@@ -6,6 +6,10 @@ export interface IProfile extends Document {
     gender: 'male' | 'female';
     interestedIn?: 'male' | 'female';
     interests: mongoose.Types.ObjectId[];
+    location?: {
+        type: 'Point',
+        coordinates: [number, number]
+    }
     profilePhoto?: string | null;
     coverPhoto?: string | null;
     photos?: string[];
@@ -41,6 +45,16 @@ const profileSchema = new Schema<IProfile>({
         ref: 'Interest',
         default: []
     },
+    location: {
+        type: {
+            type: String,
+            enum: ["Point"]
+        },
+        coordinates: {
+            type: [Number],
+            required: false
+        }
+    },
     profilePhoto: {
         type: String,
         default: null
@@ -56,5 +70,8 @@ const profileSchema = new Schema<IProfile>({
 }, { timestamps: true })
 
 profileSchema.index({ gender: 1, interestedIn: 1 });
+
+// Geo 
+profileSchema.index({ location: "2dsphere" });
 
 export const Profile = mongoose.model<IProfile>("Profile", profileSchema);

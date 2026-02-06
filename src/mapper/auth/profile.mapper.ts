@@ -3,7 +3,7 @@ import { ProfileResponseDto } from "../../dto/response/profile/profile-response.
 import { IUser } from "../../models/user";
 
 export class ProfileMapper {
-  static toProfileResponse(profile: IProfile): ProfileResponseDto {
+  static toProfileResponse(profile: any): ProfileResponseDto {
     const user = profile.userId as unknown as IUser;
 
     return {
@@ -16,7 +16,8 @@ export class ProfileMapper {
       profilePhoto: profile.profilePhoto ?? profile.photos?.[0] ?? null,
       coverPhoto: profile.coverPhoto ?? null,
       photos: profile.photos ?? [],
-      interests: (profile.interests || []).map((interest: any) => interest?.name || 'Unknown')
+      interests: (profile.interests || []).map((interest: any) => interest?.name || 'Unknown'),
+      distanceKm: profile.distanceKm
     };
   }
 }

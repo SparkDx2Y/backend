@@ -1,12 +1,13 @@
 import 'reflect-metadata'
 import dotenv from 'dotenv'
-import connectDB from './config/dbConfig'
 
 //? dotenv config
 dotenv.config();
 
+import http from 'http'
+import connectDB from './config/dbConfig'
 
-
+import { initSocket } from './socket';
 //? importing the app
 import app from './app'
 
@@ -17,8 +18,15 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    app.listen(PORT, () => {
+    // Create HTTP server
+    const httpServer = http.createServer(app);
+
+    // Initialize Socket.IO
+    initSocket(httpServer);
+
+    httpServer.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
+      console.log(`Socket.IO is ready for real-time communication`);
     })
 
   } catch (error) {
