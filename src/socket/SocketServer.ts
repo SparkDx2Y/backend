@@ -83,11 +83,11 @@ export class SocketServer implements ISocketService {
     // ONLINE / OFFLINE HANDLING
     // =========================
 
-      /**
-     * Fetches mutual matches.
-     * Notifies those matches that this user is online.
-     * Sends the list of currently online matches to this user.
-     */
+    /**
+   * Fetches mutual matches.
+   * Notifies those matches that this user is online.
+   * Sends the list of currently online matches to this user.
+   */
 
     private async handleUserOnline(userId: string, socket: Socket) {
         try {
@@ -203,7 +203,7 @@ export class SocketServer implements ISocketService {
         return this.userSockets.has(userId);
     }
 
-    
+
     /**
      * Sends a real-time chat message to a specific user.
      */
@@ -212,24 +212,27 @@ export class SocketServer implements ISocketService {
         return this.userSockets.has(userId);
     }
 
-     /**
-     * Notifies a user of a new match.
-     */
+    /**
+    * Notifies a user of a new match.
+    */
     public sendMatch(userId: string, matchData: any): boolean {
+        // Invalidate cache when a new match occurs
+        this.userMatches.delete(userId);
+
         this.notifyUser(userId, "match", matchData);
         return this.userSockets.has(userId);
     }
 
-     /**
-     * Returns true if the user has any active connections.
-     */
+    /**
+    * Returns true if the user has any active connections.
+    */
     public isUserOnline(userId: string): boolean {
         return this.userSockets.has(userId);
     }
 
-     /**
-     * Returns a list of all currently online user IDs.
-     */
+    /**
+    * Returns a list of all currently online user IDs.
+    */
     public getOnlineUsers(): string[] {
         return Array.from(this.userSockets.keys());
     }
