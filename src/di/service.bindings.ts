@@ -9,6 +9,7 @@ import { NotificationService } from "../service/notification/NotificationService
 import { AdminService } from "../service/admin/AdminService";
 import { InterestService } from "../service/interest/InterestService";
 import { SocketServiceWrapper } from "../service/socket/SocketServiceWrapper";
+import { CloudinaryStorageProvider } from "../service/storage/CloudinaryStorageProvider";
 
 
 export function bindServices(container: Container) {
@@ -21,4 +22,5 @@ export function bindServices(container: Container) {
     container.bind(DI_TYPES.SERVICES.ADMIN_SERVICE).to(AdminService).inSingletonScope();
     container.bind(DI_TYPES.SERVICES.INTEREST_SERVICE).to(InterestService).inSingletonScope();
     container.bind(DI_TYPES.SERVICES.SOCKET_SERVICE).to(SocketServiceWrapper).inSingletonScope();
+    container.bind(DI_TYPES.PROVIDERS.STORAGE_PROVIDER).to(CloudinaryStorageProvider).inSingletonScope();
 }
