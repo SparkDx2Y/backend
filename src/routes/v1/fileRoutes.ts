@@ -13,6 +13,7 @@ const fileController = container.get<FileController>(DI_TYPES.CONTROLLERS.FILE_C
 // Routes
 router.post("/upload", upload.single("file"), fileController.uploadSingle);
 router.post("/upload-multiple", upload.array("files", 6), fileController.uploadMultiple);
+router.post("/upload-chat-media", upload.single("file"), fileController.uploadChatMedia);
 
 export default router;
 
