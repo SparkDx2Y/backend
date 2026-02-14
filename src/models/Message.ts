@@ -3,7 +3,8 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface IMessage extends Document {
     matchId: mongoose.Types.ObjectId;  // Which match this message belongs to
     senderId: mongoose.Types.ObjectId; // Who sent the message
-    content: string;                   // Message text
+    content: string;                   // Message text or File URL
+    type: 'text' | 'image' | 'audio';   // Type of message
     isRead: boolean;                   // Has the recipient read it?
     createdAt: Date;
 }
@@ -24,7 +25,12 @@ const messageSchema = new Schema<IMessage>({
         type: String,
         required: true,
         trim: true,
-        maxlength: 1000
+        maxlength: 2000 // Increased for long URLs if needed
+    },
+    type: {
+        type: String,
+        enum: ['text', 'image', 'audio'],
+        default: 'text'
     },
     isRead: {
         type: Boolean,
