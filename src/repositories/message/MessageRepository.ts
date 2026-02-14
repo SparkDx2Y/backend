@@ -8,12 +8,13 @@ import { Match } from "../../models/Match";
 export class MessageRepository implements IMessageRepository {
 
     // create a new message
-    async createMessage(data: { matchId: string; senderId: string; content: string }): Promise<IMessage> {
+    async createMessage(data: { matchId: string; senderId: string; content: string; type?: string }): Promise<IMessage> {
 
         return Message.create({
             matchId: new Types.ObjectId(data.matchId),
             senderId: new Types.ObjectId(data.senderId),
             content: data.content,
+            type: data.type || 'text',
             isRead: false
         });
     }
