@@ -3,6 +3,7 @@ export interface MessageResponseDto {
     matchId: string;
     senderId: string;
     content: string;
+    type: 'text' | 'image' | 'audio';
     isRead: boolean;
     createdAt: Date;
 }
