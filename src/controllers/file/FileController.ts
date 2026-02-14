@@ -3,8 +3,8 @@ import { inject, injectable } from "inversify";
 import { DI_TYPES } from "../../di/types";
 import { IFileService } from "../../service/file/IFileService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
-import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 import { FILE_ERRORS } from "../../constants/errors/file.errors";
+import { uploadChatMediaSchema } from "../../dto/request/message/upload-chat-media.dto";
 
 
 @injectable()
@@ -55,7 +55,24 @@ export class FileController {
         }
     };
 
+    // ----------------------------------
+    // Upload chat media
+    // ----------------------------------
+    uploadChatMedia = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: FILE_ERRORS.NO_FILE });
+            }
 
+            const { type } = uploadChatMediaSchema.parse(req.body);
+
+            const url = await this._fileService.uploadChatMedia(req.file, type);
+
+            return res.status(HTTP_STATUS.OK).json({ url });
+        } catch (error) {
+            next(error);
+        }
+    };
 }
 
 

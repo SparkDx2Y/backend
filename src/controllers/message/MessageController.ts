@@ -20,9 +20,9 @@ export class MessageController {
                 return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
             }
 
-            const { matchId, content } = sendMessageSchema.parse(req.body);
+            const { matchId, content, type } = sendMessageSchema.parse(req.body);
 
-            const message = await this._messageService.sendMessage(matchId, req.user.id, content);
+            const message = await this._messageService.sendMessage(matchId, req.user.id, content, type);
             res.status(HTTP_STATUS.CREATED).json(message);
         } catch (error) {
             next(error);
