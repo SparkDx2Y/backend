@@ -1,5 +1,7 @@
 import { inject, injectable } from "inversify";
 import { Request, Response, NextFunction } from "express";
+import { sendResponse } from "../../utils/responseHelper";
+import { COMMON_MESSAGES } from "../../constants/common.messages";
 
 import { DI_TYPES } from "../../di/types";
 import { IAuthService } from "../../service/auth/IAuthService";
@@ -35,7 +37,7 @@ export class AuthController {
             //^ setting userId in the cookie for verifying the user in the next request
             setTempCookie(res, 'temp_token', tempToken);
 
-            return res.status(HTTP_STATUS.CREATED).json({ message })
+            return sendResponse(res, HTTP_STATUS.CREATED, message);
         } catch (error) {
             next(error)
         }
@@ -51,7 +53,7 @@ export class AuthController {
             const token = req.cookies.temp_token;
 
             if (!token) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.SESSION_EXPIRED })
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.SESSION_EXPIRED);
             }
 
             const { userId } = verifyTempToken(token)
@@ -64,12 +66,7 @@ export class AuthController {
             clearTempCookie(res, 'temp_token');
 
             setAuthCookies(res, result.accessToken, result.refreshToken);
-
-
-            return res.status(HTTP_STATUS.OK).json({
-                message: "OTP Verified. Please complete your profile",
-                user: result.user
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.OTP_VERIFIED_COMPLETE_PROFILE, { user: result.user });
         } catch (error) {
             next(error)
         }
@@ -81,13 +78,14 @@ export class AuthController {
         try {
             const token = req.cookies.temp_token;
             if (!token) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.SESSION_EXPIRED });
+                // return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.SESSION_EXPIRED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.SESSION_EXPIRED);
             }
 
             const { userId } = verifyTempToken(token);
 
             const result = await this._authService.resendSignupOtp(userId);
-            return res.status(HTTP_STATUS.OK).json(result);
+            return sendResponse(res, HTTP_STATUS.OK, result.message);
 
         } catch (error) {
             next(error)
@@ -103,11 +101,7 @@ export class AuthController {
             const result = await this._authService.login(data);
 
             setAuthCookies(res, result.accessToken, result.refreshToken);
-
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Login successful",
-                user: result.user
-            });
+            return sendResponse(res, HTTP_STATUS.OK, "Login successful", { user: result.user });
 
 
         } catch (error) {
@@ -122,10 +116,7 @@ export class AuthController {
 
             setAuthCookies(res, result.accessToken, result.refreshToken);
 
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Login successful",
-                user: result.user
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.LOGIN_SUCCESSFUL, { user: result.user });
         } catch (error) {
             next(error)
         }
@@ -141,7 +132,7 @@ export class AuthController {
             //^ setting userId in the cookie for verifying the user in the next request
             setTempCookie(res, 'otp_userId', userId);
 
-            return res.status(HTTP_STATUS.OK).json({ message })
+            return sendResponse(res, HTTP_STATUS.OK, message);
         } catch (error) {
             next(error)
         }
@@ -155,7 +146,7 @@ export class AuthController {
 
             const userId = req.cookies.otp_userId;
             if (!userId) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'OTP Session expired' })
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_MESSAGES.OTP_SESSION_EXPIRED);
             }
             const { resetToken, message } = await this._authService.forgotPasswordVerifyOtp(userId, data);
 
@@ -165,11 +156,30 @@ export class AuthController {
             // Clean up the previous step's cookie
             clearTempCookie(res, 'otp_userId');
 
-            return res.status(HTTP_STATUS.OK).json({ message })
+            return sendResponse(res, HTTP_STATUS.OK, message);
         } catch (error) {
             next(error)
         }
     }
+
+    //* // // // // // //   resendForgotPasswordOtp  // // // // // // // *//
+
+    resendForgotPasswordOtp = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.cookies.otp_userId;
+
+            if (!userId) {
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_MESSAGES.OTP_SESSION_EXPIRED);
+            }
+
+            const result = await this._authService.resendForgotPasswordOtp(userId);
+            return sendResponse(res, HTTP_STATUS.OK, result.message);
+
+        } catch (error) {
+            next(error)
+        }
+    }
+
 
     //* // // // // // //   resetPassword  // // // // // // // *//
 
@@ -180,14 +190,14 @@ export class AuthController {
             const resetToken = req.cookies.reset_token;
 
             if (!resetToken) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Reset session expired' })
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_MESSAGES.RESET_SESSION_EXPIRED);
             }
 
             const result = await this._authService.resetPassword(resetToken, data);
 
             clearTempCookie(res, 'reset_token');
 
-            return res.status(HTTP_STATUS.OK).json(result)
+            return sendResponse(res, HTTP_STATUS.OK, result.message);
         } catch (error) {
             next(error)
         }
@@ -198,7 +208,7 @@ export class AuthController {
     logout = async (req: Request, res: Response, next: NextFunction) => {
         try {
             clearAuthCookies(res);
-            return res.status(HTTP_STATUS.OK).json({ message: 'Logout successful' })
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.LOGOUT_SUCCESSFUL);
         } catch (error) {
             next(error)
         }
@@ -211,14 +221,14 @@ export class AuthController {
         try {
             const refreshToken = req.cookies.refreshToken;
             if (!refreshToken) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: "Refresh token not valid" })
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, "Refresh token not valid");
             }
 
             const result = await this._authService.refreshToken(refreshToken);
 
             setAuthCookies(res, result.accessToken, result.refreshToken);
 
-            return res.status(HTTP_STATUS.OK).json({ message: 'Token refreshed successfully' })
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.TOKEN_REFRESHED);
         } catch (error) {
             next(error)
         }
@@ -227,14 +237,12 @@ export class AuthController {
     getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const result = await this._authService.getCurrentUser(req.user.id);
 
-            return res.status(HTTP_STATUS.OK).json({
-                user: result.user
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FETCHED_SUCCESSFULLY, { user: result.user });
         } catch (error) {
             next(error);
         }

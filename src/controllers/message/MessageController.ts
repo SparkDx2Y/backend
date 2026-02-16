@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from "express";
+import { sendResponse } from "../../utils/responseHelper";
+import { COMMON_MESSAGES } from "../../constants/common.messages";
 import { inject, injectable } from "inversify";
 import { DI_TYPES } from "../../di/types";
 import { IMessageService } from "../../service/message/IMessageService";
@@ -17,13 +19,13 @@ export class MessageController {
     sendMessage = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const { matchId, content, type } = sendMessageSchema.parse(req.body);
 
             const message = await this._messageService.sendMessage(matchId, req.user.id, content, type);
-            res.status(HTTP_STATUS.CREATED).json(message);
+            sendResponse(res, HTTP_STATUS.CREATED, COMMON_MESSAGES.MESSAGE_SENT, message);
         } catch (error) {
             next(error);
         }
@@ -33,17 +35,17 @@ export class MessageController {
     getMessages = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const { matchId } = req.params;
             if (!matchId) {
-                return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: "Match ID is required" });
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Match ID is required");
             }
             const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
 
             const messages = await this._messageService.getMessages(matchId, req.user.id, limit);
-            res.status(HTTP_STATUS.OK).json(messages);
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.MESSAGES_FETCHED, messages);
         } catch (error) {
             next(error);
         }
@@ -53,11 +55,11 @@ export class MessageController {
     getMatches = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const matches = await this._messageService.getMatches(req.user.id);
-            res.status(HTTP_STATUS.OK).json(matches);
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.MATCHES_FETCHED, matches);
         } catch (error) {
             next(error);
         }
@@ -67,16 +69,16 @@ export class MessageController {
     markAsRead = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const { matchId } = req.params;
             if (!matchId) {
-                return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: "Match ID is required" });
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Match ID is required");
             }
 
             await this._messageService.markMessagesAsRead(matchId, req.user.id);
-            res.status(HTTP_STATUS.OK).json({ message: "Messages marked as read" });
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.MARKED_AS_READ);
         } catch (error) {
             next(error);
         }
@@ -86,11 +88,11 @@ export class MessageController {
     getUnreadCount = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const count = await this._messageService.getUnreadCount(req.user.id);
-            res.status(HTTP_STATUS.OK).json({ count });
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.UNREAD_COUNT_FETCHED, { count });
         } catch (error) {
             next(error);
         }

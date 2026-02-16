@@ -1,5 +1,7 @@
 import { inject, injectable } from "inversify";
 import { Request, Response, NextFunction } from "express";
+import { sendResponse } from "../../../utils/responseHelper";
+import { COMMON_MESSAGES } from "../../../constants/common.messages";
 import { DI_TYPES } from "../../../di/types";
 import { IInterestService } from "../../../service/interest/IInterestService";
 import { createCategorySchema, createInterestSchema, idParamSchema, setActiveSchema, updateCategorySchema, updateInterestSchema } from "../../../dto/request/interest/admin-interest.dto";
@@ -26,10 +28,7 @@ export class InterestController {
 
             const Category = await this._adminInterestService.createCategory(data.name)
 
-            return res.status(HTTP_STATUS.CREATED).json({
-                message: "Category created successfully",
-                data: Category
-            });
+            return sendResponse(res, HTTP_STATUS.CREATED, COMMON_MESSAGES.CATEGORY_CREATED, Category);
         } catch (error) {
             next(error);
         }
@@ -39,10 +38,8 @@ export class InterestController {
         try {
             const Category = await this._adminInterestService.getAllCategories();
 
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Categories fetched successfully",
-                data: Category
-            });
+            
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FETCHED_SUCCESSFULLY, Category);
         } catch (error) {
             next(error);
         }
@@ -55,10 +52,7 @@ export class InterestController {
 
             const Category = await this._adminInterestService.updateCategory(id, data.name);
 
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Category updated successfully",
-                data: Category
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.CATEGORY_UPDATED, Category);
         } catch (error) {
             next(error);
         }
@@ -71,10 +65,7 @@ export class InterestController {
 
             const Category = await this._adminInterestService.setCategoryActive(id, data.isActive);
 
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Category updated successfully",
-                data: Category
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.CATEGORY_UPDATED, Category);
         } catch (error) {
             next(error);
         }
@@ -90,10 +81,8 @@ export class InterestController {
 
             const interest = await this._adminInterestService.createInterest(data.name, data.categoryId);
 
-            return res.status(HTTP_STATUS.CREATED).json({
-                message: "Interest created successfully",
-                data: interest
-            });
+
+            return sendResponse(res, HTTP_STATUS.CREATED, COMMON_MESSAGES.INTEREST_CREATED, interest);
         } catch (error) {
             next(error);
         }
@@ -103,10 +92,8 @@ export class InterestController {
         try {
             const interest = await this._adminInterestService.getAllInterests();
 
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Interests fetched successfully",
-                data: interest
-            });
+
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FETCHED_SUCCESSFULLY, interest);
         } catch (error) {
             next(error);
         }
@@ -119,10 +106,7 @@ export class InterestController {
 
             const interest = await this._adminInterestService.updateInterest(id, data.name);
 
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Interest updated successfully",
-                data: interest
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.INTEREST_UPDATED, interest);
         } catch (error) {
             next(error);
         }
@@ -135,10 +119,7 @@ export class InterestController {
 
             const interest = await this._adminInterestService.setInterestActive(id, data.isActive);
 
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Interest updated successfully",
-                data: interest
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.INTEREST_UPDATED, interest);
         } catch (error) {
             next(error);
         }

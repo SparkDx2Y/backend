@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from "express";
+import { sendResponse } from "../../utils/responseHelper";
+import { COMMON_MESSAGES } from "../../constants/common.messages";
 import { inject, injectable } from "inversify";
 import { DI_TYPES } from "../../di/types";
 import { IMatchService } from "../../service/match/IMatchService";
@@ -12,17 +14,17 @@ export class MatchController {
         @inject(DI_TYPES.SERVICES.MATCH_SERVICE) private readonly _matchService: IMatchService
     ) { }
 
-   //? Get potential matches for a user (Feed)
+    //? Get potential matches for a user (Feed)
     getFeed = async (req: Request, res: Response, next: NextFunction) => {
         try {
             //? Auth check
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
-            
+
             //? Get potential matches
             const profiles = await this._matchService.getDiscoverProfiles(req.user.id);
-            res.status(HTTP_STATUS.OK).json(profiles);
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FEED_FETCHED, profiles);
         } catch (error) {
             next(error);
         }
@@ -30,18 +32,18 @@ export class MatchController {
 
     //? Perform a swipe action (Swipe)
     swipe = async (req: Request, res: Response, next: NextFunction) => {
-        
+
         try {
 
             //? Auth check
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const { targetId, action } = swipeActionSchema.parse(req.body);
 
             const result = await this._matchService.swipe(req.user.id, targetId, action);
-            res.status(HTTP_STATUS.OK).json(result);
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.SWIPE_SUCCESSFUL, result);
 
         } catch (error) {
             next(error);
