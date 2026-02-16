@@ -34,8 +34,6 @@ const createAdmin = async () => {
         });
         
         console.log('Admin created successfully')
-        console.log('Admin email:', adminEmail)
-        console.log('Admin password:', adminPassword)
         
     } catch (error) {
         console.error('Error creating admin:', error)
