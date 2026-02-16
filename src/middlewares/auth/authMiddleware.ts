@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { sendResponse } from "../../utils/responseHelper";
 import { verifyToken } from "../../utils/jwtHelper";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
@@ -15,7 +16,7 @@ export const authMiddleware = async (
   try {
     const token = req.cookies.accessToken;
     if (!token) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+      return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
     }
 
     const decoded = verifyToken(token);
@@ -24,8 +25,8 @@ export const authMiddleware = async (
 
     const isBlocked = await userRepo.isUserBlocked(decoded.id)
 
-      if(isBlocked) {
-        return res.status(HTTP_STATUS.FORBIDDEN).json({ message: 'Your account has been blocked by Admin. Please contact support.' });
+    if (isBlocked) {
+      return sendResponse(res, HTTP_STATUS.FORBIDDEN, 'Your account has been blocked by Admin. Please contact support.');
     }
 
     req.user = {
@@ -38,8 +39,6 @@ export const authMiddleware = async (
 
     next();
   } catch {
-    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-      message: COMMON_ERRORS.UNAUTHORIZED
-    });
+    return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
   }
 };
