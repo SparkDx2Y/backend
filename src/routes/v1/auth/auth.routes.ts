@@ -26,6 +26,8 @@ router.post('/forgot-password', authController.forgotPassword)
 
 router.post('/forgot-password/verify-otp', authController.forgotPasswordVerifyOtp)
 
+router.post('/forgot-password/resend-otp', authController.resendForgotPasswordOtp)
+
 router.post('/reset-password', authController.resetPassword)
 
 router.post('/logout', authController.logout)
