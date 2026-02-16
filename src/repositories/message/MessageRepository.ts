@@ -52,6 +52,14 @@ export class MessageRepository implements IMessageRepository {
         );
     }
 
+    async findLastMessageByMatchId(matchId: string): Promise<IMessage | null> {
+        return Message.findOne({
+            matchId: new Types.ObjectId(matchId)
+        })
+            .sort({ createdAt: -1 })
+            .exec();
+    }
+
     async getUnreadCount(userId: string): Promise<number> {
         // Get all matches for this user
         const matches = await Match.find({

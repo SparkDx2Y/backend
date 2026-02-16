@@ -103,7 +103,13 @@ export class MessageService implements IMessageService {
     // ==============================================    
     async getMatches(userId: string): Promise<MatchResponseDto[]> {
         const matches = await this._matchedUsersRepo.findMatchesByUserId(userId);
-        return matches.map(match => MessageMapper.toMatchResponse(match));
+
+        const result = await Promise.all(matches.map(async (match) => {
+            const lastMessage = await this._messageRepo.findLastMessageByMatchId(match._id.toString());
+            return MessageMapper.toMatchResponse(match, lastMessage);
+        }));
+
+        return result;
     }
 
     // ==============================================    
