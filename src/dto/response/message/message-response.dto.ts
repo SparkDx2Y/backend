@@ -3,6 +3,7 @@ export interface MessageResponseDto {
     matchId: string;
     senderId: string;
     content: string;
+    type: 'text' | 'image' | 'audio';
     isRead: boolean;
     createdAt: Date;
 }
@@ -15,5 +16,7 @@ export interface MatchResponseDto {
         profilePhoto?: string;
     }[];
     lastMessageAt?: Date;
+    lastMessage?: string;
+    lastMessageType?: 'text' | 'image' | 'audio';
     createdAt: Date;
 }

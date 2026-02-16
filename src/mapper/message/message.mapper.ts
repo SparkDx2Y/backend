@@ -9,12 +9,13 @@ export class MessageMapper {
             matchId: message.matchId.toString(),
             senderId: message.senderId.toString(),
             content: message.content,
+            type: message.type,
             isRead: message.isRead,
             createdAt: message.createdAt
         };
     }
 
-    static toMatchResponse(match: IMatch): MatchResponseDto {
+    static toMatchResponse(match: IMatch, lastMessage?: IMessage | null): MatchResponseDto {
         return {
             id: match._id.toString(),
             users: (match.users as any[]).map((user: any) => ({
@@ -23,6 +24,10 @@ export class MessageMapper {
                 profilePhoto: user.profilePhoto || undefined
             })),
             ...(match.lastMessageAt && { lastMessageAt: match.lastMessageAt }),
+            ...(lastMessage && {
+                lastMessage: lastMessage.content,
+                lastMessageType: lastMessage.type
+            }),
             createdAt: match.createdAt
         };
     }

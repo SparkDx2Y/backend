@@ -245,6 +245,32 @@ export class AuthService implements IAuthService {
     }
 
 
+
+    //* ----------------------------------
+    // Resend Forgot Password Otp
+    //* ----------------------------------
+
+    async resendForgotPasswordOtp(userId: string): Promise<{ message: string }> {
+
+        const user = await this._userRepo.findById(userId);
+
+        if (!user) {
+            throw new AppError(
+                AUTH_ERRORS.USER_NOT_FOUND,
+                HTTP_STATUS.NOT_FOUND
+            );
+        }
+
+        const newOtp = generateOtp();
+
+        await this._otpRepo.deleteOtp(userId);
+        await this._otpRepo.saveOtp(userId, newOtp, 300);
+        await sendOtpEmail(user.email, newOtp);
+
+        return { message: 'OTP resent successfully. Please check your email' };
+    }
+
+
     //* ----------------------------------
     // Reset Password
     //* ----------------------------------

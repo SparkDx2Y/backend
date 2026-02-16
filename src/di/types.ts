@@ -1,4 +1,3 @@
-import { Profile } from "../models/profile";
 
 export const DI_TYPES = {
     REPOSITORIES: {
@@ -37,5 +36,8 @@ export const DI_TYPES = {
     External: {
         REDIS: Symbol.for('RedisClient'),
         GOOGLE_CLIENT: Symbol.for('GoogleClient')
+    },
+    PROVIDERS: {
+        STORAGE_PROVIDER: Symbol.for('StorageProvider')
     }
 }

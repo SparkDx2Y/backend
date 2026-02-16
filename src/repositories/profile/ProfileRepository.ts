@@ -64,7 +64,7 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
             }
         });
         pipeline.push({
-            $unwind: { path: "$userId", preserveNullAndEmptyArrays: true }
+            $unwind: { path: "$userId", preserveNullAndEmptyArrays: false }
         });
 
         // LOOKUP (Populate) Interests

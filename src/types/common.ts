@@ -1,4 +1,6 @@
 
+export type ChatMediaType = 'image' | 'audio';
+
 export type Gender = "male" | "female"
 
 export interface GeoLocation {

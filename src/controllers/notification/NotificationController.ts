@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from "express";
+import { sendResponse } from "../../utils/responseHelper";
+import { COMMON_MESSAGES } from "../../constants/common.messages";
 import { inject, injectable } from "inversify";
 import { DI_TYPES } from "../../di/types";
 import { INotificationService } from "../../service/notification/INotificationService";
@@ -16,13 +18,13 @@ export class NotificationController {
     getNotifications = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
 
             const notifications = await this._notificationService.getNotifications(req.user.id, limit);
-            res.status(HTTP_STATUS.OK).json(notifications);
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.NOTIFICATIONS_FETCHED, notifications);
         } catch (error) {
             next(error);
         }
@@ -33,11 +35,11 @@ export class NotificationController {
     getUnreadCount = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const count = await this._notificationService.getUnreadCount(req.user.id);
-            res.status(HTTP_STATUS.OK).json({ count });
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.UNREAD_COUNT_FETCHED, { count });
         } catch (error) {
             next(error);
         }
@@ -47,16 +49,16 @@ export class NotificationController {
     markAsRead = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const { notificationId } = req.params;
             if (!notificationId) {
-                return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: "Notification ID is required" });
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Notification ID is required");
             }
 
             await this._notificationService.markAsRead(notificationId, req.user.id);
-            res.status(HTTP_STATUS.OK).json({ message: "Notification marked as read" });
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.NOTIFICATION_MARKED_AS_READ);
         } catch (error) {
             next(error);
         }
@@ -66,11 +68,11 @@ export class NotificationController {
     markAllAsRead = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             await this._notificationService.markAllAsRead(req.user.id);
-            res.status(HTTP_STATUS.OK).json({ message: "All notifications marked as read" });
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.ALL_NOTIFICATIONS_MARKED_AS_READ);
         } catch (error) {
             next(error);
         }

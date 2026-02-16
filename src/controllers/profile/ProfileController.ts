@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from "express";
+import { sendResponse } from "../../utils/responseHelper";
+import { COMMON_MESSAGES } from "../../constants/common.messages";
 import { inject, injectable } from "inversify";
 import { DI_TYPES } from "../../di/types";
 import { IProfileService } from "../../service/profile/IProfileService";
@@ -32,18 +34,14 @@ export class ProfileController {
     completeProfile = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-                    message: COMMON_ERRORS.UNAUTHORIZED
-                });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const userId = req.user.id;
             const userRole = req.user.role;
             //  BLOCK ADMINS FROM PROFILE FLOW
             if (userRole === "admin") {
-                return res.status(HTTP_STATUS.FORBIDDEN).json({
-                    message: "Admins do not have profiles",
-                });
+                return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Admins do not have profiles");
             }
 
             const data = completeProfileSchema.parse(req.body);
@@ -53,11 +51,7 @@ export class ProfileController {
 
             // If profile is NOT completed yet
             if (!isCompleted) {
-                return res.status(HTTP_STATUS.OK).json({
-                    message: "Profile saved partially",
-                    isCompleted: false,
-                    profile
-                });
+                return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.PROFILE_PARTIAL, { isCompleted: false, profile });
             }
 
             // Profile completed → issue auth tokens
@@ -65,12 +59,7 @@ export class ProfileController {
 
             // Set auth cookies
             setAuthCookies(res, accessToken, refreshToken);
-
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Profile completed successfully",
-                isCompleted,
-                profile
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.PROFILE_COMPLETED, { isCompleted, profile });
 
         } catch (error) {
             next(error)
@@ -84,17 +73,16 @@ export class ProfileController {
         try {
             // req.user is set by auth middleware (access token)
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
             const userId = req.user.id;
 
             const profile = await this._profileService.getProfileByUserId(userId);
 
             if (!profile) {
-                return res.status(HTTP_STATUS.NOT_FOUND).json({ message: "Profile not found" });
+                return sendResponse(res, HTTP_STATUS.NOT_FOUND, "Profile not found");
             }
-
-            return res.status(HTTP_STATUS.OK).json(profile);
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FETCHED_SUCCESSFULLY, profile);
 
         } catch (error) {
             next(error)
@@ -107,16 +95,14 @@ export class ProfileController {
     updateProfile = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                // return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const data = updateProfileSchema.parse(req.body);
             const updatedProfile = await this._profileService.updateProfile(req.user.id, data);
 
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Profile updated successfully",
-                profile: updatedProfile
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.PROFILE_UPDATED, { profile: updatedProfile });
         } catch (error) {
             next(error);
         }
@@ -125,7 +111,7 @@ export class ProfileController {
     getInterests = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const interests = await this._interestService.getActiveInterests();
-            return res.status(HTTP_STATUS.OK).json(interests);
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FETCHED_SUCCESSFULLY, interests);
         } catch (error) {
             next(error);
         }
@@ -137,7 +123,7 @@ export class ProfileController {
     updateInterests = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const { interests } = updateInterestsSchema.parse(req.body);
@@ -148,11 +134,7 @@ export class ProfileController {
 
             setAuthCookies(res, accessToken, refreshToken);
 
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Interests updated successfully",
-                isInterestsSelected: true,
-                profile: updatedProfile
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.INTERESTS_UPDATED, { isInterestsSelected: true, profile: updatedProfile });
         } catch (error) {
             next(error);
         }
@@ -164,7 +146,7 @@ export class ProfileController {
     updateLocation = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
             const { latitude, longitude } = updateLocationSchema.parse(req.body);
@@ -175,10 +157,7 @@ export class ProfileController {
 
             setAuthCookies(res, accessToken, refreshToken);
 
-            return res.status(HTTP_STATUS.OK).json({
-                message: "Location updated successfully",
-                isLocationCompleted: true,
-            });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.LOCATION_UPDATED, { isLocationCompleted: true });
         } catch (error) {
             next(error);
         }
@@ -192,14 +171,14 @@ export class ProfileController {
             const { userId } = req.params;
 
             if (!userId) {
-                return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: "User ID is required" });
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "User ID is required");
             }
 
             const profile = await this._profileService.getProfileByUserId(userId);
 
 
             if (!profile) {
-                return res.status(HTTP_STATUS.NOT_FOUND).json({ message: "Profile not found" });
+                return sendResponse(res, HTTP_STATUS.NOT_FOUND, "Profile not found");
             }
 
             // CHECK IF AUTHENTICATED USER HAS ALREADY SWIPED ON THIS PROFILE
@@ -207,7 +186,7 @@ export class ProfileController {
                 profile.hasSwiped = await this._matchService.hasUserSwipedOn(req.user.id, userId);
             }
 
-            return res.status(HTTP_STATUS.OK).json(profile);
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FETCHED_SUCCESSFULLY, profile);
 
         } catch (error) {
             next(error)

@@ -8,12 +8,13 @@ import { Match } from "../../models/Match";
 export class MessageRepository implements IMessageRepository {
 
     // create a new message
-    async createMessage(data: { matchId: string; senderId: string; content: string }): Promise<IMessage> {
+    async createMessage(data: { matchId: string; senderId: string; content: string; type?: string }): Promise<IMessage> {
 
         return Message.create({
             matchId: new Types.ObjectId(data.matchId),
             senderId: new Types.ObjectId(data.senderId),
             content: data.content,
+            type: data.type || 'text',
             isRead: false
         });
     }
@@ -49,6 +50,14 @@ export class MessageRepository implements IMessageRepository {
                 isRead: true
             }
         );
+    }
+
+    async findLastMessageByMatchId(matchId: string): Promise<IMessage | null> {
+        return Message.findOne({
+            matchId: new Types.ObjectId(matchId)
+        })
+            .sort({ createdAt: -1 })
+            .exec();
     }
 
     async getUnreadCount(userId: string): Promise<number> {

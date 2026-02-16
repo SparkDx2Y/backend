@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { sendResponse } from "../../utils/responseHelper";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 
 /**
@@ -11,9 +12,7 @@ export const requireAdmin = (
     next: NextFunction
 ) => {
     if (!req.user || req.user.role !== 'admin') {
-        return res.status(HTTP_STATUS.FORBIDDEN).json({
-            message: "Access denied. Admin privileges required."
-        });
+        return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Access denied. Admin privileges required.");
     }
 
     next();

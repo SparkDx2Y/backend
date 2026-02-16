@@ -25,6 +25,8 @@ export interface IAuthService {
 
   resetPassword(resetToken: string, data: ResetPasswordDto): Promise<{ message: string }>
 
+  resendForgotPasswordOtp(userId: string): Promise<{ message: string }>
+
   googleLogin(token: string): Promise<LoginResponseDto>
 
   getCurrentUser(userId: string): Promise<LoginResponseDto>

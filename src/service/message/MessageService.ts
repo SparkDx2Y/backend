@@ -26,7 +26,7 @@ export class MessageService implements IMessageService {
     // ==============================================
     // Send Message
     // ==============================================
-    async sendMessage(matchId: string, senderId: string, content: string): Promise<MessageResponseDto> {
+    async sendMessage(matchId: string, senderId: string, content: string, type: 'text' | 'image' | 'audio' = 'text'): Promise<MessageResponseDto> {
 
         // verify match exists
         const match = await this._matchedUsersRepo.findMatchById(matchId);
@@ -46,7 +46,8 @@ export class MessageService implements IMessageService {
         const message = await this._messageRepo.createMessage({
             matchId,
             senderId,
-            content
+            content,
+            type
         });
 
         // update match's lastMessageAt
@@ -102,7 +103,13 @@ export class MessageService implements IMessageService {
     // ==============================================    
     async getMatches(userId: string): Promise<MatchResponseDto[]> {
         const matches = await this._matchedUsersRepo.findMatchesByUserId(userId);
-        return matches.map(match => MessageMapper.toMatchResponse(match));
+
+        const result = await Promise.all(matches.map(async (match) => {
+            const lastMessage = await this._messageRepo.findLastMessageByMatchId(match._id.toString());
+            return MessageMapper.toMatchResponse(match, lastMessage);
+        }));
+
+        return result;
     }
 
     // ==============================================    
