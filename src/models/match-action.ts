@@ -1,8 +1,9 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-export interface IMatchAction extends Document {
-    fromUserId: mongoose.Types.ObjectId;   
-    toUserId: mongoose.Types.ObjectId;  
+export interface IMatchAction {
+    _id: mongoose.Types.ObjectId;
+    fromUserId: mongoose.Types.ObjectId | { _id: mongoose.Types.ObjectId; name: string };
+    toUserId: mongoose.Types.ObjectId | { _id: mongoose.Types.ObjectId; name: string };
     action: 'like' | 'pass';
     createdAt: Date;
 }

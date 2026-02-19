@@ -11,5 +11,7 @@ const matchController = container.get<MatchController>(DI_TYPES.CONTROLLERS.MATC
 
 router.get("/feed", authMiddleware, onboardingGuard, matchController.getFeed);
 router.post("/swipe", authMiddleware, onboardingGuard, matchController.swipe);
+router.get("/activity", authMiddleware, onboardingGuard, matchController.getActivity);
+
 
 export default router;
