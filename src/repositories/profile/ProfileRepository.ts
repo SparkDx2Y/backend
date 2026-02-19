@@ -88,5 +88,17 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
         }));
     }
 
+    async updateByUserId(userId: string, data: Partial<IProfile>): Promise<IProfile | null> {
+
+        return this.model.findOneAndUpdate(
+            { userId },
+            { $set: data },
+            { new: true }
+        )
+            .populate("userId")
+            .populate("interests", "name")
+            .exec();
+    }
+
 }
 

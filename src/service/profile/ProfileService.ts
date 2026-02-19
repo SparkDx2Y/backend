@@ -115,89 +115,62 @@ export class ProfileService implements IProfileService {
     // ----------------------------------
     // Update profile (settings page)
     // ----------------------------------
-    async updateProfile(userId: string, data: UpdateProfileDto): Promise<ProfileResponseDto> {
-        const profile = await this._profileRepo.findByUserId(userId);
+   async updateProfile(userId: string,data: UpdateProfileDto): Promise<ProfileResponseDto> {
 
-        if (!profile) {
-            throw new AppError(
-                PROFILE_ERRORS.PROFILE_NOT_FOUND,
-                HTTP_STATUS.NOT_FOUND
-            );
-        }
+    const updatedData : any =  {...data}
 
+    const updatedProfile = await this._profileRepo.updateByUserId(
+        userId,
+        updatedData
+    );
 
-        const updateData: any = { ...data };
-
-        const updatedProfile = await this._profileRepo.updateById(
-            profile._id.toString(),
-            updateData
+    if (!updatedProfile) {
+        throw new AppError(
+            PROFILE_ERRORS.PROFILE_NOT_FOUND,
+            HTTP_STATUS.NOT_FOUND
         );
-
-        if (!updatedProfile) {
-            throw new AppError(
-                PROFILE_ERRORS.PROFILE_UPDATE_FAILED,
-                HTTP_STATUS.INTERNAL_SERVER_ERROR
-            );
-        }
-
-        return ProfileMapper.toProfileResponse(updatedProfile);
     }
+
+    return ProfileMapper.toProfileResponse(updatedProfile);
+}
+
 
     // ----------------------------------
     // Update interests
     // ----------------------------------
+async updateInterests(userId: string,interestIds: string[]): Promise<ProfileResponseDto> {
 
-    async updateInterests(userId: string, interestIds: string[]): Promise<ProfileResponseDto> {
-        const profile = await this._profileRepo.findByUserId(userId);
+    const updatedProfile = await this._profileRepo.updateByUserId(userId,{ interests: interestIds as any });
 
-        if (!profile) {
-            throw new AppError(
-                PROFILE_ERRORS.PROFILE_NOT_FOUND,
-                HTTP_STATUS.NOT_FOUND
-            );
-        }
-
-        const updatedProfile = await this._profileRepo.updateById(
-            profile._id.toString(),
-            { interests: interestIds as any }
+    if (!updatedProfile) {
+        throw new AppError(
+            PROFILE_ERRORS.PROFILE_NOT_FOUND,
+            HTTP_STATUS.NOT_FOUND
         );
-
-        if (!updatedProfile) {
-            throw new AppError(
-                PROFILE_ERRORS.PROFILE_UPDATE_FAILED,
-                HTTP_STATUS.INTERNAL_SERVER_ERROR
-            );
-        }
-
-        return ProfileMapper.toProfileResponse(updatedProfile);
     }
+
+    return ProfileMapper.toProfileResponse(updatedProfile);
+}
 
     // ----------------------------------
     // Update location
     // ----------------------------------
 
-    async updateLocation(userId: string, latitude: number, longitude: number): Promise<void> {
-        const profile = await this._profileRepo.findByUserId(userId);
+   async updateLocation(userId: string,latitude: number,longitude: number): Promise<void> {
 
-        if (!profile) {
-            throw new AppError(
-                PROFILE_ERRORS.PROFILE_NOT_FOUND,
-                HTTP_STATUS.NOT_FOUND
-            );
-        }
+    const updatedProfile = await this._profileRepo.updateByUserId(
+        userId,
+        { location: { type: "Point", coordinates: [longitude, latitude] } } 
+    );
 
-        const updatedProfile = await this._profileRepo.updateById(
-            profile._id.toString(),
-            { location: { type: "Point", coordinates: [longitude, latitude] } }
+    if (!updatedProfile) {
+        throw new AppError(
+            PROFILE_ERRORS.PROFILE_NOT_FOUND,
+            HTTP_STATUS.NOT_FOUND
         );
-
-        if (!updatedProfile) {
-            throw new AppError(
-                PROFILE_ERRORS.PROFILE_UPDATE_FAILED,
-                HTTP_STATUS.INTERNAL_SERVER_ERROR
-            );
-        }
     }
+}
+
 
     // ----------------------------------
     // Check if location is completed
