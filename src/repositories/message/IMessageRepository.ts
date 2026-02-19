@@ -8,8 +8,10 @@ export interface IMessageRepository {
     markAsRead(messageId: string): Promise<void>;
 
     markMatchMessagesAsRead(matchId: string, userId: string): Promise<void>;
-    
+
     findLastMessageByMatchId(matchId: string): Promise<IMessage | null>;
 
     getUnreadCount(userId: string): Promise<number>;
+
+    deleteMessage(messageId: string, userId: string): Promise<IMessage | null>;
 }

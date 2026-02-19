@@ -10,4 +10,6 @@ export interface IMessageService {
     markMessagesAsRead(matchId: string, userId: string): Promise<void>;
 
     getUnreadCount(userId: string): Promise<number>;
+
+    deleteMessage(messageId: string, userId: string): Promise<void>;
 }
