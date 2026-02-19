@@ -9,7 +9,8 @@ export const DI_TYPES = {
         MESSAGE_REPOSITORY: Symbol.for('MessageRepository'),
         NOTIFICATION_REPOSITORY: Symbol.for('NotificationRepository'),
         INTEREST_REPOSITORY: Symbol.for('InterestRepository'),
-        INTEREST_CATEGORY_REPOSITORY: Symbol.for('InterestCategoryRepository')
+        INTEREST_CATEGORY_REPOSITORY: Symbol.for('InterestCategoryRepository'),
+        REPORT_REPOSITORY: Symbol.for('ReportRepository')
     },
     SERVICES: {
         AUTH_SERVICE: Symbol.for('AuthService'),
@@ -20,7 +21,8 @@ export const DI_TYPES = {
         NOTIFICATION_SERVICE: Symbol.for('NotificationService'),
         ADMIN_SERVICE: Symbol.for('AdminService'),
         INTEREST_SERVICE: Symbol.for('InterestService'),
-        SOCKET_SERVICE: Symbol.for('SocketService')
+        SOCKET_SERVICE: Symbol.for('SocketService'),
+        REPORT_SERVICE: Symbol.for('ReportService')
     },
     CONTROLLERS: {
         AUTH_CONTROLLER: Symbol.for('AuthController'),
@@ -30,7 +32,8 @@ export const DI_TYPES = {
         MESSAGE_CONTROLLER: Symbol.for('MessageController'),
         NOTIFICATION_CONTROLLER: Symbol.for('NotificationController'),
         ADMIN_CONTROLLER: Symbol.for('AdminController'),
-        INTEREST_CONTROLLER: Symbol.for('InterestController')
+        INTEREST_CONTROLLER: Symbol.for('InterestController'),
+        REPORT_CONTROLLER: Symbol.for('ReportController')
     },
 
     External: {

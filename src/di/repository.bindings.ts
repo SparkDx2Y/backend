@@ -12,6 +12,7 @@ import { MessageRepository } from "../repositories/message/MessageRepository";
 import { NotificationRepository } from "../repositories/notification/NotificationRepository";
 import { InterestCategoryRepository } from "../repositories/interest/InterestCategoryRepository";
 import { InterestRepository } from "../repositories/interest/InterestRepository";
+import { ReportRepository } from "../repositories/report/ReportRepository";
 
 export function bindRepositories(container: Container) {
     container.bind(DI_TYPES.REPOSITORIES.USER_REPOSITORY).to(UserRepository).inSingletonScope()
@@ -23,4 +24,5 @@ export function bindRepositories(container: Container) {
     container.bind(DI_TYPES.REPOSITORIES.NOTIFICATION_REPOSITORY).to(NotificationRepository).inSingletonScope()
     container.bind(DI_TYPES.REPOSITORIES.INTEREST_CATEGORY_REPOSITORY).to(InterestCategoryRepository).inSingletonScope()
     container.bind(DI_TYPES.REPOSITORIES.INTEREST_REPOSITORY).to(InterestRepository).inSingletonScope()
+    container.bind(DI_TYPES.REPOSITORIES.REPORT_REPOSITORY).to(ReportRepository).inSingletonScope()
 }
