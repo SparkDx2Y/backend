@@ -42,6 +42,12 @@ export class MessageService implements IMessageService {
             throw new AppError("You are not part of this match", HTTP_STATUS.FORBIDDEN);
         }
 
+        // verify no user in match is blocked
+        const isAnyUserBlocked = match.users.some((user: any) => user.isBlocked);
+        if (isAnyUserBlocked) {
+            throw new AppError("This conversation is no longer available", HTTP_STATUS.FORBIDDEN);
+        }
+
         // create message
         const message = await this._messageRepo.createMessage({
             matchId,

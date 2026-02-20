@@ -21,7 +21,8 @@ export class MessageMapper {
             users: (match.users as any[]).map((user: any) => ({
                 userId: user._id.toString(),
                 name: user.name,
-                profilePhoto: user.profilePhoto || undefined
+                profilePhoto: user.profilePhoto || undefined,
+                isBlocked: !!user.isBlocked
             })),
             ...(match.lastMessageAt && { lastMessageAt: match.lastMessageAt }),
             ...(lastMessage && {
