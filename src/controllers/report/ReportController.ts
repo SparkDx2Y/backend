@@ -6,6 +6,7 @@ import { CreateReportSchema } from "../../dto/request/report/create-report.dto";
 import { sendResponse } from "../../utils/responseHelper";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
+import { REPORT_STATUS, ReportStatus } from "../../constants/report/report.constants";
 
 @injectable()
 export class ReportController {
@@ -49,11 +50,16 @@ export class ReportController {
             const { reportId } = req.params;
             const { status } = req.body;
 
+            if (!req.user || !req.user.id) {
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+            }
+
             if (!reportId) {
                 return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Report ID is required");
             }
 
-            const report = await this._reportService.updateReportStatus(reportId, status);
+
+            const report = await this._reportService.updateReportStatus(reportId, status, req.user.id);
             sendResponse(res, HTTP_STATUS.OK, `Report status updated to ${status}`, report);
         } catch (error) {
             next(error);

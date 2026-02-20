@@ -1,6 +1,6 @@
 export interface NotificationResponseDto {
     id: string;
-    type: 'like' | 'match' | 'message';
+    type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed';
     fromUser: {
         userId: string;
         name: string;

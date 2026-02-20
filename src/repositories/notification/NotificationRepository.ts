@@ -15,7 +15,7 @@ type profileUser = {
 export class NotificationRepository implements INotificationRepository {
 
     // create a new notification
-    async create(data: { userId: string; type: 'like' | 'match' | 'message'; fromUserId: string; matchId?: string; messageId?: string; }): Promise<INotification> {
+    async create(data: { userId: string; type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed'; fromUserId: string; matchId?: string; messageId?: string; }): Promise<INotification> {
         return Notification.create({
             userId: new Types.ObjectId(data.userId),
             type: data.type,

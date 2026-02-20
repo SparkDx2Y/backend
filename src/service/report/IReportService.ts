@@ -4,5 +4,5 @@ import { REPORT_STATUS, ReportReason, ReportStatus } from "../../constants/repor
 export interface IReportService {
     createReport(reportedBy: string, reportedUser: string, reason: ReportReason, description?: string, image?: string): Promise<IReport>;
     getReports(): Promise<IReport[]>;
-    updateReportStatus(reportId: string, status: ReportStatus): Promise<IReport>;
+    updateReportStatus(reportId: string, status: ReportStatus, adminId: string): Promise<IReport>;
 }
