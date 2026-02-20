@@ -7,6 +7,7 @@ import { AppError } from "../../utils/AppError";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 
 import { ReportReason, ReportStatus } from "../../constants/report/report.constants";
+import { REPORT_ERRORS } from "../../constants/errors/report.errors";
 
 import { INotificationRepository } from "../../repositories/notification/INotificationRepository";
 import { ISocketService } from "../socket/ISocketService";
@@ -24,12 +25,12 @@ export class ReportService implements IReportService {
 
     async createReport(reportedBy: string, reportedUser: string, reason: ReportReason, description?: string, image?: string): Promise<IReport> {
         if (reportedBy === reportedUser) {
-            throw new AppError("You cannot report yourself", HTTP_STATUS.BAD_REQUEST);
+            throw new AppError(REPORT_ERRORS.CANNOT_REPORT_SELF, HTTP_STATUS.BAD_REQUEST);
         }
 
         const existingReport = await this._reportRepo.findByReporterAndReported(reportedBy, reportedUser);
         if (existingReport) {
-            throw new AppError("You have already reported this user", HTTP_STATUS.CONFLICT);
+            throw new AppError(REPORT_ERRORS.ALREADY_REPORTED, HTTP_STATUS.CONFLICT);
         }
 
         return this._reportRepo.createReport({
@@ -48,7 +49,7 @@ export class ReportService implements IReportService {
     async updateReportStatus(reportId: string, status: ReportStatus, adminId: string): Promise<IReport> {
         const report = await this._reportRepo.updateStatus(reportId, status);
         if (!report) {
-            throw new AppError("Report not found", HTTP_STATUS.NOT_FOUND);
+            throw new AppError(REPORT_ERRORS.REPORT_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
         }
 
         // Notify the reporter if the status changed to resolved or dismissed

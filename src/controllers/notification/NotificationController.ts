@@ -6,6 +6,7 @@ import { DI_TYPES } from "../../di/types";
 import { INotificationService } from "../../service/notification/INotificationService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
+import { NOTIFICATION_ERRORS } from "../../constants/errors/notification.errors";
 
 @injectable()
 export class NotificationController {
@@ -54,7 +55,7 @@ export class NotificationController {
 
             const { notificationId } = req.params;
             if (!notificationId) {
-                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Notification ID is required");
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, NOTIFICATION_ERRORS.NOTIFICATION_ID_REQUIRED);
             }
 
             await this._notificationService.markAsRead(notificationId, req.user.id);

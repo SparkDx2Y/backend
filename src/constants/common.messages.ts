@@ -55,4 +55,9 @@ export const COMMON_MESSAGES = {
     INTEREST_UPDATED: "Interest updated successfully",
     USER_BLOCKED: "User blocked successfully",
     USER_UNBLOCKED: "User unblocked successfully",
+
+    // Reports
+    REPORT_SUBMITTED: "User reported successfully",
+    REPORTS_FETCHED: "Reports fetched successfully",
+    REPORT_STATUS_UPDATED: "Report status updated",
 } as const;

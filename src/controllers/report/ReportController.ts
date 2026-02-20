@@ -7,6 +7,8 @@ import { sendResponse } from "../../utils/responseHelper";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 import { REPORT_STATUS, ReportStatus } from "../../constants/report/report.constants";
+import { COMMON_MESSAGES } from "../../constants/common.messages";
+import { REPORT_ERRORS } from "../../constants/errors/report.errors";
 
 @injectable()
 export class ReportController {
@@ -30,7 +32,7 @@ export class ReportController {
                 image
             );
 
-            sendResponse(res, HTTP_STATUS.OK, "User reported successfully", report);
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.REPORT_SUBMITTED, report);
         } catch (error) {
             next(error);
         }
@@ -39,7 +41,7 @@ export class ReportController {
     getReports = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const reports = await this._reportService.getReports();
-            sendResponse(res, HTTP_STATUS.OK, "Reports fetched successfully", reports);
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.REPORTS_FETCHED, reports);
         } catch (error) {
             next(error);
         }
@@ -55,12 +57,12 @@ export class ReportController {
             }
 
             if (!reportId) {
-                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Report ID is required");
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, REPORT_ERRORS.REPORT_ID_REQUIRED);
             }
 
 
             const report = await this._reportService.updateReportStatus(reportId, status, req.user.id);
-            sendResponse(res, HTTP_STATUS.OK, `Report status updated to ${status}`, report);
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.REPORT_STATUS_UPDATED, report);
         } catch (error) {
             next(error);
         }
