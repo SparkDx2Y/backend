@@ -1,5 +1,5 @@
-import { IBaseRepository } from "../base/IBaseRepository";
-import { IInterest } from "../../models/interest";
+import type { IBaseRepository } from "../base/IBaseRepository";
+import type { IInterest } from "../../models/interest";
 
 
 

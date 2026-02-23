@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ChatMediaType } from '../../../types/common'
+
 
 export const uploadChatMediaSchema = z.object({
     type: z.enum(['image', 'audio'], {

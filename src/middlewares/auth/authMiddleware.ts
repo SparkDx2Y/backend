@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { sendResponse } from "../../utils/responseHelper";
 import { verifyToken } from "../../utils/jwtHelper";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 import container from "../../di";
-import { IUserRepository } from "../../repositories/user/IUserRepository";
+import type { IUserRepository } from "../../repositories/user/IUserRepository";
 import { DI_TYPES } from "../../di/types";
 
 

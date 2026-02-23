@@ -1,6 +1,6 @@
-import { IBaseRepository } from "../base/IBaseRepository";
-import { IProfile } from "../../models/profile";
-import { Gender, GeoLocation } from "../../types/common";
+import type { IBaseRepository } from "../base/IBaseRepository";
+import type { IProfile } from "../../models/profile";
+import type { Gender, GeoLocation } from "../../types/common";
 
 export interface MatchQuery {
   excludeUserIds: string[];

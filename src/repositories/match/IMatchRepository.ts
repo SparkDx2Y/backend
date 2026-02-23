@@ -1,5 +1,5 @@
-import { IMatchAction } from "../../models/match-action";
-import { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
+import type { IMatchAction } from "../../models/match-action";
+import type { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
 
 export interface IMatchRepository {
 

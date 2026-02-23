@@ -1,5 +1,5 @@
-import { InterestCategoryResponseDto } from "../../dto/response/interest/interest-category.response.dto";
-import { InterestResponseDto } from "../../dto/response/interest/interest.response.dto";
+import type { InterestCategoryResponseDto } from "../../dto/response/interest/interest-category.response.dto";
+import type { InterestResponseDto } from "../../dto/response/interest/interest.response.dto";
 
 
 export interface IInterestService {

@@ -1,10 +1,10 @@
-import { ForgotPasswordVerifyOtpDto } from "../../dto/request/auth/forgot-password-verify-otp.dto";
-import { ForgotPasswordDto } from "../../dto/request/auth/forgot-password.dto";
-import { LoginDto } from "../../dto/request/auth/login.dto";
-import { SignupDto } from "../../dto/request/auth/register.dto";
-import { ResetPasswordDto } from "../../dto/request/auth/reset-password.dto";
-import { VerifyOtpDto } from "../../dto/request/auth/verify-otp.dto";
-import { LoginResponseDto } from "../../dto/response/auth/login-response.dto";
+import type { ForgotPasswordVerifyOtpDto } from "../../dto/request/auth/forgot-password-verify-otp.dto";
+import type { ForgotPasswordDto } from "../../dto/request/auth/forgot-password.dto";
+import type { LoginDto } from "../../dto/request/auth/login.dto";
+import type { SignupDto } from "../../dto/request/auth/register.dto";
+import type { ResetPasswordDto } from "../../dto/request/auth/reset-password.dto";
+import type { VerifyOtpDto } from "../../dto/request/auth/verify-otp.dto";
+import type { LoginResponseDto } from "../../dto/response/auth/login-response.dto";
 
 
 

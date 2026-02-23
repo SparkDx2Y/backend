@@ -1,4 +1,4 @@
-import { INotification } from "../../models/Notification";
+import type { INotification } from "../../models/Notification";
 
 export interface INotificationRepository {
     create(data: {

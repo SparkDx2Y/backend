@@ -1,5 +1,5 @@
-import { IInterest } from "../../models/interest";
-import { InterestResponseDto } from "../../dto/response/interest/interest.response.dto";
+import type { IInterest } from "../../models/interest";
+import type { InterestResponseDto } from "../../dto/response/interest/interest.response.dto";
 
 export class InterestMapper {
     static toInterestResponseDto(interest: any): InterestResponseDto {

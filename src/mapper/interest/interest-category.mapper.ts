@@ -1,5 +1,5 @@
-import { IInterestCategory } from "../../models/interest-category";
-import { InterestCategoryResponseDto } from "../../dto/response/interest/interest-category.response.dto";
+import type { IInterestCategory } from "../../models/interest-category";
+import type { InterestCategoryResponseDto } from "../../dto/response/interest/interest-category.response.dto";
 
 export class InterestCategoryMapper {
     static toInterestCategoryResponseDto(category: IInterestCategory): InterestCategoryResponseDto {

@@ -1,4 +1,4 @@
-import { ServerOptions } from "socket.io";
+import type { ServerOptions } from "socket.io";
 
 const socketConfig: Partial<ServerOptions> = {
     cors: {

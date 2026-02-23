@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser'
 import requestLogger from './middlewares/requestLogger'
 
 //? container 
-import container from './di/index'
+import './di/index'
 
 //? create express app
 const app = express()

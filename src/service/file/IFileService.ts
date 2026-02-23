@@ -1,6 +1,6 @@
-import { Express } from "express";
+import type { Express } from "express";
 
-import { ChatMediaType } from "../../types/common";
+import type { ChatMediaType } from "../../types/common";
 
 
 export interface IFileService {

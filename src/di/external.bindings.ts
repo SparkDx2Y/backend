@@ -1,4 +1,4 @@
-import { Container } from "inversify";
+import type { Container } from "inversify";
 import { OAuth2Client } from "google-auth-library";
 import { googleConfig } from "../config/google.config";
 import redis from "../config/redisConfig";

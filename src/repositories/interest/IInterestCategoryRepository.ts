@@ -1,5 +1,5 @@
-import { IBaseRepository } from "../base/IBaseRepository";
-import { IInterestCategory } from "../../models/interest-category";
+import type { IBaseRepository } from "../base/IBaseRepository";
+import type { IInterestCategory } from "../../models/interest-category";
 
 export interface IInterestCategoryRepository extends IBaseRepository<IInterestCategory> {
 

@@ -1,7 +1,8 @@
 import { Types } from "mongoose";
-import { IProfile, Profile } from "../../models/profile";
+import type { IProfile} from "../../models/profile";
+import { Profile } from "../../models/profile";
 import { BaseRepository } from "../base/BaseRepository";
-import { IProfileRepository, MatchQuery, ProfileWithDistance } from "./IProfileRepository";
+import type { IProfileRepository, MatchQuery, ProfileWithDistance } from "./IProfileRepository";
 
 
 

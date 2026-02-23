@@ -3,7 +3,6 @@ import { IMessageService } from "./IMessageService";
 import { DI_TYPES } from "../../di/types";
 import { IMessageRepository } from "../../repositories/message/IMessageRepository";
 import { IMatchedUsersRepository } from "../../repositories/match/IMatchedUsersRepository";
-import { INotificationRepository } from "../../repositories/notification/INotificationRepository";
 import { MessageResponseDto, MatchResponseDto } from "../../dto/response/message/message-response.dto";
 import { MessageMapper } from "../../mapper/message/message.mapper";
 import { AppError } from "../../utils/AppError";

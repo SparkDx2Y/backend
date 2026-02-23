@@ -1,4 +1,4 @@
-import { IMatch } from "../../models/Match";
+import type { IMatch } from "../../models/Match";
 
 export interface IMatchedUsersRepository {
 

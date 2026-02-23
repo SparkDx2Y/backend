@@ -1,4 +1,4 @@
-import { Container } from "inversify";
+import type { Container } from "inversify";
 import { DI_TYPES } from "./types";
 import { AuthController } from "../controllers/auth/AuthController";
 import { ProfileController } from "../controllers/profile/ProfileController";

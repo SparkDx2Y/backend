@@ -1,4 +1,4 @@
-import { NotificationResponseDto } from "../../dto/response/notification/notification-response.dto";
+import type { NotificationResponseDto } from "../../dto/response/notification/notification-response.dto";
 
 export interface INotificationService {
     getNotifications(userId: string, limit?: number): Promise<NotificationResponseDto[]>;

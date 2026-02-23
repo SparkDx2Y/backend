@@ -1,6 +1,6 @@
-import { IMessage } from "../../models/Message";
-import { IMatch } from "../../models/Match";
-import { MessageResponseDto, MatchResponseDto } from "../../dto/response/message/message-response.dto";
+import type { IMessage } from "../../models/Message";
+import type { IMatch } from "../../models/Match";
+import type { MessageResponseDto, MatchResponseDto } from "../../dto/response/message/message-response.dto";
 
 export class MessageMapper {
     static toMessageResponse(message: IMessage): MessageResponseDto {

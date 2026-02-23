@@ -1,5 +1,5 @@
-import { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
-import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
+import type { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
+import type { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
 
 export interface IMatchService {
     //? Get potential matches for a user (Feed)

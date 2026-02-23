@@ -1,5 +1,5 @@
 
-import { Response, CookieOptions } from "express";
+import type { Response, CookieOptions } from "express";
 
 const getCookieOptions = (): CookieOptions => {
     return {

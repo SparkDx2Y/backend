@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { sendResponse } from "../utils/responseHelper";
 import { HTTP_STATUS } from "../constants/http-status.constants";
 import { COMMON_ERRORS } from "../constants/errors/common.erros";

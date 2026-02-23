@@ -1,7 +1,7 @@
 import { Router } from "express";
 import container from "../../../di";
 import { DI_TYPES } from "../../../di/types";
-import { InterestController } from "../../../controllers/admin/interest/InterestController";
+import type { InterestController } from "../../../controllers/admin/interest/InterestController";
 import { authMiddleware } from "../../../middlewares/auth/authMiddleware";
 import { requireAdmin } from "../../../middlewares/auth/roleMiddleware";
 

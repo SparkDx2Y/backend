@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
+import type { Document} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 export interface INotification extends Document {
     userId: mongoose.Types.ObjectId;      // Who receives the notification

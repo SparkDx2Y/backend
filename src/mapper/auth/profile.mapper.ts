@@ -1,6 +1,5 @@
-import { IProfile } from "../../models/profile";
-import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
-import { IUser } from "../../models/user";
+import type { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
+import type { IUser } from "../../models/user";
 
 export class ProfileMapper {
   static toProfileResponse(profile: any): ProfileResponseDto {

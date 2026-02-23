@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
+import type { Document} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 export interface IMatch extends Document {
     users: [mongoose.Types.ObjectId, mongoose.Types.ObjectId]; // The two matched users

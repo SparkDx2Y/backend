@@ -1,8 +1,9 @@
-import { Server as SocketIOServer, Socket } from "socket.io";
-import { Server as HTTPServer } from "http";
-import { ISocketService } from "../service/socket/ISocketService";
+import type { Socket } from "socket.io";
+import { Server as SocketIOServer } from "socket.io";
+import type { Server as HTTPServer } from "http";
+import type { ISocketService } from "../service/socket/ISocketService";
 import socketConfig from "../config/socketConfig";
-import { IMatchedUsersRepository } from "../repositories/match/IMatchedUsersRepository";
+import type { IMatchedUsersRepository } from "../repositories/match/IMatchedUsersRepository";
 import logger from "../config/logger";
 
 export class SocketServer implements ISocketService {
