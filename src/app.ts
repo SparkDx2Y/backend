@@ -1,8 +1,7 @@
 import express from 'express'
-import morgan from 'morgan'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-
+import requestLogger from './middlewares/requestLogger'
 
 //? container 
 import container from './di/index'
@@ -19,7 +18,7 @@ import { errorHandler } from './middlewares/errorHandler'
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(morgan('dev'));
+app.use(requestLogger);
 
 app.use(cors({
     origin: process.env.FRONTEND_URL,

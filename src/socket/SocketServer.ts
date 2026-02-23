@@ -3,6 +3,7 @@ import { Server as HTTPServer } from "http";
 import { ISocketService } from "../service/socket/ISocketService";
 import socketConfig from "../config/socketConfig";
 import { IMatchedUsersRepository } from "../repositories/match/IMatchedUsersRepository";
+import logger from "../config/logger";
 
 export class SocketServer implements ISocketService {
     private io: SocketIOServer;
@@ -27,7 +28,7 @@ export class SocketServer implements ISocketService {
     // =========================
     private setupEventHandlers() {
         this.io.on("connection", (socket: Socket) => {
-            console.log("Socket connected:", socket.id);
+            logger.debug("Socket connected:", socket.id);
 
             // Register user socket
             socket.on("register", async (userId: string) => {
@@ -95,7 +96,7 @@ export class SocketServer implements ISocketService {
                     await this.handleUserOffline(userId);
                 }
 
-                console.log("Socket disconnected:", socket.id);
+                logger.debug("Socket disconnected:", socket.id);
             });
         });
     }
@@ -126,7 +127,7 @@ export class SocketServer implements ISocketService {
 
             socket.emit("online_users", onlineMatches);
         } catch (error) {
-            console.error("Error handling user online:", error);
+            logger.error("Error handling user online:", error);
         }
     }
 
@@ -144,7 +145,7 @@ export class SocketServer implements ISocketService {
 
             this.userMatches.delete(userId);
         } catch (error) {
-            console.error("Error handling user offline:", error);
+            logger.error("Error handling user offline:", error);
         }
     }
 

@@ -215,7 +215,7 @@ export class InterestService implements IInterestService {
     async getActiveInterests(): Promise<InterestResponseDto[]> {
         const interests = await this._interestRepo.findAll();
 
-        // Filter: 1. Interest must be active 2. Parent Category must be active
+        
         const activeInterests = interests.filter(i =>
             i.isActive &&
             (i.categoryId as any).isActive !== false

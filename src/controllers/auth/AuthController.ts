@@ -129,7 +129,7 @@ export class AuthController {
             const data = forgotPasswordSchema.parse(req.body);
             const { userId, message } = await this._authService.forgotPassword(data);
 
-            //^ setting userId in the cookie for verifying the user in the next request
+            
             setTempCookie(res, 'otp_userId', userId);
 
             return sendResponse(res, HTTP_STATUS.OK, message);
@@ -150,10 +150,10 @@ export class AuthController {
             }
             const { resetToken, message } = await this._authService.forgotPasswordVerifyOtp(userId, data);
 
-            // Set the secure reset token
+           
             setTempCookie(res, 'reset_token', resetToken);
 
-            // Clean up the previous step's cookie
+            
             clearTempCookie(res, 'otp_userId');
 
             return sendResponse(res, HTTP_STATUS.OK, message);

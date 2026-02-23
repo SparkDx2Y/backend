@@ -21,22 +21,21 @@ export const onboardingGuard = (
             return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
         }
 
-        // Admin doesn't need onboarding
         if (req.user.role !== 'user') {
             return next();
         }
 
-        // 1. Check Profile
+        
         if (!req.user.isProfileCompleted) {
             return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Profile not completed. Please complete your profile basics first.", { code: "PROFILE_INCOMPLETE" });
         }
 
-        // 2. Check Interests
+        
         if (!req.user.isInterestsSelected) {
             return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Interests not selected. Please select your interests.", { code: "INTERESTS_PENDING" });
         }
 
-        // 3. Check Location
+       
         if (!req.user.isLocationCompleted) {
             return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Location not set. Please enable location services.", { code: "LOCATION_PENDING" });
         }

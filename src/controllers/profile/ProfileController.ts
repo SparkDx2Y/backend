@@ -39,25 +39,25 @@ export class ProfileController {
 
             const userId = req.user.id;
             const userRole = req.user.role;
-            //  BLOCK ADMINS FROM PROFILE FLOW
+            
             if (userRole === "admin") {
                 return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Admins do not have profiles");
             }
 
             const data = completeProfileSchema.parse(req.body);
 
-            // Complete profile
+            
             const { profile, isCompleted } = await this._profileService.completeProfile(userId, data);
 
-            // If profile is NOT completed yet
+          
             if (!isCompleted) {
                 return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.PROFILE_PARTIAL, { isCompleted: false, profile });
             }
 
-            // Profile completed → issue auth tokens
+            
             const { accessToken, refreshToken } = await this._authService.generateTokens(userId, userRole);
 
-            // Set auth cookies
+           
             setAuthCookies(res, accessToken, refreshToken);
             return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.PROFILE_COMPLETED, { isCompleted, profile });
 
@@ -71,7 +71,7 @@ export class ProfileController {
     // ----------------------------------
     getMyProfile = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            // req.user is set by auth middleware (access token)
+            
             if (!req.user) {
                 return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
@@ -95,7 +95,6 @@ export class ProfileController {
     updateProfile = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
-                // return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: COMMON_ERRORS.UNAUTHORIZED });
                 return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
@@ -181,7 +180,7 @@ export class ProfileController {
                 return sendResponse(res, HTTP_STATUS.NOT_FOUND, "Profile not found");
             }
 
-            // CHECK IF AUTHENTICATED USER HAS ALREADY SWIPED ON THIS PROFILE
+          
             if (req.user) {
                 profile.hasSwiped = await this._matchService.hasUserSwipedOn(req.user.id, userId);
             }

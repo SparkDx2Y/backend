@@ -47,7 +47,7 @@ export class FileController {
                 return sendResponse(res, HTTP_STATUS.BAD_REQUEST, FILE_ERRORS.NO_FILE);
             }
 
-            // Upload all files
+          
             const urls = await this._fileService.uploadMultipleImages(files);
 
             return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FILES_UPLOADED, { urls });
