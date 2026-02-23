@@ -376,7 +376,7 @@ export class AuthService implements IAuthService {
         let decoded: RefreshPayload;
         try {
             decoded = verifyRefreshToken(refreshToken);
-        } catch (error) {
+        } catch {
             throw new AppError(
                 AUTH_ERRORS.INVALID_REFRESH_TOKEN,
                 HTTP_STATUS.UNAUTHORIZED

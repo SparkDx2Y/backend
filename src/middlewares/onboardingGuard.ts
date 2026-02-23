@@ -41,7 +41,7 @@ export const onboardingGuard = (
         }
 
         next();
-    } catch (error) {
+    } catch {
         return sendResponse(res, HTTP_STATUS.INTERNAL_SERVER_ERROR, COMMON_ERRORS.SOMETHING_WENT_WRONG);
     }
 };
