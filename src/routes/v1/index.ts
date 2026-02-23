@@ -6,7 +6,7 @@ import matchRoutes from "./match/match.routes";
 import notificationRoutes from "./notification/notification.routes";
 import messageRoutes from "./message/message.routes";
 import adminRoutes from "./admin";
-
+import reportRoutes from "./report/report.routes";
 
 const router = Router()
 
@@ -30,5 +30,8 @@ router.use('/messages', messageRoutes)
 
 //? Admin routes
 router.use('/admin', adminRoutes)
+
+//? Report routes
+router.use('/reports', reportRoutes)
 
 export default router

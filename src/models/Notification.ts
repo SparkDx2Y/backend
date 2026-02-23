@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface INotification extends Document {
     userId: mongoose.Types.ObjectId;      // Who receives the notification
-    type: 'like' | 'match' | 'message';   // Type of notification
+    type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed';   // Type of notification
     fromUserId: mongoose.Types.ObjectId;  // Who triggered the notification
     matchId?: mongoose.Types.ObjectId;    // Related match (if applicable)
     messageId?: mongoose.Types.ObjectId;  // Related message (if applicable)
@@ -19,7 +19,7 @@ const notificationSchema = new Schema<INotification>({
     },
     type: {
         type: String,
-        enum: ['like', 'match', 'message'],
+        enum: ['like', 'match', 'message', 'report_resolved', 'report_dismissed'],
         required: true
     },
     fromUserId: {

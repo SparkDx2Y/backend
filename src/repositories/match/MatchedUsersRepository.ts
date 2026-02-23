@@ -26,7 +26,7 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
     // find a match by id
     async findMatchById(matchId: string): Promise<IMatch | null> {
         const match = await Match.findById(matchId)
-            .populate('users', 'name')
+            .populate('users', 'name isBlocked')
             .lean()
             .exec();
 
@@ -40,7 +40,7 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
         const profileMap = new Map();
         profiles.forEach(p => profileMap.set(p.userId.toString(), p.profilePhoto));
 
-        
+
         match.users.forEach((user: any) => {
             user.profilePhoto = profileMap.get(user._id.toString());
         });
@@ -53,7 +53,7 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
         const matches = await Match.find({
             users: new Types.ObjectId(userId)
         })
-            .populate('users', 'name')
+            .populate('users', 'name isBlocked')
             .sort({ lastMessageAt: -1, createdAt: -1 })
             .lean()
             .exec();
@@ -90,6 +90,17 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
     async updateLastMessageAt(matchId: string, timestamp: Date): Promise<void> {
         await Match.findByIdAndUpdate(matchId, {
             lastMessageAt: timestamp
+        });
+    }
+
+    async deleteMatchByUsers(userId1: string, userId2: string): Promise<void> {
+        await Match.findOneAndDelete({
+            users: {
+                $all: [
+                    new Types.ObjectId(userId1),
+                    new Types.ObjectId(userId2)
+                ]
+            }
         });
     }
 }

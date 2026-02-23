@@ -75,4 +75,11 @@ export class MessageRepository implements IMessageRepository {
             isRead: false
         });
     }
+
+    async deleteMessage(messageId: string, userId: string): Promise<IMessage | null> {
+        return Message.findOneAndDelete({
+            _id: new Types.ObjectId(messageId),
+            senderId: new Types.ObjectId(userId)
+        });
+    }
 }

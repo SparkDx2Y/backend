@@ -1,3 +1,4 @@
+import { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
 import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
 
 export interface IMatchService {
@@ -9,5 +10,9 @@ export interface IMatchService {
 
     //? Check if a user has already swiped on another user
     hasUserSwipedOn(fromUserId: string, toUserId: string): Promise<boolean>;
+
+    //? Get all swipe actions for a user (Liked, Passed, Received, Passed By)
+    getActivity(userId: string): Promise<{ liked: MatchActionWithUsersDto[]; passed: MatchActionWithUsersDto[]; received: MatchActionWithUsersDto[]; passedBy: MatchActionWithUsersDto[]; }>;
+
 }
 

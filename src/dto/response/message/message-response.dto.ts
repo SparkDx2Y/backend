@@ -14,6 +14,7 @@ export interface MatchResponseDto {
         userId: string;
         name: string;
         profilePhoto?: string;
+        isBlocked: boolean;
     }[];
     lastMessageAt?: Date;
     lastMessage?: string;

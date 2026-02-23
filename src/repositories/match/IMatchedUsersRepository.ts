@@ -9,6 +9,8 @@ export interface IMatchedUsersRepository {
     findMatchesByUserId(userId: string): Promise<IMatch[]>;
 
     hasMatch(userId1: string, userId2: string): Promise<boolean>;
-    
+
     updateLastMessageAt(matchId: string, timestamp: Date): Promise<void>;
+
+    deleteMatchByUsers(userId1: string, userId2: string): Promise<void>;
 }

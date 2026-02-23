@@ -1,14 +1,13 @@
-import { BaseRepository } from "../base/BaseRepository";
+import { injectable } from "inversify";
+import { FilterQuery, Types } from "mongoose";
 import { IMatchAction, MatchAction } from "../../models/match-action";
 import { IMatchRepository } from "./IMatchRepository";
-import { injectable } from "inversify";
-import { Types } from "mongoose";
+import { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
 
 @injectable()
-export class MatchRepository  implements IMatchRepository {
+export class MatchRepository implements IMatchRepository {
 
-
-    async createSwipe(data: { fromUserId: string; toUserId:string; action: 'like' | 'pass' }): Promise<IMatchAction> {
+    async createSwipe(data: { fromUserId: string; toUserId: string; action: 'like' | 'pass' }): Promise<IMatchAction> {
         return MatchAction.create({
             fromUserId: new Types.ObjectId(data.fromUserId),
             toUserId: new Types.ObjectId(data.toUserId),
@@ -29,5 +28,84 @@ export class MatchRepository  implements IMatchRepository {
         const actions = await MatchAction.find({ fromUserId: new Types.ObjectId(fromUserId) }).distinct('toUserId');
         return actions.map(id => id.toString());
     }
-    
+
+    async getActions(filter: { fromUserId?: string; toUserId?: string; action?: 'like' | 'pass'; }): Promise<MatchActionWithUsersDto[]> {
+
+        const query: FilterQuery<IMatchAction> = {};
+
+        if (filter.fromUserId) {
+            query.fromUserId = new Types.ObjectId(filter.fromUserId);
+        }
+
+        if (filter.toUserId) {
+            query.toUserId = new Types.ObjectId(filter.toUserId);
+        }
+
+        if (filter.action) {
+            query.action = filter.action;
+        }
+
+        return MatchAction.aggregate<MatchActionWithUsersDto>([
+            { $match: query },
+            // Populate "from" user data
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'fromUserId',
+                    foreignField: '_id',
+                    as: 'fromUser'
+                }
+            },
+            { $unwind: '$fromUser' },
+            {
+                $lookup: {
+                    from: 'profiles',
+                    localField: 'fromUserId',
+                    foreignField: 'userId',
+                    as: 'fromProfile'
+                }
+            },
+            { $unwind: { path: '$fromProfile', preserveNullAndEmptyArrays: true } },
+
+            // Populate "to" user data
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'toUserId',
+                    foreignField: '_id',
+                    as: 'toUser'
+                }
+            },
+            { $unwind: '$toUser' },
+            {
+                $lookup: {
+                    from: 'profiles',
+                    localField: 'toUserId',
+                    foreignField: 'userId',
+                    as: 'toProfile'
+                }
+            },
+            { $unwind: { path: '$toProfile', preserveNullAndEmptyArrays: true } },
+
+            // Final
+            {
+                $project: {
+                    _id: { $toString: '$_id' },
+                    action: 1,
+                    createdAt: 1,
+                    fromUserId: {
+                        _id: { $toString: '$fromUser._id' },
+                        name: '$fromUser.name',
+                        profilePhoto: '$fromProfile.profilePhoto'
+                    },
+                    toUserId: {
+                        _id: { $toString: '$toUser._id' },
+                        name: '$toUser.name',
+                        profilePhoto: '$toProfile.profilePhoto'
+                    }
+                }
+            },
+            { $sort: { createdAt: -1 } }
+        ]);
+    }
 }

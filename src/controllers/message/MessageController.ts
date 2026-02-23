@@ -6,6 +6,7 @@ import { DI_TYPES } from "../../di/types";
 import { IMessageService } from "../../service/message/IMessageService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
+import { MESSAGE_ERRORS } from "../../constants/errors/message.errors";
 import { sendMessageSchema } from "../../dto/request/message/send-message.dto";
 
 @injectable()
@@ -40,7 +41,7 @@ export class MessageController {
 
             const { matchId } = req.params;
             if (!matchId) {
-                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Match ID is required");
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, MESSAGE_ERRORS.MISSING_MATCH_ID);
             }
             const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
 
@@ -74,7 +75,7 @@ export class MessageController {
 
             const { matchId } = req.params;
             if (!matchId) {
-                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Match ID is required");
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, MESSAGE_ERRORS.MISSING_MATCH_ID);
             }
 
             await this._messageService.markMessagesAsRead(matchId, req.user.id);
@@ -93,6 +94,25 @@ export class MessageController {
 
             const count = await this._messageService.getUnreadCount(req.user.id);
             sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.UNREAD_COUNT_FETCHED, { count });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    //? Delete a message
+    deleteMessage = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+            }
+
+            const { messageId } = req.params;
+            if (!messageId) {
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, MESSAGE_ERRORS.MISSING_MESSAGE_ID);
+            }
+
+            await this._messageService.deleteMessage(messageId, req.user.id);
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.DELETED_SUCCESSFULLY);
         } catch (error) {
             next(error);
         }

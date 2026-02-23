@@ -50,6 +50,7 @@ export class SocketServer implements ISocketService {
                 socket.leave(matchId);
             });
 
+
             // Typing event handler  for a members of a specific chat room
             socket.on("typing", ({ matchId, isTyping }: { matchId: string; isTyping: boolean }) => {
                 const userId = socket.data.userId;
@@ -62,6 +63,26 @@ export class SocketServer implements ISocketService {
                 });
             }
             );
+
+            // =========================
+            // VIDEO CALL EVENTS
+            // =========================
+            socket.on("call_user", ({ userToCall, signalData, from }) => {
+                this.notifyUser(userToCall, "call_user", { signal: signalData, from });
+            });
+
+            socket.on("answer_call", (data) => {
+                this.notifyUser(data.to, "call_accepted", data.signal);
+            });
+
+            socket.on("ice_candidate", ({ to, candidate }) => {
+                this.notifyUser(to, "ice_candidate", candidate);
+            });
+
+            socket.on("end_call", ({ to }) => {
+                this.notifyUser(to, "call_ended", {});
+            });
+
 
             // Disconnect event handler for removes the socket session and updates the user status
             socket.on("disconnect", async () => {

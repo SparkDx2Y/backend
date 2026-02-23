@@ -49,4 +49,21 @@ export class MatchController {
             next(error);
         }
     };
+
+    getActivity = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        if (!req.user) {
+            return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+        }
+
+        const data = await this._matchService.getActivity(req.user.id);
+
+        sendResponse(res, HTTP_STATUS.OK, "Activity fetched", data);
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 }

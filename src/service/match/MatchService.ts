@@ -11,6 +11,7 @@ import { AppError } from "../../utils/AppError";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 
 import { ISocketService } from "../socket/ISocketService";
+import { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
 
 @injectable()
 export class MatchService implements IMatchService {
@@ -154,6 +155,38 @@ export class MatchService implements IMatchService {
     async hasUserSwipedOn(fromUserId: string, toUserId: string): Promise<boolean> {
         return this._matchRepo.hasUserAlreadySwiped(fromUserId, toUserId);
     }
+
+    async getActivity(userId: string): Promise<{ liked: MatchActionWithUsersDto[]; passed: MatchActionWithUsersDto[]; received: MatchActionWithUsersDto[]; passedBy: MatchActionWithUsersDto[]; }> {
+
+        const liked = await this._matchRepo.getActions({
+            fromUserId: userId,
+            action: 'like'
+        });
+
+        const passed = await this._matchRepo.getActions({
+            fromUserId: userId,
+            action: 'pass'
+        });
+
+        const received = await this._matchRepo.getActions({
+            toUserId: userId,
+            action: 'like'
+        });
+
+        const passedBy = await this._matchRepo.getActions({
+            toUserId: userId,
+            action: 'pass'
+        });
+
+        return {
+            liked,
+            passed,
+            received,
+            passedBy
+        };
+    }
+
+
 }
 
 

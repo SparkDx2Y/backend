@@ -42,6 +42,12 @@ export class MessageService implements IMessageService {
             throw new AppError("You are not part of this match", HTTP_STATUS.FORBIDDEN);
         }
 
+        // verify no user in match is blocked
+        const isAnyUserBlocked = match.users.some((user: any) => user.isBlocked);
+        if (isAnyUserBlocked) {
+            throw new AppError("This conversation is no longer available", HTTP_STATUS.FORBIDDEN);
+        }
+
         // create message
         const message = await this._messageRepo.createMessage({
             matchId,
@@ -121,5 +127,33 @@ export class MessageService implements IMessageService {
 
     async getUnreadCount(userId: string): Promise<number> {
         return this._messageRepo.getUnreadCount(userId);
+    }
+
+    // ==============================================    
+    // Delete Message
+    // ==============================================    
+    async deleteMessage(messageId: string, userId: string): Promise<void> {
+        const deletedMessage = await this._messageRepo.deleteMessage(messageId, userId);
+
+        if (!deletedMessage) {
+            throw new AppError("Message not found or you are not authorized to delete it", HTTP_STATUS.NOT_FOUND);
+        }
+
+        // Get match to find recipient
+        const match = await this._matchedUsersRepo.findMatchById(deletedMessage.matchId.toString());
+        if (match) {
+            const userIds = match.users.map((id) =>
+                typeof id === "string" ? id : id._id.toString()
+            );
+            const recipientId = userIds.find((id) => id !== userId);
+
+            if (recipientId) {
+                this._socketService.sendMessage(recipientId, {
+                    type: 'message_deleted',
+                    matchId: deletedMessage.matchId.toString(),
+                    messageId: messageId
+                });
+            }
+        }
     }
 }

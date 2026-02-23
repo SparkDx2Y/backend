@@ -19,6 +19,9 @@ export interface IProfileRepository extends IBaseRepository<IProfile> {
   findByUserId(userId: string): Promise<IProfile | null>;
 
   findPotentialMatches(query: MatchQuery): Promise<ProfileWithDistance[]>;
+
+  updateByUserId(userId: string,data: Partial<IProfile>): Promise<IProfile | null>;
+
 }
 
 
