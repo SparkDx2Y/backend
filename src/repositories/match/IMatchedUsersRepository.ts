@@ -1,12 +1,12 @@
-import type { IMatch } from "../../models/Match";
+import type { IMatch, IMatchPopulated } from "../../models/Match";
 
 export interface IMatchedUsersRepository {
 
     createMatch(users: [string, string]): Promise<IMatch>;
 
-    findMatchById(matchId: string): Promise<IMatch | null>;
+    findMatchById(matchId: string): Promise<IMatchPopulated | null>;
 
-    findMatchesByUserId(userId: string): Promise<IMatch[]>;
+    findMatchesByUserId(userId: string): Promise<IMatchPopulated[]>;
 
     hasMatch(userId1: string, userId2: string): Promise<boolean>;
 

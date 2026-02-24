@@ -1,6 +1,6 @@
 import type { IMessage } from "../../models/Message";
-import type { IMatch } from "../../models/Match";
-import type { MessageResponseDto, MatchResponseDto } from "../../dto/response/message/message-response.dto";
+import { MessageResponseDto, MatchResponseDto } from "../../dto/response/message/message-response.dto";
+import type {  IMatchPopulated, IPopulatedUser } from "../../models/Match";
 
 export class MessageMapper {
     static toMessageResponse(message: IMessage): MessageResponseDto {
@@ -15,10 +15,10 @@ export class MessageMapper {
         };
     }
 
-    static toMatchResponse(match: IMatch, lastMessage?: IMessage | null): MatchResponseDto {
+    static toMatchResponse(match: IMatchPopulated, lastMessage?: IMessage | null): MatchResponseDto {
         return {
             id: match._id.toString(),
-            users: (match.users as any[]).map((user: any) => ({
+            users: match.users.map((user: IPopulatedUser) => ({
                 userId: user._id.toString(),
                 name: user.name,
                 profilePhoto: user.profilePhoto || undefined,
