@@ -2,11 +2,11 @@ import type { Document} from "mongoose";
 import mongoose, { Schema } from "mongoose";
 
 export interface INotification extends Document {
-    userId: mongoose.Types.ObjectId;      // Who receives the notification
-    type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed';   // Type of notification
-    fromUserId: mongoose.Types.ObjectId;  // Who triggered the notification
-    matchId?: mongoose.Types.ObjectId;    // Related match (if applicable)
-    messageId?: mongoose.Types.ObjectId;  // Related message (if applicable)
+    userId: mongoose.Types.ObjectId;      
+    type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed';   
+    fromUserId: mongoose.Types.ObjectId;  
+    matchId?: mongoose.Types.ObjectId;    
+    messageId?: mongoose.Types.ObjectId;  
     isRead: boolean;
     createdAt: Date;
 }

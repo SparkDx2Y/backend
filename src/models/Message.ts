@@ -2,11 +2,11 @@ import type { Document} from "mongoose";
 import mongoose, { Schema } from "mongoose";
 
 export interface IMessage extends Document {
-    matchId: mongoose.Types.ObjectId;  // Which match this message belongs to
-    senderId: mongoose.Types.ObjectId; // Who sent the message
-    content: string;                   // Message text or File URL
-    type: 'text' | 'image' | 'audio';   // Type of message
-    isRead: boolean;                   // Has the recipient read it?
+    matchId: mongoose.Types.ObjectId;  
+    senderId: mongoose.Types.ObjectId; 
+    content: string;                   
+    type: 'text' | 'image' | 'audio';   
+    isRead: boolean;                   
     createdAt: Date;
 }
 
@@ -26,7 +26,7 @@ const messageSchema = new Schema<IMessage>({
         type: String,
         required: true,
         trim: true,
-        maxlength: 2000 // Increased for long URLs if needed
+        maxlength: 2000 
     },
     type: {
         type: String,
