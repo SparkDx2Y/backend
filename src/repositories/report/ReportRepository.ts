@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { BaseRepository } from "../base/BaseRepository";
 import { IReport, Report } from "../../models/Report";
 import { CreateReportData, IReportRepository } from "./IReportRepository";
+import { ReportStatus } from "../../constants/report/report.constants";
 
 @injectable()
 export class ReportRepository extends BaseRepository<IReport> implements IReportRepository {
@@ -32,7 +33,7 @@ export class ReportRepository extends BaseRepository<IReport> implements IReport
             .sort({ createdAt: -1 });
     }
 
-    async updateStatus(id: string, status: any): Promise<IReport | null> {
+    async updateStatus(id: string, status: ReportStatus): Promise<IReport | null> {
         return this.model.findByIdAndUpdate(id, { status }, { new: true })
             .populate('reportedBy', 'name email isBlocked')
             .populate('reportedUser', 'name email isBlocked');

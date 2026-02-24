@@ -211,14 +211,14 @@ export class InterestService implements IInterestService {
     //* ----------------------------------
     // Get Active Interests
     //* ----------------------------------
-    
+
     async getActiveInterests(): Promise<InterestResponseDto[]> {
         const interests = await this._interestRepo.findAll();
 
-        
+
         const activeInterests = interests.filter(i =>
             i.isActive &&
-            (i.categoryId as any).isActive !== false
+            i.categoryId.isActive !== false
         );
 
         return activeInterests.map(InterestMapper.toInterestResponseDto);

@@ -1,5 +1,6 @@
 import type { Document, Types } from 'mongoose';
 import mongoose, { Schema } from 'mongoose'
+import type { IInterestCategory } from './interest-category';
 
 export interface IInterest extends Document {
     name: string;
@@ -7,6 +8,10 @@ export interface IInterest extends Document {
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface IInterestPopulated extends Omit<IInterest, 'categoryId'> {
+    categoryId: IInterestCategory;
 }
 
 const interestSchema = new Schema<IInterest>({
