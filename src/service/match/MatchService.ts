@@ -32,16 +32,16 @@ export class MatchService implements IMatchService {
     // Get Potential Matches (Feed)
     // ----------------------------------
     async getDiscoverProfiles(userId: string): Promise<ProfileResponseDto[]> {
-        
+
         const userProfile = await this._profileRepo.findByUserId(userId);
         if (!userProfile || !userProfile.interestedIn) {
             return [];
         }
 
-        
+
         const swipedUserIds = await this._matchRepo.getSwipedUserIds(userId);
 
-       
+
         const excludeIds = [...swipedUserIds, userId];
 
         const MAX_DISTANCE_KM = 20;
@@ -50,12 +50,12 @@ export class MatchService implements IMatchService {
             throw new AppError("User location not found", HTTP_STATUS.BAD_REQUEST);
         }
 
-       
+
         const profiles = await this._profileRepo.findPotentialMatches({
             excludeUserIds: excludeIds,
             interestedIn: userProfile.interestedIn,
             userGender: userProfile.gender,
-            interests: userProfile.interests.map((interest: any) => interest._id ? interest._id.toString() : interest.toString()),
+            interests: userProfile.interests.map((interest) => interest._id.toString()),
             location: {
                 longitude: userProfile.location.coordinates[0],
                 latitude: userProfile.location.coordinates[1]
@@ -77,14 +77,14 @@ export class MatchService implements IMatchService {
             throw new AppError("You have already swiped on this user", HTTP_STATUS.CONFLICT);
         }
 
-        
+
         await this._matchRepo.createSwipe({
             fromUserId,
             toUserId,
             action
         });
 
-        
+
         if (action === 'like') {
             const notification = await this._notificationRepo.create({
                 userId: toUserId,
@@ -92,29 +92,29 @@ export class MatchService implements IMatchService {
                 fromUserId: fromUserId
             });
 
-            
+
             this._socketService.sendNotification(toUserId, {
                 type: 'like',
                 message: 'Someone liked you!',
                 data: notification
             });
 
-            
+
             const targetAction = await this._matchRepo.getAction(toUserId, fromUserId);
 
-            
+
             if (targetAction && targetAction.action === 'like') {
-                
+
                 const alreadyMatched = await this._matchedUsersRepo.hasMatch(fromUserId, toUserId);
                 if (alreadyMatched) {
-                    return { isMatch: true }; 
+                    return { isMatch: true };
                 }
 
-                
+
                 const match = await this._matchedUsersRepo.createMatch([fromUserId, toUserId]);
 
 
-                
+
                 const matchNotification1 = await this._notificationRepo.create({
                     userId: toUserId,
                     type: 'match',
@@ -129,7 +129,7 @@ export class MatchService implements IMatchService {
                     matchId: match._id.toString()
                 });
 
-                
+
                 this._socketService.sendMatch(toUserId, {
                     type: 'match',
                     message: "It's a Match!",

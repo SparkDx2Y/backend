@@ -1,5 +1,5 @@
 import type { IMessage } from "../../models/Message";
-import { MessageResponseDto, MatchResponseDto } from "../../dto/response/message/message-response.dto";
+import type { MessageResponseDto, MatchResponseDto } from "../../dto/response/message/message-response.dto";
 import type {  IMatchPopulated, IPopulatedUser } from "../../models/Match";
 
 export class MessageMapper {

@@ -1,5 +1,7 @@
-import type { Document} from "mongoose";
+import type { Document } from "mongoose";
 import mongoose, { Schema } from "mongoose";
+import type { IInterest } from "./interest";
+import type { IUser } from "./user";
 
 export interface IProfile extends Document {
     userId: mongoose.Types.ObjectId;
@@ -16,6 +18,11 @@ export interface IProfile extends Document {
     photos?: string[];
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface IProfilePopulated extends Omit<IProfile, 'userId' | 'interests'> {
+    userId: IUser;
+    interests: IInterest[];
 }
 
 

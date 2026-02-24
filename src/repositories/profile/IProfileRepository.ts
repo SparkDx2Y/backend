@@ -1,5 +1,5 @@
 import type { IBaseRepository } from "../base/IBaseRepository";
-import type { IProfile } from "../../models/profile";
+import type { IProfile, IProfilePopulated } from "../../models/profile";
 import type { Gender, GeoLocation } from "../../types/common";
 
 export interface MatchQuery {
@@ -11,18 +11,15 @@ export interface MatchQuery {
   maxDistanceKm: number;
 }
 
-export interface ProfileWithDistance extends IProfile {
+export interface ProfileWithDistance extends IProfilePopulated {
   distanceKm: number;
 }
 export interface IProfileRepository extends IBaseRepository<IProfile> {
 
-  findByUserId(userId: string): Promise<IProfile | null>;
+  findByUserId(userId: string): Promise<IProfilePopulated | null>;
 
   findPotentialMatches(query: MatchQuery): Promise<ProfileWithDistance[]>;
 
-  updateByUserId(userId: string,data: Partial<IProfile>): Promise<IProfile | null>;
+  updateByUserId(userId: string, data: Partial<IProfile>): Promise<IProfilePopulated | null>;
 
 }
-
-
-
