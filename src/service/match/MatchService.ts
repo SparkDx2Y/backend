@@ -12,6 +12,7 @@ import { HTTP_STATUS } from "../../constants/http-status.constants";
 
 import { ISocketService } from "../socket/ISocketService";
 import { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
+import { NotificationMapper } from "../../mapper/notification/notification.mapper";
 
 @injectable()
 export class MatchService implements IMatchService {
@@ -96,7 +97,7 @@ export class MatchService implements IMatchService {
             this._socketService.sendNotification(toUserId, {
                 type: 'like',
                 message: 'Someone liked you!',
-                data: notification
+                data: NotificationMapper.toResponse(notification)
             });
 
 
@@ -134,14 +135,14 @@ export class MatchService implements IMatchService {
                     type: 'match',
                     message: "It's a Match!",
                     matchId: match._id.toString(),
-                    data: matchNotification1
+                    data: NotificationMapper.toResponse(matchNotification1)
                 });
 
                 this._socketService.sendMatch(fromUserId, {
                     type: 'match',
                     message: "It's a Match!",
                     matchId: match._id.toString(),
-                    data: matchNotification2
+                    data: NotificationMapper.toResponse(matchNotification2)
                 });
 
                 return { isMatch: true, matchId: match._id.toString() };

@@ -5,6 +5,7 @@ import type { ISocketService } from "../service/socket/ISocketService";
 import socketConfig from "../config/socketConfig";
 import type { IMatchedUsersRepository } from "../repositories/match/IMatchedUsersRepository";
 import logger from "../config/logger";
+import type { SocketMatchPayload, SocketMessagePayload, SocketNotificationPayload } from "../service/socket/socket-payloads";
 
 export class SocketServer implements ISocketService {
     private io: SocketIOServer;
@@ -192,12 +193,12 @@ export class SocketServer implements ISocketService {
 
         const matches = await this.matchedUsersRepo.findMatchesByUserId(userId);
 
-        const matchedUserIds: string[] = matches.map((match: any) =>
+        const matchedUserIds: string[] = matches.map((match) =>
             match.users
-                .map((u: any) => (u._id ? u._id.toString() : u.toString()))
-                .find((id: string) => id !== userId)
+                .map((u) => u._id.toString())
+                .find((id) => id !== userId)
         )
-            .filter(Boolean);
+            .filter((id): id is string => !!id);
 
         this.userMatches.set(userId, matchedUserIds);
 
@@ -207,7 +208,7 @@ export class SocketServer implements ISocketService {
     /**
      * Notifies a specific user by sending an event to all their active sockets.
      */
-    private notifyUser(userId: string, event: string, payload: any) {
+    private notifyUser(userId: string, event: string, payload: unknown) {
         const sockets = this.userSockets.get(userId);
         sockets?.forEach(socketId => {
             this.io.to(socketId).emit(event, payload);
@@ -221,7 +222,7 @@ export class SocketServer implements ISocketService {
     /**
      * Sends a notification to a specific user.
      */
-    public sendNotification(userId: string, notification: any): boolean {
+    public sendNotification(userId: string, notification: SocketNotificationPayload): boolean {
         this.notifyUser(userId, "notification", notification);
         return this.userSockets.has(userId);
     }
@@ -230,7 +231,7 @@ export class SocketServer implements ISocketService {
     /**
      * Sends a real-time chat message to a specific user.
      */
-    public sendMessage(userId: string, message: any): boolean {
+    public sendMessage(userId: string, message: SocketMessagePayload): boolean {
         this.notifyUser(userId, "message", message);
         return this.userSockets.has(userId);
     }
@@ -238,7 +239,7 @@ export class SocketServer implements ISocketService {
     /**
     * Notifies a user of a new match.
     */
-    public sendMatch(userId: string, matchData: any): boolean {
+    public sendMatch(userId: string, matchData: SocketMatchPayload): boolean {
         // Invalidate cache when a new match occurs
         this.userMatches.delete(userId);
 
