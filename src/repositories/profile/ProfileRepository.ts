@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import type { IProfile, IProfilePopulated } from "../../models/profile";
 import { Profile } from "../../models/profile";
 import { BaseRepository } from "../base/BaseRepository";
-import type { IProfileRepository, MatchQuery, ProfileWithDistance } from "./IProfileRepository";
+import type { IProfileRepository, MatchQuery, ProfileWithDistance, ProfileUpdateData } from "./IProfileRepository";
 
 export class ProfileRepository extends BaseRepository<IProfile> implements IProfileRepository {
 
@@ -88,7 +88,7 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
         })) as unknown as ProfileWithDistance[];
     }
 
-    async updateByUserId(userId: string, data: Partial<IProfile>): Promise<IProfilePopulated | null> {
+    async updateByUserId(userId: string, data: ProfileUpdateData): Promise<IProfilePopulated | null> {
 
         return this.model.findOneAndUpdate(
             { userId },

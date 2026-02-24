@@ -14,12 +14,38 @@ export interface MatchQuery {
 export interface ProfileWithDistance extends IProfilePopulated {
   distanceKm: number;
 }
+
+export interface ProfileCreateData {
+  userId: string;
+  age: number;
+  gender: Gender;
+  interestedIn: Gender;
+  profilePhoto: string;
+  interests: string[];
+  coverPhoto: string | null;
+  photos: string[];
+}
+
+export interface ProfileUpdateData {
+  age?: number;
+  gender?: Gender;
+  interestedIn?: Gender;
+  profilePhoto?: string;
+  interests?: string[];
+  coverPhoto?: string | null;
+  photos?: string[];
+  location?: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+}
+
 export interface IProfileRepository extends IBaseRepository<IProfile> {
 
   findByUserId(userId: string): Promise<IProfilePopulated | null>;
 
   findPotentialMatches(query: MatchQuery): Promise<ProfileWithDistance[]>;
 
-  updateByUserId(userId: string, data: Partial<IProfile>): Promise<IProfilePopulated | null>;
+  updateByUserId(userId: string, data: ProfileUpdateData): Promise<IProfilePopulated | null>;
 
 }
