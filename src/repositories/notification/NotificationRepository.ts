@@ -82,10 +82,16 @@ export class NotificationRepository implements INotificationRepository {
     }
 
     // mark notification as read
-    async markAsRead(notificationId: string): Promise<void> {
-        await Notification.findByIdAndUpdate(notificationId, {
-            isRead: true
-        });
+    async markAsRead(notificationId: string, userId: string): Promise<void> {
+        await Notification.findOneAndUpdate(
+            {
+                _id: new Types.ObjectId(notificationId),
+                userId: new Types.ObjectId(userId)
+            },
+            {
+                isRead: true
+            }
+        );
     }
 
     // mark all notifications as read

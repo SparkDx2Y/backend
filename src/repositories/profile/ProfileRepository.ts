@@ -1,9 +1,9 @@
+import type { PipelineStage } from "mongoose";
 import { Types } from "mongoose";
-import { IProfile, Profile } from "../../models/profile";
+import type { IProfile, IProfilePopulated } from "../../models/profile";
+import { Profile } from "../../models/profile";
 import { BaseRepository } from "../base/BaseRepository";
-import { IProfileRepository, MatchQuery, ProfileWithDistance } from "./IProfileRepository";
-
-
+import type { IProfileRepository, MatchQuery, ProfileWithDistance, ProfileUpdateData } from "./IProfileRepository";
 
 export class ProfileRepository extends BaseRepository<IProfile> implements IProfileRepository {
 
@@ -11,16 +11,16 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
         super(Profile)
     }
 
-    async findByUserId(userId: string): Promise<IProfile | null> {
+    async findByUserId(userId: string): Promise<IProfilePopulated | null> {
         return this.model.findOne({ userId })
             .populate("userId")
             .populate('interests', 'name')
-            .exec();
+            .exec() as unknown as IProfilePopulated | null;
     }
 
     async findPotentialMatches(queryInput: MatchQuery): Promise<ProfileWithDistance[]> {
 
-        const pipeline: any[] = [
+        const pipeline: PipelineStage[] = [
             {
                 $geoNear: {
                     near: {
@@ -80,15 +80,15 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
 
         pipeline.push({ $limit: 20 })
 
-        const result = await this.model.aggregate(pipeline);
+        const result = await this.model.aggregate<IProfilePopulated & { distanceMeters: number }>(pipeline);
 
         return result.map((p) => ({
             ...p,
             distanceKm: Math.round((p.distanceMeters / 1000) * 10) / 10
-        }));
+        })) as unknown as ProfileWithDistance[];
     }
 
-    async updateByUserId(userId: string, data: Partial<IProfile>): Promise<IProfile | null> {
+    async updateByUserId(userId: string, data: ProfileUpdateData): Promise<IProfilePopulated | null> {
 
         return this.model.findOneAndUpdate(
             { userId },
@@ -97,8 +97,7 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
         )
             .populate("userId")
             .populate("interests", "name")
-            .exec();
+            .exec() as unknown as IProfilePopulated | null;
     }
 
 }
-

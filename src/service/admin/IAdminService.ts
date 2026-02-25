@@ -1,6 +1,4 @@
-import { AdminUserListResponseDto } from "../../dto/response/admin/admin.userList.response";
-import { IUser } from "../../models/user";
-
+import type { AdminUserListResponseDto } from "../../dto/response/admin/admin.userList.response";
 
 export interface IAdminService {
 

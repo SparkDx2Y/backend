@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { DI_TYPES } from "../../../di/types";
-import { AuthController } from "../../../controllers/auth/AuthController";
+import type { AuthController } from "../../../controllers/auth/AuthController";
 import container from "../../../di";
 import { authMiddleware } from "../../../middlewares/auth/authMiddleware";
 

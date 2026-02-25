@@ -2,6 +2,7 @@ import connectDB from "../config/dbConfig"
 import { User } from "../models/user"
 import { hashPassword } from "../utils/password"
 import dotenv from 'dotenv'
+import logger from "../config/logger"
 
 dotenv.config()
 
@@ -14,12 +15,12 @@ const createAdmin = async () => {
 
         const existingAdmin = await User.findOne({ email: adminEmail, role: 'admin' })
         if (existingAdmin) {
-            console.log('Admin already exists')
+            logger.info('Admin already exists')
             return
         }
 
         if (!adminEmail || !adminPassword) {
-            console.error('Admin email or password is not defined')
+            logger.error('Admin email or password is not defined')
             return
         }
 
@@ -33,10 +34,10 @@ const createAdmin = async () => {
             isVerified: true,
         });
         
-        console.log('Admin created successfully')
+        logger.info('Admin created successfully')
         
     } catch (error) {
-        console.error('Error creating admin:', error)
+        logger.error('Error creating admin:', error)
     } finally {
         process.exit(0)
     }

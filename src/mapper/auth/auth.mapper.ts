@@ -1,5 +1,5 @@
-import { LoginResponseDto } from "../../dto/response/auth/login-response.dto";
-import { IUser } from "../../models/user";
+import type { LoginResponseDto } from "../../dto/response/auth/login-response.dto";
+import type { IUser } from "../../models/user";
 import { UserMapper } from "./user.mapper";
 
 

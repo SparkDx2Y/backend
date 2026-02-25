@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { DI_TYPES } from "../../../di/types";
-import { ReportController } from "../../../controllers/report/ReportController";
+import type { ReportController } from "../../../controllers/report/ReportController";
 import container from "../../../di";
 import { authMiddleware } from "../../../middlewares/auth/authMiddleware";
 import { requireAdmin } from "../../../middlewares/auth/roleMiddleware";

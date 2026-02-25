@@ -1,7 +1,7 @@
 import { Router } from "express";
 import container from "../../../di";
 import { DI_TYPES } from "../../../di/types";
-import { NotificationController } from "../../../controllers/notification/NotificationController";
+import type { NotificationController } from "../../../controllers/notification/NotificationController";
 import { authMiddleware } from "../../../middlewares/auth/authMiddleware";
 
 const router = Router();

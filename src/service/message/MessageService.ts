@@ -3,7 +3,6 @@ import { IMessageService } from "./IMessageService";
 import { DI_TYPES } from "../../di/types";
 import { IMessageRepository } from "../../repositories/message/IMessageRepository";
 import { IMatchedUsersRepository } from "../../repositories/match/IMatchedUsersRepository";
-import { INotificationRepository } from "../../repositories/notification/INotificationRepository";
 import { MessageResponseDto, MatchResponseDto } from "../../dto/response/message/message-response.dto";
 import { MessageMapper } from "../../mapper/message/message.mapper";
 import { AppError } from "../../utils/AppError";
@@ -28,27 +27,25 @@ export class MessageService implements IMessageService {
     // ==============================================
     async sendMessage(matchId: string, senderId: string, content: string, type: 'text' | 'image' | 'audio' = 'text'): Promise<MessageResponseDto> {
 
-        // verify match exists
+
         const match = await this._matchedUsersRepo.findMatchById(matchId);
         if (!match) {
             throw new AppError("Match not found", HTTP_STATUS.NOT_FOUND);
         }
 
-        const userIds = match.users.map((userId) =>
-            typeof userId === "string" ? userId : userId._id.toString()
-        );
-        // verify sender is part of the match
+        const userIds = match.users.map((user) => user._id.toString());
+
         if (!userIds.includes(senderId)) {
             throw new AppError("You are not part of this match", HTTP_STATUS.FORBIDDEN);
         }
 
-        // verify no user in match is blocked
-        const isAnyUserBlocked = match.users.some((user: any) => user.isBlocked);
+
+        const isAnyUserBlocked = match.users.some((user) => user.isBlocked);
         if (isAnyUserBlocked) {
             throw new AppError("This conversation is no longer available", HTTP_STATUS.FORBIDDEN);
         }
 
-        // create message
+
         const message = await this._messageRepo.createMessage({
             matchId,
             senderId,
@@ -56,17 +53,17 @@ export class MessageService implements IMessageService {
             type
         });
 
-        // update match's lastMessageAt
+
         await this._matchedUsersRepo.updateLastMessageAt(matchId, new Date());
 
-        // get recipient ID and create notification
+
         const recipientId = userIds.find((userId) => userId !== senderId);
 
-        // EMIT REAL-TIME MESSAGE TO RECIPIENT (recipient means the other user in the match)
+
         if (recipientId) {
 
             const messageResponse = MessageMapper.toMessageResponse(message);
-            // Send message event (updates Chat UI)
+
             this._socketService.sendMessage(recipientId, {
                 type: 'message',
                 matchId: matchId,
@@ -81,22 +78,20 @@ export class MessageService implements IMessageService {
     // Get Messages
     // ==============================================
     async getMessages(matchId: string, userId: string, limit?: number): Promise<MessageResponseDto[]> {
-        // 1. Verify user is part of the match
+
         const match = await this._matchedUsersRepo.findMatchById(matchId);
 
         if (!match) {
             throw new AppError("Match not found", HTTP_STATUS.NOT_FOUND);
         }
 
-        const userIds = match.users.map((user) =>
-            typeof user === "string" ? user : user._id.toString()
-        );
+        const userIds = match.users.map((user) => user._id.toString());
 
         if (!userIds.includes(userId)) {
             throw new AppError("You are not part of this match", HTTP_STATUS.FORBIDDEN);
         }
 
-        // 2. Get messages
+
         const messages = await this._messageRepo.findMessagesByMatchId(matchId, limit);
 
         return messages.map(msg => MessageMapper.toMessageResponse(msg));
@@ -139,12 +134,10 @@ export class MessageService implements IMessageService {
             throw new AppError("Message not found or you are not authorized to delete it", HTTP_STATUS.NOT_FOUND);
         }
 
-        // Get match to find recipient
+
         const match = await this._matchedUsersRepo.findMatchById(deletedMessage.matchId.toString());
         if (match) {
-            const userIds = match.users.map((id) =>
-                typeof id === "string" ? id : id._id.toString()
-            );
+            const userIds = match.users.map((user) => user._id.toString());
             const recipientId = userIds.find((id) => id !== userId);
 
             if (recipientId) {

@@ -35,7 +35,6 @@ export class MatchController {
 
         try {
 
-            //? Auth check
             if (!req.user) {
                 return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }

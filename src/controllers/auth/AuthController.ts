@@ -11,11 +11,11 @@ import { loginSchema } from "../../dto/request/auth/login.dto";
 import { forgotPasswordSchema } from "../../dto/request/auth/forgot-password.dto";
 import { forgotPasswordVerifyOtpSchema } from "../../dto/request/auth/forgot-password-verify-otp.dto";
 import { resetPasswordSchema } from "../../dto/request/auth/reset-password.dto";
-import { generateRefreshToken, generateToken, generateTempToken, verifyRefreshToken, verifyTempToken } from "../../utils/jwtHelper";
+import { verifyTempToken } from "../../utils/jwtHelper";
 import { IProfileService } from "../../service/profile/IProfileService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
-import { clearAuthCookies, clearTempCookie, setAuthCookies, setTempCookie } from "../../utils/cookieHelper";
+import { clearAuthCookies, clearTempCookie, setAccessTokenCookie, setAuthCookies, setTempCookie } from "../../utils/cookieHelper";
 
 
 
@@ -129,7 +129,7 @@ export class AuthController {
             const data = forgotPasswordSchema.parse(req.body);
             const { userId, message } = await this._authService.forgotPassword(data);
 
-            //^ setting userId in the cookie for verifying the user in the next request
+
             setTempCookie(res, 'otp_userId', userId);
 
             return sendResponse(res, HTTP_STATUS.OK, message);
@@ -150,10 +150,10 @@ export class AuthController {
             }
             const { resetToken, message } = await this._authService.forgotPasswordVerifyOtp(userId, data);
 
-            // Set the secure reset token
+
             setTempCookie(res, 'reset_token', resetToken);
 
-            // Clean up the previous step's cookie
+
             clearTempCookie(res, 'otp_userId');
 
             return sendResponse(res, HTTP_STATUS.OK, message);
@@ -226,7 +226,7 @@ export class AuthController {
 
             const result = await this._authService.refreshToken(refreshToken);
 
-            setAuthCookies(res, result.accessToken, result.refreshToken);
+            setAccessTokenCookie(res, result.accessToken);
 
             return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.TOKEN_REFRESHED);
         } catch (error) {

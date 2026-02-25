@@ -1,6 +1,8 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import type { Document} from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-import { REPORT_REASONS, REPORT_STATUS, ReportReason, ReportStatus } from '../constants/report/report.constants';
+import type { ReportReason, ReportStatus } from '../constants/report/report.constants';
+import { REPORT_REASONS, REPORT_STATUS } from '../constants/report/report.constants';
 
 export interface IReport extends Document {
     reportedBy: mongoose.Types.ObjectId;

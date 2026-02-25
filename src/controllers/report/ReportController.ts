@@ -6,7 +6,6 @@ import { CreateReportSchema } from "../../dto/request/report/create-report.dto";
 import { sendResponse } from "../../utils/responseHelper";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
-import { REPORT_STATUS, ReportStatus } from "../../constants/report/report.constants";
 import { COMMON_MESSAGES } from "../../constants/common.messages";
 import { REPORT_ERRORS } from "../../constants/errors/report.errors";
 

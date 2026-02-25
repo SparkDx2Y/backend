@@ -1,6 +1,6 @@
-import { IReport } from "../../models/Report";
-import { IBaseRepository } from "../base/IBaseRepository";
-import { ReportReason, ReportStatus } from "../../constants/report/report.constants";
+import type { IReport } from "../../models/Report";
+import type { IBaseRepository } from "../base/IBaseRepository";
+import type { ReportReason, ReportStatus } from "../../constants/report/report.constants";
 
 export interface CreateReportData {
     reportedBy: string;

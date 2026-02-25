@@ -19,7 +19,6 @@
     "declarationMap": false,
     /* Stricter Typechecking */
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
     /* Recommended Options */
     "strict": true,
     "esModuleInterop": true,

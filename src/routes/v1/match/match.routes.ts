@@ -1,9 +1,9 @@
 import { Router } from "express";
 import container from "../../../di";
 import { DI_TYPES } from "../../../di/types";
-import { MatchController } from "../../../controllers/match/MatchController";
+import type { MatchController } from "../../../controllers/match/MatchController";
 import { authMiddleware } from "../../../middlewares/auth/authMiddleware";
-import { onboardingGuard } from "../../../middlewares/onboardingGuard.ts";
+import { onboardingGuard } from "../../../middlewares/onboardingGuard";
 
 const router = Router();
 

@@ -1,4 +1,4 @@
-import { IMessage } from "../../models/Message";
+import type { IMessage } from "../../models/Message";
 
 export interface IMessageRepository {
     createMessage(data: { matchId: string; senderId: string; content: string; type?: string }): Promise<IMessage>;

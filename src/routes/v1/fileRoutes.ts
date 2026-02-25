@@ -2,7 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import container from "../../di";
 import { DI_TYPES } from "../../di/types";
-import { FileController } from "../../controllers/file/FileController";
+import type { FileController } from "../../controllers/file/FileController";
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });

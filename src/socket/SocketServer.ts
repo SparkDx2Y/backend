@@ -1,16 +1,19 @@
-import { Server as SocketIOServer, Socket } from "socket.io";
-import { Server as HTTPServer } from "http";
-import { ISocketService } from "../service/socket/ISocketService";
+import type { Socket } from "socket.io";
+import { Server as SocketIOServer } from "socket.io";
+import type { Server as HTTPServer } from "http";
+import type { ISocketService } from "../service/socket/ISocketService";
 import socketConfig from "../config/socketConfig";
-import { IMatchedUsersRepository } from "../repositories/match/IMatchedUsersRepository";
+import type { IMatchedUsersRepository } from "../repositories/match/IMatchedUsersRepository";
+import logger from "../config/logger";
+import type { SocketMatchPayload, SocketMessagePayload, SocketNotificationPayload } from "../service/socket/socket-payloads";
 
 export class SocketServer implements ISocketService {
     private io: SocketIOServer;
 
-    // userId -> set of socketIds (multi-device/tabs per user support)
+    
     private userSockets: Map<string, Set<string>> = new Map();
 
-    // userId -> matched userIds (in-memory cache)
+    
     private userMatches: Map<string, string[]> = new Map();
 
     constructor(
@@ -27,9 +30,9 @@ export class SocketServer implements ISocketService {
     // =========================
     private setupEventHandlers() {
         this.io.on("connection", (socket: Socket) => {
-            console.log("Socket connected:", socket.id);
+            logger.debug("Socket connected:", socket.id);
 
-            // Register user socket
+            
             socket.on("register", async (userId: string) => {
                 socket.data.userId = userId;
 
@@ -40,18 +43,18 @@ export class SocketServer implements ISocketService {
                 await this.handleUserOnline(userId, socket);
             });
 
-            // Join chat
+            
             socket.on("join_chat", (matchId: string) => {
                 socket.join(matchId);
             });
 
-            // Leave chat
+            
             socket.on("leave_chat", (matchId: string) => {
                 socket.leave(matchId);
             });
 
 
-            // Typing event handler  for a members of a specific chat room
+           
             socket.on("typing", ({ matchId, isTyping }: { matchId: string; isTyping: boolean }) => {
                 const userId = socket.data.userId;
                 if (!userId) return;
@@ -84,7 +87,7 @@ export class SocketServer implements ISocketService {
             });
 
 
-            // Disconnect event handler for removes the socket session and updates the user status
+           
             socket.on("disconnect", async () => {
                 const userId = socket.data.userId;
                 if (!userId) return;
@@ -95,7 +98,7 @@ export class SocketServer implements ISocketService {
                     await this.handleUserOffline(userId);
                 }
 
-                console.log("Socket disconnected:", socket.id);
+                logger.debug("Socket disconnected:", socket.id);
             });
         });
     }
@@ -126,7 +129,7 @@ export class SocketServer implements ISocketService {
 
             socket.emit("online_users", onlineMatches);
         } catch (error) {
-            console.error("Error handling user online:", error);
+            logger.error("Error handling user online:", error);
         }
     }
 
@@ -144,7 +147,7 @@ export class SocketServer implements ISocketService {
 
             this.userMatches.delete(userId);
         } catch (error) {
-            console.error("Error handling user offline:", error);
+            logger.error("Error handling user offline:", error);
         }
     }
 
@@ -190,12 +193,12 @@ export class SocketServer implements ISocketService {
 
         const matches = await this.matchedUsersRepo.findMatchesByUserId(userId);
 
-        const matchedUserIds: string[] = matches.map((match: any) =>
+        const matchedUserIds: string[] = matches.map((match) =>
             match.users
-                .map((u: any) => (u._id ? u._id.toString() : u.toString()))
-                .find((id: string) => id !== userId)
+                .map((u) => u._id.toString())
+                .find((id) => id !== userId)
         )
-            .filter(Boolean);
+            .filter((id): id is string => !!id);
 
         this.userMatches.set(userId, matchedUserIds);
 
@@ -205,7 +208,7 @@ export class SocketServer implements ISocketService {
     /**
      * Notifies a specific user by sending an event to all their active sockets.
      */
-    private notifyUser(userId: string, event: string, payload: any) {
+    private notifyUser(userId: string, event: string, payload: unknown) {
         const sockets = this.userSockets.get(userId);
         sockets?.forEach(socketId => {
             this.io.to(socketId).emit(event, payload);
@@ -219,7 +222,7 @@ export class SocketServer implements ISocketService {
     /**
      * Sends a notification to a specific user.
      */
-    public sendNotification(userId: string, notification: any): boolean {
+    public sendNotification(userId: string, notification: SocketNotificationPayload): boolean {
         this.notifyUser(userId, "notification", notification);
         return this.userSockets.has(userId);
     }
@@ -228,7 +231,7 @@ export class SocketServer implements ISocketService {
     /**
      * Sends a real-time chat message to a specific user.
      */
-    public sendMessage(userId: string, message: any): boolean {
+    public sendMessage(userId: string, message: SocketMessagePayload): boolean {
         this.notifyUser(userId, "message", message);
         return this.userSockets.has(userId);
     }
@@ -236,7 +239,7 @@ export class SocketServer implements ISocketService {
     /**
     * Notifies a user of a new match.
     */
-    public sendMatch(userId: string, matchData: any): boolean {
+    public sendMatch(userId: string, matchData: SocketMatchPayload): boolean {
         // Invalidate cache when a new match occurs
         this.userMatches.delete(userId);
 
@@ -245,7 +248,7 @@ export class SocketServer implements ISocketService {
     }
 
     /**
-    * Returns true if the user has any active connections.
+    * Returns true if the user has active connections.
     */
     public isUserOnline(userId: string): boolean {
         return this.userSockets.has(userId);

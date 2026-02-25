@@ -1,4 +1,4 @@
-import { Document, FilterQuery, UpdateQuery } from "mongoose";
+import type { Document, FilterQuery, UpdateQuery } from "mongoose";
 
 export interface IBaseRepository<T extends Document> {
 

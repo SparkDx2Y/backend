@@ -1,6 +1,6 @@
-import { IBaseRepository } from "../base/IBaseRepository";
-import { IProfile } from "../../models/profile";
-import { Gender, GeoLocation } from "../../types/common";
+import type { IBaseRepository } from "../base/IBaseRepository";
+import type { IProfile, IProfilePopulated } from "../../models/profile";
+import type { Gender, GeoLocation } from "../../types/common";
 
 export interface MatchQuery {
   excludeUserIds: string[];
@@ -11,18 +11,41 @@ export interface MatchQuery {
   maxDistanceKm: number;
 }
 
-export interface ProfileWithDistance extends IProfile {
+export interface ProfileWithDistance extends IProfilePopulated {
   distanceKm: number;
 }
+
+export interface ProfileCreateData {
+  userId: string;
+  age: number;
+  gender: Gender;
+  interestedIn: Gender;
+  profilePhoto: string;
+  interests: string[];
+  coverPhoto: string | null;
+  photos: string[];
+}
+
+export interface ProfileUpdateData {
+  age?: number;
+  gender?: Gender;
+  interestedIn?: Gender;
+  profilePhoto?: string;
+  interests?: string[];
+  coverPhoto?: string | null;
+  photos?: string[];
+  location?: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+}
+
 export interface IProfileRepository extends IBaseRepository<IProfile> {
 
-  findByUserId(userId: string): Promise<IProfile | null>;
+  findByUserId(userId: string): Promise<IProfilePopulated | null>;
 
   findPotentialMatches(query: MatchQuery): Promise<ProfileWithDistance[]>;
 
-  updateByUserId(userId: string,data: Partial<IProfile>): Promise<IProfile | null>;
+  updateByUserId(userId: string, data: ProfileUpdateData): Promise<IProfilePopulated | null>;
 
 }
-
-
-

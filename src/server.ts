@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import dotenv from 'dotenv'
-
+import logger from './config/logger';
 //? dotenv config
 dotenv.config();
 
@@ -25,12 +25,12 @@ const startServer = async () => {
     initSocket(httpServer);
 
     httpServer.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-      console.log(`Socket.IO is ready for real-time communication`);
+      logger.info(`Server is running on http://localhost:${PORT}`);
+      logger.info(`Socket.IO is ready for real-time communication`);
     })
 
   } catch (error) {
-    console.error('Error starting server:', error)
+    logger.error('Error starting server:', error)
     process.exit(1)
   }
 }

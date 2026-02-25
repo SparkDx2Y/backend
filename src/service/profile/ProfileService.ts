@@ -57,12 +57,12 @@ export class ProfileService implements IProfileService {
 
 
         const profile = await this._profileRepo.create({
-            userId: userId as any,
+            userId,
             ...data,
             interests: [],
             coverPhoto: null,
             photos: [],
-        } as any);
+        });
 
         if (!profile) {
             throw new AppError(
@@ -115,61 +115,59 @@ export class ProfileService implements IProfileService {
     // ----------------------------------
     // Update profile (settings page)
     // ----------------------------------
-   async updateProfile(userId: string,data: UpdateProfileDto): Promise<ProfileResponseDto> {
+    async updateProfile(userId: string, data: UpdateProfileDto): Promise<ProfileResponseDto> {
 
-    const updatedData : any =  {...data}
-
-    const updatedProfile = await this._profileRepo.updateByUserId(
-        userId,
-        updatedData
-    );
-
-    if (!updatedProfile) {
-        throw new AppError(
-            PROFILE_ERRORS.PROFILE_NOT_FOUND,
-            HTTP_STATUS.NOT_FOUND
+        const updatedProfile = await this._profileRepo.updateByUserId(
+            userId,
+            data
         );
-    }
 
-    return ProfileMapper.toProfileResponse(updatedProfile);
-}
+        if (!updatedProfile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_NOT_FOUND,
+                HTTP_STATUS.NOT_FOUND
+            );
+        }
+
+        return ProfileMapper.toProfileResponse(updatedProfile);
+    }
 
 
     // ----------------------------------
     // Update interests
     // ----------------------------------
-async updateInterests(userId: string,interestIds: string[]): Promise<ProfileResponseDto> {
+    async updateInterests(userId: string, interestIds: string[]): Promise<ProfileResponseDto> {
 
-    const updatedProfile = await this._profileRepo.updateByUserId(userId,{ interests: interestIds as any });
+        const updatedProfile = await this._profileRepo.updateByUserId(userId, { interests: interestIds });
 
-    if (!updatedProfile) {
-        throw new AppError(
-            PROFILE_ERRORS.PROFILE_NOT_FOUND,
-            HTTP_STATUS.NOT_FOUND
-        );
+        if (!updatedProfile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_NOT_FOUND,
+                HTTP_STATUS.NOT_FOUND
+            );
+        }
+
+        return ProfileMapper.toProfileResponse(updatedProfile);
     }
-
-    return ProfileMapper.toProfileResponse(updatedProfile);
-}
 
     // ----------------------------------
     // Update location
     // ----------------------------------
 
-   async updateLocation(userId: string,latitude: number,longitude: number): Promise<void> {
+    async updateLocation(userId: string, latitude: number, longitude: number): Promise<void> {
 
-    const updatedProfile = await this._profileRepo.updateByUserId(
-        userId,
-        { location: { type: "Point", coordinates: [longitude, latitude] } } 
-    );
-
-    if (!updatedProfile) {
-        throw new AppError(
-            PROFILE_ERRORS.PROFILE_NOT_FOUND,
-            HTTP_STATUS.NOT_FOUND
+        const updatedProfile = await this._profileRepo.updateByUserId(
+            userId,
+            { location: { type: "Point", coordinates: [longitude, latitude] } }
         );
+
+        if (!updatedProfile) {
+            throw new AppError(
+                PROFILE_ERRORS.PROFILE_NOT_FOUND,
+                HTTP_STATUS.NOT_FOUND
+            );
+        }
     }
-}
 
 
     // ----------------------------------

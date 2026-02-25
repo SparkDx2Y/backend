@@ -19,7 +19,7 @@ export class NotificationService implements INotificationService {
 
 
     async markAsRead(notificationId: string, userId: string): Promise<void> {
-        await this._notificationRepo.markAsRead(notificationId);
+        await this._notificationRepo.markAsRead(notificationId, userId);
     }
 
     async markAllAsRead(userId: string): Promise<void> {

@@ -1,6 +1,6 @@
-import { AdminUserListResponseDto } from "../../dto/response/admin/admin.userList.response";
-import { IUser } from "../../models/user";
-import { IBaseRepository } from "../base/IBaseRepository";
+import type { AdminUserListResponseDto } from "../../dto/response/admin/admin.userList.response";
+import type { IUser } from "../../models/user";
+import type { IBaseRepository } from "../base/IBaseRepository";
 
 
 export interface IUserRepository extends IBaseRepository<IUser> {

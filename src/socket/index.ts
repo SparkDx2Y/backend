@@ -1,9 +1,9 @@
-import http from "http";
+import type http from "http";
 import container from "../di";
 import { DI_TYPES } from "../di/types";
 import { SocketServer } from "./SocketServer";
-import { SocketServiceWrapper } from "../service/socket/SocketServiceWrapper";
-import { IMatchedUsersRepository } from "../repositories/match/IMatchedUsersRepository";
+import type { SocketServiceWrapper } from "../service/socket/SocketServiceWrapper";
+import type { IMatchedUsersRepository } from "../repositories/match/IMatchedUsersRepository";
 
 
 // ========

@@ -1,5 +1,5 @@
 
-import { Response, CookieOptions } from "express";
+import type { Response, CookieOptions } from "express";
 
 const getCookieOptions = (): CookieOptions => {
     return {
@@ -21,6 +21,15 @@ export const setAuthCookies = (res: Response, accessToken: string, refreshToken:
     res.cookie("refreshToken", refreshToken, {
         ...options,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+};
+
+export const setAccessTokenCookie = (res: Response, accessToken: string) => {
+    const options = getCookieOptions();
+
+    res.cookie("accessToken", accessToken, {
+        ...options,
+        maxAge: 15 * 60 * 1000, // 15 mins
     });
 };
 

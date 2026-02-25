@@ -11,6 +11,7 @@ import { REPORT_ERRORS } from "../../constants/errors/report.errors";
 
 import { INotificationRepository } from "../../repositories/notification/INotificationRepository";
 import { ISocketService } from "../socket/ISocketService";
+import { NotificationMapper } from "../../mapper/notification/notification.mapper";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -64,7 +65,11 @@ export class ReportService implements IReportService {
             });
 
             // Send real-time notification via socket
-            this._socketService.sendNotification(reporterId, notification);
+            this._socketService.sendNotification(reporterId, {
+                type: notificationType,
+                message: `Your report has been ${status}`,
+                data: NotificationMapper.toResponse(notification)
+            });
         }
 
         return report;

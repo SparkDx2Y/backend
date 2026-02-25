@@ -1,5 +1,5 @@
 
-import { Response } from "express";
+import type { Response } from "express";
 
 export const sendResponse = <T>(
     res: Response,

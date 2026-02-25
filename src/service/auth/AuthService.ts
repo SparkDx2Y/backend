@@ -184,10 +184,9 @@ export class AuthService implements IAuthService {
             );
         }
 
-        // Issue Tokens
         const auth = await this.generateTokens(user._id.toString(), user.role);
 
-        // Get Profile
+
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
@@ -238,7 +237,7 @@ export class AuthService implements IAuthService {
 
         await this._otpRepo.deleteOtp(userId);
 
-        // Generate a secure token for the next step (Reset Password)
+
         const resetToken = generateResetToken(userId);
 
         return { resetToken, message: 'OTP verified successfully' };
@@ -276,10 +275,10 @@ export class AuthService implements IAuthService {
     //* ----------------------------------
 
     async resetPassword(resetToken: string, data: ResetPasswordDto): Promise<{ message: string }> {
-        // 1. Verify the token signature and expiration
+
         const { userId } = verifyResetToken(resetToken);
 
-        // 2. Hash and update password
+
         const hashedPassword = await hashPassword(data.newPassword);
 
         await this._userRepo.updatePassword(userId, hashedPassword);
@@ -329,11 +328,11 @@ export class AuthService implements IAuthService {
             sub: payload.sub,
         };
 
-        // 1. Search by Google ID first (Safest)
+
         let user = await this._userRepo.findByGoogleId(googleUser.sub);
 
         if (!user) {
-            // 2. Search by email to see if they have a manual account
+
             user = await this._userRepo.findByEmail(googleUser.email);
 
             if (user) {
@@ -372,12 +371,12 @@ export class AuthService implements IAuthService {
     // Refresh Token
     //* ----------------------------------
 
-    async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+    async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
 
         let decoded: RefreshPayload;
         try {
             decoded = verifyRefreshToken(refreshToken);
-        } catch (error) {
+        } catch {
             throw new AppError(
                 AUTH_ERRORS.INVALID_REFRESH_TOKEN,
                 HTTP_STATUS.UNAUTHORIZED
@@ -391,7 +390,7 @@ export class AuthService implements IAuthService {
             role: decoded.role,
             ...flags
         });
-        return { accessToken: newAccessToken, refreshToken };
+        return { accessToken: newAccessToken };
     }
 
     //* ----------------------------------

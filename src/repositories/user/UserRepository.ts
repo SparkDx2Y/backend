@@ -3,6 +3,7 @@ import { BaseRepository } from "../base/BaseRepository";
 import { IUserRepository } from "./IUserRepository";
 import { IUser, User } from "../../models/user";
 import { AdminUserListResponseDto } from "../../dto/response/admin/admin.userList.response";
+import { FilterQuery } from "mongoose";
 
 
 
@@ -44,7 +45,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
 
     async findUsersForAdmin(search: string, page: number, limit: number): Promise<{ users: AdminUserListResponseDto[], total: number }> {
 
-        const matchStage: any = { role: 'user' }
+        const matchStage: FilterQuery<IUser> = { role: 'user' }
         if (search) {
             matchStage.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -53,7 +54,10 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
         }
 
         const skip = (page - 1) * limit
-        const [result] = await this.model.aggregate([
+        const [result] = await this.model.aggregate<{
+            users: AdminUserListResponseDto[];
+            totalCount: { total: number }[];
+        }>([
             { $match: matchStage },
             { $lookup: { from: 'profiles', localField: '_id', foreignField: 'userId', as: 'profile' } },
             {
@@ -90,8 +94,8 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
         ]).exec()
 
         return {
-            users: result.users,
-            total: result.totalCount[0]?.total ?? 0
+            users: result?.users || [],
+            total: result?.totalCount[0]?.total ?? 0
         }
     }
 

@@ -1,9 +1,21 @@
-import mongoose, { Document, Schema } from "mongoose";
+import type { Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+
+export interface IPopulatedUser {
+    _id: mongoose.Types.ObjectId;
+    name: string;
+    isBlocked: boolean;
+    profilePhoto?: string;
+}
 
 export interface IMatch extends Document {
-    users: [mongoose.Types.ObjectId, mongoose.Types.ObjectId]; // The two matched users
+    users: [mongoose.Types.ObjectId, mongoose.Types.ObjectId];
     createdAt: Date;
-    lastMessageAt?: Date; // For sorting matches by recent activity
+    lastMessageAt?: Date;
+}
+
+export interface IMatchPopulated extends Omit<IMatch, 'users'> {
+    users: [IPopulatedUser, IPopulatedUser];
 }
 
 const matchSchema = new Schema<IMatch>({

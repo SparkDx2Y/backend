@@ -1,4 +1,4 @@
-import { InterestResponseDto } from "./interest.response.dto";
+import type { InterestResponseDto } from "./interest.response.dto";
 
 export interface CategoryWithInterestsResponseDto {
     id: string;
