@@ -10,10 +10,10 @@ import type { SocketMatchPayload, SocketMessagePayload, SocketNotificationPayloa
 export class SocketServer implements ISocketService {
     private io: SocketIOServer;
 
-    // userId -> set of socketIds (multi-device/tabs per user support)
+    
     private userSockets: Map<string, Set<string>> = new Map();
 
-    // userId -> matched userIds (in-memory cache)
+    
     private userMatches: Map<string, string[]> = new Map();
 
     constructor(
@@ -32,7 +32,7 @@ export class SocketServer implements ISocketService {
         this.io.on("connection", (socket: Socket) => {
             logger.debug("Socket connected:", socket.id);
 
-            // Register user socket
+            
             socket.on("register", async (userId: string) => {
                 socket.data.userId = userId;
 
@@ -43,18 +43,18 @@ export class SocketServer implements ISocketService {
                 await this.handleUserOnline(userId, socket);
             });
 
-            // Join chat
+            
             socket.on("join_chat", (matchId: string) => {
                 socket.join(matchId);
             });
 
-            // Leave chat
+            
             socket.on("leave_chat", (matchId: string) => {
                 socket.leave(matchId);
             });
 
 
-            // Typing event handler  for a members of a specific chat room
+           
             socket.on("typing", ({ matchId, isTyping }: { matchId: string; isTyping: boolean }) => {
                 const userId = socket.data.userId;
                 if (!userId) return;
@@ -87,7 +87,7 @@ export class SocketServer implements ISocketService {
             });
 
 
-            // Disconnect event handler for removes the socket session and updates the user status
+           
             socket.on("disconnect", async () => {
                 const userId = socket.data.userId;
                 if (!userId) return;
@@ -248,7 +248,7 @@ export class SocketServer implements ISocketService {
     }
 
     /**
-    * Returns true if the user has any active connections.
+    * Returns true if the user has active connections.
     */
     public isUserOnline(userId: string): boolean {
         return this.userSockets.has(userId);
