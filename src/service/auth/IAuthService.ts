@@ -31,7 +31,7 @@ export interface IAuthService {
 
   getCurrentUser(userId: string): Promise<LoginResponseDto>
 
-  refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }>
+  refreshToken(refreshToken: string): Promise<{ accessToken: string }>
 
   generateTokens(userId: string, role: string): Promise<{ accessToken: string; refreshToken: string; isProfileCompleted: boolean; isInterestsSelected: boolean; isLocationCompleted: boolean; }>
 

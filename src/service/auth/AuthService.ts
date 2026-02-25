@@ -186,7 +186,7 @@ export class AuthService implements IAuthService {
 
         const auth = await this.generateTokens(user._id.toString(), user.role);
 
-       
+
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
         const profilePhoto = profile?.profilePhoto || profile?.photos?.[0] || null;
         const interests = profile?.interests || [];
@@ -237,7 +237,7 @@ export class AuthService implements IAuthService {
 
         await this._otpRepo.deleteOtp(userId);
 
-       
+
         const resetToken = generateResetToken(userId);
 
         return { resetToken, message: 'OTP verified successfully' };
@@ -275,10 +275,10 @@ export class AuthService implements IAuthService {
     //* ----------------------------------
 
     async resetPassword(resetToken: string, data: ResetPasswordDto): Promise<{ message: string }> {
-       
+
         const { userId } = verifyResetToken(resetToken);
 
-       
+
         const hashedPassword = await hashPassword(data.newPassword);
 
         await this._userRepo.updatePassword(userId, hashedPassword);
@@ -328,11 +328,11 @@ export class AuthService implements IAuthService {
             sub: payload.sub,
         };
 
-        
+
         let user = await this._userRepo.findByGoogleId(googleUser.sub);
 
         if (!user) {
-            
+
             user = await this._userRepo.findByEmail(googleUser.email);
 
             if (user) {
@@ -371,7 +371,7 @@ export class AuthService implements IAuthService {
     // Refresh Token
     //* ----------------------------------
 
-    async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+    async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
 
         let decoded: RefreshPayload;
         try {
@@ -390,7 +390,7 @@ export class AuthService implements IAuthService {
             role: decoded.role,
             ...flags
         });
-        return { accessToken: newAccessToken, refreshToken };
+        return { accessToken: newAccessToken };
     }
 
     //* ----------------------------------

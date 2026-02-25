@@ -15,7 +15,7 @@ import { verifyTempToken } from "../../utils/jwtHelper";
 import { IProfileService } from "../../service/profile/IProfileService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
-import { clearAuthCookies, clearTempCookie, setAuthCookies, setTempCookie } from "../../utils/cookieHelper";
+import { clearAuthCookies, clearTempCookie, setAccessTokenCookie, setAuthCookies, setTempCookie } from "../../utils/cookieHelper";
 
 
 
@@ -129,7 +129,7 @@ export class AuthController {
             const data = forgotPasswordSchema.parse(req.body);
             const { userId, message } = await this._authService.forgotPassword(data);
 
-            
+
             setTempCookie(res, 'otp_userId', userId);
 
             return sendResponse(res, HTTP_STATUS.OK, message);
@@ -150,10 +150,10 @@ export class AuthController {
             }
             const { resetToken, message } = await this._authService.forgotPasswordVerifyOtp(userId, data);
 
-           
+
             setTempCookie(res, 'reset_token', resetToken);
 
-            
+
             clearTempCookie(res, 'otp_userId');
 
             return sendResponse(res, HTTP_STATUS.OK, message);
@@ -226,7 +226,7 @@ export class AuthController {
 
             const result = await this._authService.refreshToken(refreshToken);
 
-            setAuthCookies(res, result.accessToken, result.refreshToken);
+            setAccessTokenCookie(res, result.accessToken);
 
             return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.TOKEN_REFRESHED);
         } catch (error) {
