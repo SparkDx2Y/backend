@@ -12,8 +12,7 @@ import { AppError } from "../../utils/AppError";
 @injectable()
 export class SubscriptionService implements ISubscriptionService {
     constructor(
-        @inject(DI_TYPES.REPOSITORIES.SUBSCRIPTION_REPOSITORY) private readonly _planRepo: ISubscriptionRepository,
-        @inject(DI_TYPES.REPOSITORIES.USER_SUBSCRIPTION_REPOSITORY) private readonly _userSubRepo: IUserSubscriptionRepository
+        @inject(DI_TYPES.REPOSITORIES.SUBSCRIPTION_REPOSITORY) private readonly _planRepo: ISubscriptionRepository
     ) { }
 
     async createPlan(data: Partial<ISubscriptionPlan>): Promise<ISubscriptionPlan> {

@@ -5,8 +5,4 @@ import type { Types } from "mongoose";
 export interface IUserSubscriptionRepository extends IBaseRepository<IUserSubscription> {
 
     findActiveByUserId(userId: string | Types.ObjectId): Promise<IUserSubscription | null>;
-
-    findAllByUserId(userId: string | Types.ObjectId): Promise<IUserSubscription[]>;
-    
-    expireSubscription(subscriptionId: string | Types.ObjectId): Promise<void>;
 }

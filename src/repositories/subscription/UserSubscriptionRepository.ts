@@ -17,12 +17,4 @@ export class UserSubscriptionRepository extends BaseRepository<IUserSubscription
             endDate: { $gt: new Date() }
         }).populate('planId').exec();
     }
-
-    async findAllByUserId(userId: string | Types.ObjectId): Promise<IUserSubscription[]> {
-        return this.model.find({ userId }).sort({ createdAt: -1 }).populate('planId').exec();
-    }
-
-    async expireSubscription(subscriptionId: string | Types.ObjectId): Promise<void> {
-        await this.model.findByIdAndUpdate(subscriptionId, { status: "EXPIRED" }).exec();
-    }
 }
