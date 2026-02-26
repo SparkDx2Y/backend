@@ -12,6 +12,7 @@ import { completeProfileSchema } from "../../dto/request/profile/complete-profil
 import { updateProfileSchema } from "../../dto/request/profile/update-profile.dto";
 import { updateInterestsSchema } from "../../dto/request/profile/update-interests.dto";
 import { IInterestService } from "../../service/interest/IInterestService";
+import { IProfileViewService } from "../../service/profile-view/IProfileViewService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 import { updateLocationSchema } from "../../dto/request/profile/update-location.dto";
@@ -24,7 +25,8 @@ export class ProfileController {
         @inject(DI_TYPES.SERVICES.PROFILE_SERVICE) private readonly _profileService: IProfileService,
         @inject(DI_TYPES.SERVICES.INTEREST_SERVICE) private readonly _interestService: IInterestService,
         @inject(DI_TYPES.SERVICES.AUTH_SERVICE) private readonly _authService: IAuthService,
-        @inject(DI_TYPES.SERVICES.MATCH_SERVICE) private readonly _matchService: IMatchService
+        @inject(DI_TYPES.SERVICES.MATCH_SERVICE) private readonly _matchService: IMatchService,
+        @inject(DI_TYPES.SERVICES.PROFILE_VIEW_SERVICE) private readonly _profileViewService: IProfileViewService
     ) { }
 
 
@@ -39,25 +41,25 @@ export class ProfileController {
 
             const userId = req.user.id;
             const userRole = req.user.role;
-            
+
             if (userRole === "admin") {
                 return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Admins do not have profiles");
             }
 
             const data = completeProfileSchema.parse(req.body);
 
-            
+
             const { profile, isCompleted } = await this._profileService.completeProfile(userId, data);
 
-          
+
             if (!isCompleted) {
                 return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.PROFILE_PARTIAL, { isCompleted: false, profile });
             }
 
-            
+
             const { accessToken, refreshToken } = await this._authService.generateTokens(userId, userRole);
 
-           
+
             setAuthCookies(res, accessToken, refreshToken);
             return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.PROFILE_COMPLETED, { isCompleted, profile });
 
@@ -71,7 +73,7 @@ export class ProfileController {
     // ----------------------------------
     getMyProfile = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            
+
             if (!req.user) {
                 return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
@@ -180,9 +182,11 @@ export class ProfileController {
                 return sendResponse(res, HTTP_STATUS.NOT_FOUND, "Profile not found");
             }
 
-          
+
             if (req.user) {
                 profile.hasSwiped = await this._matchService.hasUserSwipedOn(req.user.id, userId);
+                
+                await this._profileViewService.recordView(req.user.id, userId);
             }
 
             return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FETCHED_SUCCESSFULLY, profile);

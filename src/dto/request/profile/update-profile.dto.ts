@@ -20,6 +20,11 @@ export const updateProfileSchema = z.object({
     .url("Invalid image URL")
     .optional(),
 
+  bio: z
+    .string()
+    .max(500, "Bio must be less than 500 characters")
+    .optional(),
+
   coverPhoto: z
     .string()
     .url("Invalid image URL")
@@ -36,6 +41,7 @@ export const updateProfileSchema = z.object({
     data.gender !== undefined ||
     data.interestedIn !== undefined ||
     data.profilePhoto !== undefined ||
+    data.bio !== undefined ||
     data.coverPhoto !== undefined ||
     data.photos !== undefined,
   { message: "At least one field must be provided to update the profile" }

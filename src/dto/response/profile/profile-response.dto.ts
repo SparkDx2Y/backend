@@ -3,6 +3,7 @@ export interface ProfileResponseDto {
     userId: string;
     name: string;
     age?: number | undefined;
+    bio?: string;
     gender?: "male" | "female";
     interestedIn?: "male" | "female" | undefined;
     profilePhoto?: string | null;

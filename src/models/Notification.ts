@@ -4,7 +4,7 @@ import type { IUser } from "./user";
 
 export interface INotification extends Document {
     userId: mongoose.Types.ObjectId;
-    type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed';
+    type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed' | 'profile_view';
     fromUserId: mongoose.Types.ObjectId;
     matchId?: mongoose.Types.ObjectId;
     messageId?: mongoose.Types.ObjectId;
@@ -25,7 +25,7 @@ const notificationSchema = new Schema<INotification>({
     },
     type: {
         type: String,
-        enum: ['like', 'match', 'message', 'report_resolved', 'report_dismissed'],
+        enum: ['like', 'match', 'message', 'report_resolved', 'report_dismissed', 'profile_view'],
         required: true
     },
     fromUserId: {

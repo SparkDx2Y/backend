@@ -14,6 +14,7 @@ export class ProfileMapper {
       userId: user?._id?.toString() || profile.userId?.toString(),
       name: user?.name || "Unknown",
       age: profile.age,
+      bio: profile.bio || "",
       gender: profile.gender,
       interestedIn: profile.interestedIn,
       profilePhoto: profile.profilePhoto ?? profile.photos?.[0] ?? null,

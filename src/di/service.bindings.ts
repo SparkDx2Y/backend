@@ -11,6 +11,7 @@ import { InterestService } from "../service/interest/InterestService";
 import { SocketServiceWrapper } from "../service/socket/SocketServiceWrapper";
 import { CloudinaryStorageProvider } from "../service/storage/CloudinaryStorageProvider";
 import { ReportService } from "../service/report/ReportService";
+import { ProfileViewService } from "../service/profile-view/ProfileViewService";
 
 
 export function bindServices(container: Container) {
@@ -25,4 +26,5 @@ export function bindServices(container: Container) {
     container.bind(DI_TYPES.SERVICES.SOCKET_SERVICE).to(SocketServiceWrapper).inSingletonScope();
     container.bind(DI_TYPES.PROVIDERS.STORAGE_PROVIDER).to(CloudinaryStorageProvider).inSingletonScope();
     container.bind(DI_TYPES.SERVICES.REPORT_SERVICE).to(ReportService).inSingletonScope();
+    container.bind(DI_TYPES.SERVICES.PROFILE_VIEW_SERVICE).to(ProfileViewService).inSingletonScope();
 }

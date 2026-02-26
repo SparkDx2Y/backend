@@ -2,7 +2,7 @@ import type { NotificationResponseDto } from "../../dto/response/notification/no
 import type { MessageResponseDto } from "../../dto/response/message/message-response.dto";
 
 export interface SocketNotificationPayload {
-    type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed';
+    type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed' | 'profile_view';
     message: string;
     data: NotificationResponseDto;
 }

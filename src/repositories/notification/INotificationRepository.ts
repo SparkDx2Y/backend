@@ -3,7 +3,7 @@ import type { INotification } from "../../models/Notification";
 export interface INotificationRepository {
     create(data: {
         userId: string;
-        type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed';
+        type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed' | 'profile_view';
         fromUserId: string;
         matchId?: string;
         messageId?: string;

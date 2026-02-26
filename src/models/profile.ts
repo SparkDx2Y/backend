@@ -6,6 +6,7 @@ import type { IUser } from "./user";
 export interface IProfile extends Document {
     userId: mongoose.Types.ObjectId | string;
     age?: number;
+    bio?: string;
     gender: 'male' | 'female';
     interestedIn?: 'male' | 'female';
     interests: (mongoose.Types.ObjectId | string)[];
@@ -37,6 +38,11 @@ const profileSchema = new Schema<IProfile>({
         type: Number,
         min: 18,
         max: 50,
+    },
+    bio: {
+        type: String,
+        maxLength: 500,
+        default: ""
     },
     gender: {
         type: String,
