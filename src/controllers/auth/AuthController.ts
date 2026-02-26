@@ -101,7 +101,7 @@ export class AuthController {
             const result = await this._authService.login(data);
 
             setAuthCookies(res, result.accessToken, result.refreshToken);
-            return sendResponse(res, HTTP_STATUS.OK, "Login successful", { user: result.user });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.LOGIN_SUCCESSFUL, { user: result.user });
 
 
         } catch (error) {
@@ -221,7 +221,7 @@ export class AuthController {
         try {
             const refreshToken = req.cookies.refreshToken;
             if (!refreshToken) {
-                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, "Refresh token not valid");
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.SESSION_EXPIRED);
             }
 
             const result = await this._authService.refreshToken(refreshToken);

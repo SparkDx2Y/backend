@@ -43,7 +43,7 @@ export class ProfileController {
             const userRole = req.user.role;
 
             if (userRole === "admin") {
-                return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Admins do not have profiles");
+                return sendResponse(res, HTTP_STATUS.FORBIDDEN, COMMON_ERRORS.FORBIDDEN);
             }
 
             const data = completeProfileSchema.parse(req.body);
@@ -82,7 +82,7 @@ export class ProfileController {
             const profile = await this._profileService.getProfileByUserId(userId);
 
             if (!profile) {
-                return sendResponse(res, HTTP_STATUS.NOT_FOUND, "Profile not found");
+                return sendResponse(res, HTTP_STATUS.NOT_FOUND, COMMON_MESSAGES.PROFILE_NOT_FOUND);
             }
             return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FETCHED_SUCCESSFULLY, profile);
 
@@ -172,20 +172,20 @@ export class ProfileController {
             const { userId } = req.params;
 
             if (!userId) {
-                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "User ID is required");
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, COMMON_ERRORS.SOMETHING_WENT_WRONG);
             }
 
             const profile = await this._profileService.getProfileByUserId(userId);
 
 
             if (!profile) {
-                return sendResponse(res, HTTP_STATUS.NOT_FOUND, "Profile not found");
+                return sendResponse(res, HTTP_STATUS.NOT_FOUND, COMMON_MESSAGES.PROFILE_NOT_FOUND);
             }
 
 
             if (req.user) {
                 profile.hasSwiped = await this._matchService.hasUserSwipedOn(req.user.id, userId);
-                
+
                 await this._profileViewService.recordView(req.user.id, userId);
             }
 

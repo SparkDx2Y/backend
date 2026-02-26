@@ -50,19 +50,19 @@ export class MatchController {
     };
 
     getActivity = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+        try {
 
-        if (!req.user) {
-            return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+            if (!req.user) {
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+            }
+
+            const data = await this._matchService.getActivity(req.user.id);
+
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.ACTIVITY_FETCHED, data);
+
+        } catch (error) {
+            next(error);
         }
-
-        const data = await this._matchService.getActivity(req.user.id);
-
-        sendResponse(res, HTTP_STATUS.OK, "Activity fetched", data);
-
-    } catch (error) {
-        next(error);
-    }
-};
+    };
 
 }

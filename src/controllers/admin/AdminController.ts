@@ -5,6 +5,7 @@ import { inject, injectable } from "inversify";
 import { DI_TYPES } from "../../di/types";
 import { IAdminService } from "../../service/admin/IAdminService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
+import { ADMIN_MESSAGES } from "../../constants/admin/admin.messages";
 
 @injectable()
 export class AdminController {
@@ -57,11 +58,11 @@ export class AdminController {
 
       if (!userId) {
 
-        return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "User ID is required");
+        return sendResponse(res, HTTP_STATUS.BAD_REQUEST, ADMIN_MESSAGES.USER_ID_REQUIRED);
       }
 
       if (typeof isBlocked !== 'boolean') {
-        return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "isBlocked must be a boolean value");
+        return sendResponse(res, HTTP_STATUS.BAD_REQUEST, ADMIN_MESSAGES.IS_BLOCKED_MUST_BE_BOOLEAN);
       }
 
       await this._adminService.updateUserBlockStatus(userId, isBlocked);
