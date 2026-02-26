@@ -14,6 +14,8 @@ import { InterestCategoryRepository } from "../repositories/interest/InterestCat
 import { InterestRepository } from "../repositories/interest/InterestRepository";
 import { ReportRepository } from "../repositories/report/ReportRepository";
 import { ProfileViewRepository } from "../repositories/profile-view/ProfileViewRepository";
+import { SubscriptionRepository } from "../repositories/subscription/SubscriptionRepository";
+import { UserSubscriptionRepository } from "../repositories/subscription/UserSubscriptionRepository";
 
 export function bindRepositories(container: Container) {
     container.bind(DI_TYPES.REPOSITORIES.USER_REPOSITORY).to(UserRepository).inSingletonScope()
@@ -27,4 +29,6 @@ export function bindRepositories(container: Container) {
     container.bind(DI_TYPES.REPOSITORIES.INTEREST_REPOSITORY).to(InterestRepository).inSingletonScope()
     container.bind(DI_TYPES.REPOSITORIES.REPORT_REPOSITORY).to(ReportRepository).inSingletonScope()
     container.bind(DI_TYPES.REPOSITORIES.PROFILE_VIEW_REPOSITORY).to(ProfileViewRepository).inSingletonScope()
+    container.bind(DI_TYPES.REPOSITORIES.SUBSCRIPTION_REPOSITORY).to(SubscriptionRepository).inSingletonScope()
+    container.bind(DI_TYPES.REPOSITORIES.USER_SUBSCRIPTION_REPOSITORY).to(UserSubscriptionRepository).inSingletonScope()
 }

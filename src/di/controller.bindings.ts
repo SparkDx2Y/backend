@@ -9,6 +9,7 @@ import { NotificationController } from "../controllers/notification/Notification
 import { AdminController } from "../controllers/admin/AdminController";
 import { InterestController } from "../controllers/admin/interest/InterestController";
 import { ReportController } from "../controllers/report/ReportController";
+import { SubscriptionController } from "../controllers/admin/subscription/SubscriptionController";
 
 
 export function bindControllers(container: Container) {
@@ -21,4 +22,5 @@ export function bindControllers(container: Container) {
     container.bind(DI_TYPES.CONTROLLERS.ADMIN_CONTROLLER).to(AdminController).inSingletonScope()
     container.bind(DI_TYPES.CONTROLLERS.INTEREST_CONTROLLER).to(InterestController).inSingletonScope()
     container.bind(DI_TYPES.CONTROLLERS.REPORT_CONTROLLER).to(ReportController).inSingletonScope()
+    container.bind(DI_TYPES.CONTROLLERS.SUBSCRIPTION_CONTROLLER).to(SubscriptionController).inSingletonScope()
 }

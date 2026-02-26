@@ -11,7 +11,9 @@ export const DI_TYPES = {
         INTEREST_REPOSITORY: Symbol.for('InterestRepository'),
         INTEREST_CATEGORY_REPOSITORY: Symbol.for('InterestCategoryRepository'),
         REPORT_REPOSITORY: Symbol.for('ReportRepository'),
-        PROFILE_VIEW_REPOSITORY: Symbol.for('ProfileViewRepository')
+        PROFILE_VIEW_REPOSITORY: Symbol.for('ProfileViewRepository'),
+        SUBSCRIPTION_REPOSITORY: Symbol.for('SubscriptionRepository'),
+        USER_SUBSCRIPTION_REPOSITORY: Symbol.for('UserSubscriptionRepository')
     },
     SERVICES: {
         AUTH_SERVICE: Symbol.for('AuthService'),
@@ -24,7 +26,8 @@ export const DI_TYPES = {
         INTEREST_SERVICE: Symbol.for('InterestService'),
         SOCKET_SERVICE: Symbol.for('SocketService'),
         REPORT_SERVICE: Symbol.for('ReportService'),
-        PROFILE_VIEW_SERVICE: Symbol.for('ProfileViewService')
+        PROFILE_VIEW_SERVICE: Symbol.for('ProfileViewService'),
+        SUBSCRIPTION_SERVICE: Symbol.for('SubscriptionService')
     },
     CONTROLLERS: {
         AUTH_CONTROLLER: Symbol.for('AuthController'),
@@ -35,7 +38,8 @@ export const DI_TYPES = {
         NOTIFICATION_CONTROLLER: Symbol.for('NotificationController'),
         ADMIN_CONTROLLER: Symbol.for('AdminController'),
         INTEREST_CONTROLLER: Symbol.for('InterestController'),
-        REPORT_CONTROLLER: Symbol.for('ReportController')
+        REPORT_CONTROLLER: Symbol.for('ReportController'),
+        SUBSCRIPTION_CONTROLLER: Symbol.for('SubscriptionController')
     },
 
     External: {
