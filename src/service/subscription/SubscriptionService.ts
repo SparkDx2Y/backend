@@ -61,6 +61,10 @@ export class SubscriptionService implements ISubscriptionService {
         return this._planRepo.findById(id);
     }
 
+    async getActivePlans(): Promise<ISubscriptionPlan[]> {
+        return this._planRepo.findAllActive();
+    }
+
     async togglePlanStatus(id: string): Promise<ISubscriptionPlan | null> {
         const plan = await this._planRepo.findById(id);
         if (!plan) {
@@ -70,11 +74,4 @@ export class SubscriptionService implements ISubscriptionService {
         return this._planRepo.updateById(id, { isActive: !plan.isActive });
     }
 
-    async getActiveSubscription(userId: string): Promise<IUserSubscription | null> {
-        return this._userSubRepo.findActiveByUserId(userId);
-    }
-
-    async getSubscriptionHistory(userId: string): Promise<IUserSubscription[]> {
-        return this._userSubRepo.findAllByUserId(userId);
-    }
 }

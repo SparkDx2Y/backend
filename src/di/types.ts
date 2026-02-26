@@ -39,7 +39,8 @@ export const DI_TYPES = {
         ADMIN_CONTROLLER: Symbol.for('AdminController'),
         INTEREST_CONTROLLER: Symbol.for('InterestController'),
         REPORT_CONTROLLER: Symbol.for('ReportController'),
-        SUBSCRIPTION_CONTROLLER: Symbol.for('SubscriptionController')
+        SUBSCRIPTION_CONTROLLER: Symbol.for('SubscriptionController'),
+        USER_SUBSCRIPTION_CONTROLLER: Symbol.for('UserSubscriptionController')
     },
 
     External: {
