@@ -1,8 +1,8 @@
 import { Router } from "express";
 import container from "../../../di";
 import { DI_TYPES } from "../../../di/types";
-import { UserSubscriptionController } from "../../../controllers/subscription/UserSubscriptionController";
-import { authMiddleware } from "../../../middlewares/auth/authMiddleware";
+import type { UserSubscriptionController } from "../../../controllers/subscription/UserSubscriptionController";
+
 
 const router = Router();
 

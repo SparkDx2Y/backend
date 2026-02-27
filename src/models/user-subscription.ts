@@ -1,5 +1,5 @@
-import type { Document } from "mongoose";
-import mongoose, { Schema, model, Types } from "mongoose";
+import type { Document , Types } from "mongoose";
+import  { Schema, model } from "mongoose";
 
 export interface IUserSubscription extends Document {
     userId: Types.ObjectId;

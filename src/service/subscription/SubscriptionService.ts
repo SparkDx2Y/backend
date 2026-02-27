@@ -2,9 +2,8 @@ import { inject, injectable } from "inversify";
 import { ISubscriptionService } from "./ISubscriptionService";
 import { DI_TYPES } from "../../di/types";
 import { ISubscriptionRepository } from "../../repositories/subscription/ISubscriptionRepository";
-import { IUserSubscriptionRepository } from "../../repositories/subscription/IUserSubscriptionRepository";
 import { ISubscriptionPlan } from "../../models/subscription-plan";
-import { IUserSubscription } from "../../models/user-subscription";
+
 import { SUBSCRIPTION_ERRORS } from "../../constants/errors/subscription.errors";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { AppError } from "../../utils/AppError";

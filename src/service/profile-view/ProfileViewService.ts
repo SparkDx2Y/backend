@@ -26,7 +26,7 @@ export class ProfileViewService implements IProfileViewService {
 
             if (isNewView) {
                 // Create notification
-                const notification = await this._notificationRepo.create({
+                await this._notificationRepo.create({
                     userId: viewedId,
                     fromUserId: viewerId,
                     type: 'profile_view'
