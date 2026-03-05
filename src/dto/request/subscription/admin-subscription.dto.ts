@@ -11,7 +11,7 @@ export const createPlanSchema = z.object({
         .regex(/^[a-zA-Z\s]+$/, { message: "Only letters and spaces are allowed" })
         .toUpperCase(),
 
-    price: z.number().min(0, { message: "Price cannot be negative" }),
+    price: z.number().min(0, { message: "Price cannot be negative" }).max(20000, { message: "Price cannot exceed 20,000" }),
 
     durationValue: z.number().min(1, { message: "Duration must be at least 1" }),
 
@@ -37,7 +37,7 @@ export const createPlanSchema = z.object({
     isActive: z.boolean().default(true),
 
 }).refine((data) => {
-    if (data.price === 0) return true; 
+    if (data.price === 0) return true;
     if (data.durationUnit === 'month') return data.durationValue <= 12;
     if (data.durationUnit === 'year') return data.durationValue <= 10;
     return true;
