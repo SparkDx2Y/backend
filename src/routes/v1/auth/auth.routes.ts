@@ -30,6 +30,8 @@ router.post('/forgot-password/resend-otp', authController.resendForgotPasswordOt
 
 router.post('/reset-password', authController.resetPassword)
 
+router.put('/change-password', authMiddleware, authController.changePassword)
+
 router.post('/logout', authController.logout)
 
 router.post('/refresh-token', authController.refreshToken)

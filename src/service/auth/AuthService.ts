@@ -21,6 +21,7 @@ import { AuthMapper } from "../../mapper/auth/auth.mapper";
 import { ForgotPasswordDto } from "../../dto/request/auth/forgot-password.dto";
 import { ForgotPasswordVerifyOtpDto } from "../../dto/request/auth/forgot-password-verify-otp.dto";
 import { ResetPasswordDto } from "../../dto/request/auth/reset-password.dto";
+import { ChangePasswordDto } from "../../dto/request/auth/change-password.dto";
 import { IProfileService } from "../profile/IProfileService";
 import { AppError } from "../../utils/AppError";
 import { AUTH_ERRORS } from "../../constants/errors/auth.errors";
@@ -391,6 +392,36 @@ export class AuthService implements IAuthService {
             ...flags
         });
         return { accessToken: newAccessToken };
+    }
+
+    //* ----------------------------------
+    // Change Password
+    //* ----------------------------------
+
+    async changePassword(userId: string, data: ChangePasswordDto): Promise<{ message: string }> {
+        const user = await this._userRepo.findById(userId);
+
+        if (!user) {
+            throw new AppError(AUTH_ERRORS.USER_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+        }
+
+        if (!user.password) {
+            throw new AppError(
+                "This account is linked with social login. Please use Google to sign in.",
+                HTTP_STATUS.BAD_REQUEST
+            );
+        }
+
+        const isMatch = await comparePassword(data.oldPassword, user.password);
+
+        if (!isMatch) {
+            throw new AppError(AUTH_ERRORS.INCORRECT_PASSWORD, HTTP_STATUS.BAD_REQUEST);
+        }
+
+        const hashedPassword = await hashPassword(data.newPassword);
+        await this._userRepo.updatePassword(userId, hashedPassword);
+
+        return { message: "Password changed successfully" };
     }
 
     //* ----------------------------------

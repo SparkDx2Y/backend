@@ -11,6 +11,7 @@ import { loginSchema } from "../../dto/request/auth/login.dto";
 import { forgotPasswordSchema } from "../../dto/request/auth/forgot-password.dto";
 import { forgotPasswordVerifyOtpSchema } from "../../dto/request/auth/forgot-password-verify-otp.dto";
 import { resetPasswordSchema } from "../../dto/request/auth/reset-password.dto";
+import { changePasswordSchema } from "../../dto/request/auth/change-password.dto";
 import { verifyTempToken } from "../../utils/jwtHelper";
 import { IProfileService } from "../../service/profile/IProfileService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
@@ -196,6 +197,25 @@ export class AuthController {
             const result = await this._authService.resetPassword(resetToken, data);
 
             clearTempCookie(res, 'reset_token');
+
+            return sendResponse(res, HTTP_STATUS.OK, result.message);
+        } catch (error) {
+            next(error)
+        }
+    }
+
+
+    //* // // // // // //   changePassword  // // // // // // // *//
+
+    changePassword = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+            }
+
+            const data = changePasswordSchema.parse(req.body);
+
+            const result = await this._authService.changePassword(req.user.id, data);
 
             return sendResponse(res, HTTP_STATUS.OK, result.message);
         } catch (error) {
