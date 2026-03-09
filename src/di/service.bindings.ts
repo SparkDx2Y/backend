@@ -13,7 +13,7 @@ import { CloudinaryStorageProvider } from "../service/storage/CloudinaryStorageP
 import { ReportService } from "../service/report/ReportService";
 import { ProfileViewService } from "../service/profile-view/ProfileViewService";
 import { SubscriptionService } from "../service/subscription/SubscriptionService";
-
+import { UserSubscriptionService } from "../service/subscription/UserSubscriptionService";
 
 export function bindServices(container: Container) {
     container.bind(DI_TYPES.SERVICES.AUTH_SERVICE).to(AuthService).inSingletonScope();
@@ -29,4 +29,5 @@ export function bindServices(container: Container) {
     container.bind(DI_TYPES.SERVICES.REPORT_SERVICE).to(ReportService).inSingletonScope();
     container.bind(DI_TYPES.SERVICES.PROFILE_VIEW_SERVICE).to(ProfileViewService).inSingletonScope();
     container.bind(DI_TYPES.SERVICES.SUBSCRIPTION_SERVICE).to(SubscriptionService).inSingletonScope();
+    container.bind(DI_TYPES.SERVICES.USER_SUBSCRIPTION_SERVICE).to(UserSubscriptionService).inSingletonScope();
 }

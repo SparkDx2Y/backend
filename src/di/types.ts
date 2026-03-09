@@ -27,7 +27,8 @@ export const DI_TYPES = {
         SOCKET_SERVICE: Symbol.for('SocketService'),
         REPORT_SERVICE: Symbol.for('ReportService'),
         PROFILE_VIEW_SERVICE: Symbol.for('ProfileViewService'),
-        SUBSCRIPTION_SERVICE: Symbol.for('SubscriptionService')
+        SUBSCRIPTION_SERVICE: Symbol.for('SubscriptionService'),
+        USER_SUBSCRIPTION_SERVICE: Symbol.for('UserSubscriptionService')
     },
     CONTROLLERS: {
         AUTH_CONTROLLER: Symbol.for('AuthController'),
