@@ -9,11 +9,11 @@ export interface ISubscriptionFeatures {
     seeWhoLikedYou: boolean;
     seeWhoViewedProfile: boolean;
     chatEnabled: boolean;
-    dailyMessageLimit: number;      
+    dailyMessageLimit: number;
     mediaSharingEnabled: boolean;
     audioEnabled: boolean;
     videoCallEnabled: boolean;
-    swipeLimit: number;             
+    swipeLimit: number;
 }
 
 /* ================================
@@ -27,6 +27,7 @@ export interface ISubscriptionPlan extends Document {
     durationUnit: 'month' | 'year';
     features: ISubscriptionFeatures;
     isActive: boolean;
+    isDefaultBasePlan: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -63,39 +64,44 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
         },
 
         features: {
-            seeWhoLikedYou: { type: Boolean, default: false },
-            seeWhoViewedProfile: { type: Boolean, default: false },
-            chatEnabled: { type: Boolean, default: true },
+            seeWhoLikedYou: { type: Boolean, required: true },
+            seeWhoViewedProfile: { type: Boolean, required: true },
+            chatEnabled: { type: Boolean, required: true },
 
             dailyMessageLimit: {
                 type: Number,
-                default: 20, 
+                required: true,
             },
 
             mediaSharingEnabled: {
                 type: Boolean,
-                default: false,
+                required: true,
             },
 
             audioEnabled: {
                 type: Boolean,
-                default: false,
+                required: true,
             },
 
             videoCallEnabled: {
                 type: Boolean,
-                default: false,
+                required: true,
             },
 
             swipeLimit: {
                 type: Number,
-                default: 20, 
+                required: true,
             },
         },
 
         isActive: {
             type: Boolean,
             default: true,
+        },
+
+        isDefaultBasePlan: {
+            type: Boolean,
+            default: false,
         },
     },
     { timestamps: true }
