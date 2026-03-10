@@ -35,6 +35,7 @@ export const createPlanSchema = z.object({
     }),
 
     isActive: z.boolean().default(true),
+    isDefaultBasePlan: z.boolean().default(false),
 
 }).refine((data) => {
     if (data.price === 0) return true;
