@@ -28,7 +28,7 @@ export class ProfileViewService implements IProfileViewService {
             const { isNewView } = await this._profileViewRepo.upsertView(viewerId, viewedId);
 
             if (isNewView) {
-                // Create notification
+               
                 await this._notificationRepo.create({
                     userId: viewedId,
                     fromUserId: viewerId,
@@ -42,11 +42,11 @@ export class ProfileViewService implements IProfileViewService {
                 if (latestNotif) {
                     const responseDto = NotificationMapper.toResponse(latestNotif);
 
-                    // Check if the user who was viewed has the Premium feature enabled
+                    
                     const limits = await this._userSubService.getUserLimits(viewedId);
 
                     if (!limits.seeWhoViewedProfile) {
-                        // Censor the notification data completely directly in the responseDto!
+                        
                         responseDto.fromUser = {
                             id: "hidden",
                             name: "Hidden User",
@@ -59,7 +59,7 @@ export class ProfileViewService implements IProfileViewService {
                             data: responseDto
                         });
                     } else {
-                        // User has Premium, send the normal notification
+                        
                         this._socketService.sendNotification(viewedId, {
                             type: 'profile_view',
                             message: `${responseDto.fromUser.name} viewed your profile`,
