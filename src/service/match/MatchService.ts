@@ -5,6 +5,7 @@ import { IMatchRepository } from "../../repositories/match/IMatchRepository";
 import { IMatchedUsersRepository } from "../../repositories/match/IMatchedUsersRepository";
 import { INotificationRepository } from "../../repositories/notification/INotificationRepository";
 import { IProfileRepository } from "../../repositories/profile/IProfileRepository";
+import { IProfileViewRepository } from "../../repositories/profile-view/IProfileViewRepository";
 import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
 import { ProfileMapper } from "../../mapper/auth/profile.mapper";
 import { AppError } from "../../utils/AppError";
@@ -13,6 +14,8 @@ import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { ISocketService } from "../socket/ISocketService";
 import { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
 import { NotificationMapper } from "../../mapper/notification/notification.mapper";
+
+import { IUserSubscriptionService } from "../subscription/IUserSubscriptionService";
 
 @injectable()
 export class MatchService implements IMatchService {
@@ -25,8 +28,12 @@ export class MatchService implements IMatchService {
         private readonly _notificationRepo: INotificationRepository,
         @inject(DI_TYPES.REPOSITORIES.PROFILE_REPOSITORY)
         private readonly _profileRepo: IProfileRepository,
+        @inject(DI_TYPES.REPOSITORIES.PROFILE_VIEW_REPOSITORY)
+        private readonly _profileViewRepo: IProfileViewRepository,
         @inject(DI_TYPES.SERVICES.SOCKET_SERVICE)
-        private readonly _socketService: ISocketService
+        private readonly _socketService: ISocketService,
+        @inject(DI_TYPES.SERVICES.USER_SUBSCRIPTION_SERVICE)
+        private readonly _userSubService: IUserSubscriptionService
     ) { }
 
     // ----------------------------------
@@ -78,6 +85,16 @@ export class MatchService implements IMatchService {
             throw new AppError("You have already swiped on this user", HTTP_STATUS.CONFLICT);
         }
 
+        if (action === 'like') {
+            const limits = await this._userSubService.getUserLimits(fromUserId);
+            if (limits.swipeLimit !== -1) {
+                const todaySwipes = await this._matchRepo.getTodaySwipeCount(fromUserId, 'like');
+                if (todaySwipes >= limits.swipeLimit) {
+                    throw new AppError("Daily swipe limit reached. Upgrade for unlimited swipes!", HTTP_STATUS.FORBIDDEN);
+                }
+            }
+        }
+
 
         await this._matchRepo.createSwipe({
             fromUserId,
@@ -94,10 +111,18 @@ export class MatchService implements IMatchService {
             });
 
 
+            const dto = NotificationMapper.toResponse(notification);
+            const targetLimits = await this._userSubService.getUserLimits(toUserId);
+
+            if (!targetLimits.seeWhoLikedYou) {
+                dto.fromUser = { userId: "hidden", name: "Hidden User", profilePhoto: undefined };
+                (dto as any).isPremiumLocked = true;
+            }
+
             this._socketService.sendNotification(toUserId, {
                 type: 'like',
-                message: 'Someone liked you!',
-                data: NotificationMapper.toResponse(notification)
+                message: !targetLimits.seeWhoLikedYou ? 'Someone liked you! Upgrade to premium to see who it is!' : 'Someone liked you!',
+                data: dto
             });
 
 
@@ -156,7 +181,9 @@ export class MatchService implements IMatchService {
         return this._matchRepo.hasUserAlreadySwiped(fromUserId, toUserId);
     }
 
-    async getActivity(userId: string): Promise<{ liked: MatchActionWithUsersDto[]; passed: MatchActionWithUsersDto[]; received: MatchActionWithUsersDto[]; passedBy: MatchActionWithUsersDto[]; }> {
+    async getActivity(userId: string): Promise<{ liked: MatchActionWithUsersDto[]; passed: MatchActionWithUsersDto[]; received: MatchActionWithUsersDto[]; passedBy: MatchActionWithUsersDto[]; viewedYou: MatchActionWithUsersDto[]; }> {
+
+        const limits = await this._userSubService.getUserLimits(userId);
 
         const liked = await this._matchRepo.getActions({
             fromUserId: userId,
@@ -168,21 +195,30 @@ export class MatchService implements IMatchService {
             action: 'pass'
         });
 
-        const received = await this._matchRepo.getActions({
-            toUserId: userId,
-            action: 'like'
-        });
+        let received: MatchActionWithUsersDto[] = [];
+        if (limits.seeWhoLikedYou) {
+            received = await this._matchRepo.getActions({
+                toUserId: userId,
+                action: 'like'
+            });
+        }
 
         const passedBy = await this._matchRepo.getActions({
             toUserId: userId,
             action: 'pass'
         });
 
+        let viewedYou: MatchActionWithUsersDto[] = [];
+        if (limits.seeWhoViewedProfile) {
+            viewedYou = await this._profileViewRepo.getViewsWithUsers(userId, 50);
+        }
+
         return {
             liked,
             passed,
             received,
-            passedBy
+            passedBy,
+            viewedYou
         };
     }
 

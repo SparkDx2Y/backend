@@ -10,6 +10,8 @@ import { HTTP_STATUS } from "../../constants/http-status.constants";
 
 import { ISocketService } from "../socket/ISocketService";
 
+import { IUserSubscriptionService } from "../subscription/IUserSubscriptionService";
+
 @injectable()
 export class MessageService implements IMessageService {
     constructor(
@@ -18,15 +20,37 @@ export class MessageService implements IMessageService {
         @inject(DI_TYPES.REPOSITORIES.MATCHED_USERS_REPOSITORY)
         private readonly _matchedUsersRepo: IMatchedUsersRepository,
         @inject(DI_TYPES.SERVICES.SOCKET_SERVICE)
-        private readonly _socketService: ISocketService
+        private readonly _socketService: ISocketService,
+        @inject(DI_TYPES.SERVICES.USER_SUBSCRIPTION_SERVICE)
+        private readonly _userSubService: IUserSubscriptionService
     ) { }
-
 
     // ==============================================
     // Send Message
     // ==============================================
     async sendMessage(matchId: string, senderId: string, content: string, type: 'text' | 'image' | 'audio' = 'text'): Promise<MessageResponseDto> {
 
+        const limits = await this._userSubService.getUserLimits(senderId);
+
+        if (!limits.chatEnabled) {
+            throw new AppError("Direct messaging is not enabled in your current plan. Please upgrade to send messages.", HTTP_STATUS.FORBIDDEN);
+        }
+
+        if (type === 'image' || type === 'audio') {
+            if (!limits.mediaSharingEnabled && type === 'image') {
+                throw new AppError("Media sharing is not enabled in your current plan.", HTTP_STATUS.FORBIDDEN);
+            }
+            if (!limits.audioEnabled && type === 'audio') {
+                throw new AppError("Audio messaging is not enabled in your current plan.", HTTP_STATUS.FORBIDDEN);
+            }
+        }
+
+        if (limits.dailyMessageLimit !== -1) {
+            const todayMessages = await this._messageRepo.getTodayMessageCount(senderId);
+            if (todayMessages >= limits.dailyMessageLimit) {
+                throw new AppError(`You have reached your daily limit of ${limits.dailyMessageLimit} messages. Upgrade your plan for unlimited messaging!`, HTTP_STATUS.FORBIDDEN);
+            }
+        }
 
         const match = await this._matchedUsersRepo.findMatchById(matchId);
         if (!match) {
@@ -39,12 +63,10 @@ export class MessageService implements IMessageService {
             throw new AppError("You are not part of this match", HTTP_STATUS.FORBIDDEN);
         }
 
-
         const isAnyUserBlocked = match.users.some((user) => user.isBlocked);
         if (isAnyUserBlocked) {
             throw new AppError("This conversation is no longer available", HTTP_STATUS.FORBIDDEN);
         }
-
 
         const message = await this._messageRepo.createMessage({
             matchId,
@@ -52,7 +74,6 @@ export class MessageService implements IMessageService {
             content,
             type
         });
-
 
         await this._matchedUsersRepo.updateLastMessageAt(matchId, new Date());
 

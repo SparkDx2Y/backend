@@ -20,6 +20,10 @@ export class SubscriptionService implements ISubscriptionService {
             throw new AppError(SUBSCRIPTION_ERRORS.PLAN_ALREADY_EXISTS, HTTP_STATUS.BAD_REQUEST);
         }
 
+        if (data.isDefaultBasePlan) {
+            await this._planRepo.unsetAllDefaultPlans();
+        }
+
         return this._planRepo.create(data);
     }
 
@@ -34,6 +38,10 @@ export class SubscriptionService implements ISubscriptionService {
             if (planWithSameName && planWithSameName._id.toString() !== id) {
                 throw new AppError(SUBSCRIPTION_ERRORS.PLAN_ALREADY_EXISTS, HTTP_STATUS.BAD_REQUEST);
             }
+        }
+
+        if (data.isDefaultBasePlan) {
+            await this._planRepo.unsetAllDefaultPlans();
         }
 
         return this._planRepo.updateById(id, data);
@@ -57,6 +65,10 @@ export class SubscriptionService implements ISubscriptionService {
 
     async getPlanById(id: string): Promise<ISubscriptionPlan | null> {
         return this._planRepo.findById(id);
+    }
+
+    async getDefaultBasePlan(): Promise<ISubscriptionPlan | null> {
+        return this._planRepo.findDefaultBasePlan();
     }
 
     async getActivePlans(): Promise<ISubscriptionPlan[]> {

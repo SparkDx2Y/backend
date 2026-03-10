@@ -13,6 +13,8 @@ export interface ISubscriptionService {
 
     togglePlanStatus(id: string): Promise<ISubscriptionPlan | null>;
 
+    getDefaultBasePlan(): Promise<ISubscriptionPlan | null>;
+
     getActivePlans(): Promise<ISubscriptionPlan[]>;
 
 }
