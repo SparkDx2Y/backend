@@ -32,6 +32,7 @@ export class MessageRepository implements IMessageRepository {
     }
 
 
+    // mark a message as read
     async markAsRead(messageId: string): Promise<void> {
         await Message.findByIdAndUpdate(messageId, {
             isRead: true
@@ -39,7 +40,7 @@ export class MessageRepository implements IMessageRepository {
     }
 
     async markMatchMessagesAsRead(matchId: string, userId: string): Promise<void> {
-        // Mark all messages in this match that were NOT sent by userId as read
+        
         await Message.updateMany(
             {
                 matchId: new Types.ObjectId(matchId),
@@ -52,6 +53,7 @@ export class MessageRepository implements IMessageRepository {
         );
     }
 
+    // find the last message for a match
     async findLastMessageByMatchId(matchId: string): Promise<IMessage | null> {
         return Message.findOne({
             matchId: new Types.ObjectId(matchId)
@@ -60,15 +62,16 @@ export class MessageRepository implements IMessageRepository {
             .exec();
     }
 
+    // get unread count for a user
     async getUnreadCount(userId: string): Promise<number> {
-        // Get all matches for this user
+        
         const matches = await Match.find({
             users: new Types.ObjectId(userId)
         }).select('_id');
 
         const matchIds = matches.map(m => m._id);
 
-        // Count unread messages in these matches that were NOT sent by this user
+        
         return Message.countDocuments({
             matchId: { $in: matchIds },
             senderId: { $ne: new Types.ObjectId(userId) },
@@ -76,6 +79,7 @@ export class MessageRepository implements IMessageRepository {
         });
     }
 
+    // get today's message count for a user
     async getTodayMessageCount(userId: string): Promise<number> {
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);

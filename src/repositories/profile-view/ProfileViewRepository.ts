@@ -10,7 +10,7 @@ export class ProfileViewRepository implements IProfileViewRepository {
     async upsertView(viewerId: string, viewedId: string): Promise<{ view: IProfileView, isNewView: boolean }> {
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-        // Find existing view from this user to that user
+
         const existingView = await ProfileView.findOne({
             viewerId: new mongoose.Types.ObjectId(viewerId),
             viewedId: new mongoose.Types.ObjectId(viewedId)
@@ -25,7 +25,7 @@ export class ProfileViewRepository implements IProfileViewRepository {
             return { view: existingView, isNewView: isNewViewForNotification };
         }
 
-        // Create new view
+
         const newView = await ProfileView.create({
             viewerId: new mongoose.Types.ObjectId(viewerId),
             viewedId: new mongoose.Types.ObjectId(viewedId),
@@ -35,18 +35,10 @@ export class ProfileViewRepository implements IProfileViewRepository {
         return { view: newView, isNewView: true };
     }
 
-    async getViewsByViewedId(viewedId: string, limit: number = 20): Promise<IProfileView[]> {
-
-        return ProfileView.find({ viewedId: new mongoose.Types.ObjectId(viewedId) })
-            .sort({ lastViewedAt: -1 })
-            .limit(limit)
-            .populate('viewerId');
-    }
-
     async getViewsWithUsers(viewedId: string, limit: number = 20): Promise<MatchActionWithUsersDto[]> {
         return ProfileView.aggregate([
             { $match: { viewedId: new mongoose.Types.ObjectId(viewedId) } },
-            // Populate "from" user data (viewer)
+
             {
                 $lookup: {
                     from: 'users',
@@ -66,7 +58,7 @@ export class ProfileViewRepository implements IProfileViewRepository {
             },
             { $unwind: { path: '$fromProfile', preserveNullAndEmptyArrays: true } },
 
-            // Final
+
             {
                 $project: {
                     _id: { $toString: '$_id' },

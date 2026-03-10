@@ -61,7 +61,6 @@ export class MatchRepository implements IMatchRepository {
 
         return MatchAction.aggregate<MatchActionWithUsersDto>([
             { $match: query },
-            // Populate "from" user data
             {
                 $lookup: {
                     from: 'users',
@@ -81,7 +80,6 @@ export class MatchRepository implements IMatchRepository {
             },
             { $unwind: { path: '$fromProfile', preserveNullAndEmptyArrays: true } },
 
-            // Populate "to" user data
             {
                 $lookup: {
                     from: 'users',
@@ -101,7 +99,7 @@ export class MatchRepository implements IMatchRepository {
             },
             { $unwind: { path: '$toProfile', preserveNullAndEmptyArrays: true } },
 
-            // Final
+            
             {
                 $project: {
                     _id: { $toString: '$_id' },
