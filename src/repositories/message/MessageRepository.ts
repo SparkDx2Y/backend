@@ -76,6 +76,19 @@ export class MessageRepository implements IMessageRepository {
         });
     }
 
+    async getTodayMessageCount(userId: string): Promise<number> {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        return Message.countDocuments({
+            senderId: new Types.ObjectId(userId),
+            createdAt: { $gte: startOfDay, $lte: endOfDay }
+        }).exec();
+    }
+
     async deleteMessage(messageId: string, userId: string): Promise<IMessage | null> {
         return Message.findOneAndDelete({
             _id: new Types.ObjectId(messageId),

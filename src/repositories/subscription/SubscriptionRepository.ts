@@ -25,4 +25,12 @@ export class SubscriptionRepository extends BaseRepository<ISubscriptionPlan> im
         ]);
         return { data, total };
     }
+
+    async findDefaultBasePlan(): Promise<ISubscriptionPlan | null> {
+        return this.model.findOne({ isDefaultBasePlan: true }).exec();
+    }
+
+    async unsetAllDefaultPlans(): Promise<void> {
+        await this.model.updateMany({}, { $set: { isDefaultBasePlan: false } }).exec();
+    }
 }

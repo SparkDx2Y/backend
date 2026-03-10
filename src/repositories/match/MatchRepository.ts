@@ -29,6 +29,20 @@ export class MatchRepository implements IMatchRepository {
         return actions.map(id => id.toString());
     }
 
+    async getTodaySwipeCount(userId: string, action: 'like' | 'pass'): Promise<number> {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        return MatchAction.countDocuments({
+            fromUserId: new Types.ObjectId(userId),
+            action,
+            createdAt: { $gte: startOfDay, $lte: endOfDay }
+        }).exec();
+    }
+
     async getActions(filter: { fromUserId?: string; toUserId?: string; action?: 'like' | 'pass'; }): Promise<MatchActionWithUsersDto[]> {
 
         const query: FilterQuery<IMatchAction> = {};

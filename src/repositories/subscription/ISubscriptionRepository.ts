@@ -5,6 +5,10 @@ export interface ISubscriptionRepository extends IBaseRepository<ISubscriptionPl
     findAllActive(): Promise<ISubscriptionPlan[]>;
 
     findByName(name: string): Promise<ISubscriptionPlan | null>;
-    
+
     findWithPagination(page: number, limit: number): Promise<{ data: ISubscriptionPlan[], total: number }>;
+
+    findDefaultBasePlan(): Promise<ISubscriptionPlan | null>;
+
+    unsetAllDefaultPlans(): Promise<void>;
 }
