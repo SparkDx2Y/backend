@@ -32,9 +32,6 @@ export interface ISubscriptionPlan extends Document {
     updatedAt: Date;
 }
 
-/* ================================
-    Schema
-================================ */
 
 const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
     {
@@ -65,33 +62,20 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
 
         features: {
             seeWhoLikedYou: { type: Boolean, required: true },
+            
             seeWhoViewedProfile: { type: Boolean, required: true },
+
             chatEnabled: { type: Boolean, required: true },
 
-            dailyMessageLimit: {
-                type: Number,
-                required: true,
-            },
+            dailyMessageLimit: { type: Number, required: true },
 
-            mediaSharingEnabled: {
-                type: Boolean,
-                required: true,
-            },
+            mediaSharingEnabled: { type: Boolean, required: true },
 
-            audioEnabled: {
-                type: Boolean,
-                required: true,
-            },
+            audioEnabled: { type: Boolean, required: true },
 
-            videoCallEnabled: {
-                type: Boolean,
-                required: true,
-            },
+            videoCallEnabled: { type: Boolean, required: true },
 
-            swipeLimit: {
-                type: Number,
-                required: true,
-            },
+            swipeLimit: { type: Number, required: true },
         },
 
         isActive: {
