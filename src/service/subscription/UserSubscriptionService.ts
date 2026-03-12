@@ -39,13 +39,20 @@ export class UserSubscriptionService implements IUserSubscriptionService {
         };
     }
 
-    async getCurrentPlan(userId: string | Types.ObjectId): Promise<ISubscriptionPlan | null> {
+    async getCurrentPlan(userId: string | Types.ObjectId): Promise<{ plan: ISubscriptionPlan | null, subscription?: { endDate: Date, status: string } }> {
         const activeSubscription = await this._userSubRepo.findActiveByUserId(userId);
 
         if (activeSubscription && activeSubscription.planId) {
-            return activeSubscription.planId as unknown as ISubscriptionPlan;
+            return {
+                plan: activeSubscription.planId as unknown as ISubscriptionPlan,
+                subscription: {
+                    endDate: activeSubscription.endDate,
+                    status: activeSubscription.status
+                }
+            };
         }
 
-        return this._planRepo.findDefaultBasePlan();
+        const defaultPlan = await this._planRepo.findDefaultBasePlan();
+        return { plan: defaultPlan };
     }
 }

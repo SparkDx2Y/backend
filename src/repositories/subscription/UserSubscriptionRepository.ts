@@ -17,4 +17,17 @@ export class UserSubscriptionRepository extends BaseRepository<IUserSubscription
             endDate: { $gt: new Date() }
         }).populate('planId').exec();
     }
+
+    async updateExpiredSubscriptions(): Promise<number> {
+        const result = await this.model.updateMany(
+            {
+                status: "ACTIVE",
+                endDate: { $lt: new Date() }
+            },
+            {
+                $set: { status: "EXPIRED" }
+            }
+        ).exec();
+        return result.modifiedCount;
+    }
 }

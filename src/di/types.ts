@@ -52,5 +52,8 @@ export const DI_TYPES = {
     },
     PROVIDERS: {
         STORAGE_PROVIDER: Symbol.for('StorageProvider')
+    },
+    JOBS: {
+        SUBSCRIPTION_CLEANUP_JOB: Symbol.for('SubscriptionCleanupJob')
     }
 }
