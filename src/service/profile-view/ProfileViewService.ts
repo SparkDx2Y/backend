@@ -62,7 +62,7 @@ export class ProfileViewService implements IProfileViewService {
                         
                         this._socketService.sendNotification(viewedId, {
                             type: 'profile_view',
-                            message: `${responseDto.fromUser.name} viewed your profile`,
+                            message: `${responseDto.fromUser?.name} viewed your profile`,
                             data: responseDto
                         });
                     }
