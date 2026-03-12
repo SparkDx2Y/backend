@@ -7,6 +7,7 @@ import { MessageResponseDto, MatchResponseDto } from "../../dto/response/message
 import { MessageMapper } from "../../mapper/message/message.mapper";
 import { AppError } from "../../utils/AppError";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
+import logger from "../../config/logger";
 
 import { ISocketService } from "../socket/ISocketService";
 
@@ -92,6 +93,9 @@ export class MessageService implements IMessageService {
             });
 
         }
+
+        logger.info(`Message sent: From ${senderId} in match ${matchId} (Type: ${type})`);
+
         return MessageMapper.toMessageResponse(message);
     }
 

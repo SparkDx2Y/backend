@@ -64,8 +64,11 @@ export class PaymentService implements IPaymentService {
         });
 
         if (!session.url) {
+            logger.error(`Failed to create Stripe URL for user ${userId} and plan ${planId}`);
             throw new AppError("Failed to create checkout session", HTTP_STATUS.INTERNAL_SERVER_ERROR);
         }
+
+        logger.info(`Stripe checkout session created: User ${userId}, Plan ${planId}`);
 
         return session.url;
     }
@@ -126,5 +129,7 @@ export class PaymentService implements IPaymentService {
             amountPaid: session.amount_total ? session.amount_total / 100 : 0,
             status: "ACTIVE"
         } as unknown as Partial<IUserSubscription>);
+
+        logger.info(`Payment processed successfully: User ${userId} upgraded to plan ${planId}`);
     }
 }

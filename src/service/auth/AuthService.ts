@@ -26,6 +26,7 @@ import { IProfileService } from "../profile/IProfileService";
 import { AppError } from "../../utils/AppError";
 import { AUTH_ERRORS } from "../../constants/errors/auth.errors";
 import { HTTP_STATUS } from '../../constants/http-status.constants'
+import logger from "../../config/logger";
 
 
 
@@ -74,6 +75,8 @@ export class AuthService implements IAuthService {
         await sendOtpEmail(newUser.email, otp);
 
         const tempToken = generateTempToken({ userId: newUser._id.toString() });
+
+        logger.info(`New user signup initiated: ${data.email} (ID: ${newUser._id})`);
 
         return { tempToken, message: 'OTP sent to your email' };
     }
@@ -172,6 +175,7 @@ export class AuthService implements IAuthService {
         const isMatch = await comparePassword(data.password, user.password);
 
         if (!isMatch) {
+            logger.warn(`Failed login attempt for email: ${data.email} - Invalid credentials`);
             throw new AppError(
                 AUTH_ERRORS.INVALID_CREDENTIALS,
                 HTTP_STATUS.UNAUTHORIZED
@@ -179,6 +183,7 @@ export class AuthService implements IAuthService {
         }
 
         if (user.isBlocked) {
+            logger.warn(`Blocked user tried to login: ${data.email} (ID: ${user._id})`);
             throw new AppError(
                 AUTH_ERRORS.USER_BLOCKED,
                 HTTP_STATUS.FORBIDDEN
@@ -186,6 +191,8 @@ export class AuthService implements IAuthService {
         }
 
         const auth = await this.generateTokens(user._id.toString(), user.role);
+
+        logger.info(`User successfully logged in: ${data.email} (ID: ${user._id})`);
 
 
         const profile = await this._profileService.getProfileByUserId(user._id.toString());
@@ -283,6 +290,8 @@ export class AuthService implements IAuthService {
         const hashedPassword = await hashPassword(data.newPassword);
 
         await this._userRepo.updatePassword(userId, hashedPassword);
+
+        logger.info(`Password reset successfully for user ID: ${userId}`);
 
         return { message: 'Password reset successfully' };
     }

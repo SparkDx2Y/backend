@@ -6,6 +6,7 @@ import { IDashboardRepository } from "../../repositories/dashboard/IDashboardRep
 import { AdminUserListResponseDto } from "../../dto/response/admin/admin.userList.response";
 import { DashboardStatsDto } from "../../dto/response/admin/dashboard-stats.dto";
 import { DashboardMapper } from "../../mapper/dashboard/dashboard.mapper";
+import logger from "../../config/logger";
 
 @injectable()
 export class AdminService implements IAdminService {
@@ -28,10 +29,12 @@ export class AdminService implements IAdminService {
         } else {
             await this._userRepo.unblockUser(userId);
         }
+        logger.info(`Admin action: User ${userId} ${isBlocked ? 'blocked' : 'unblocked'}`);
     }
 
     async getDashboardStats(from: Date, to: Date): Promise<DashboardStatsDto> {
         const raw = await this._dashboardRepo.getDashboardMetrics(from, to);
+        logger.info(`Dashboard stats fetched for range: ${from.toISOString()} to ${to.toISOString()}`);
         return DashboardMapper.toDto(raw);
     }
 }
