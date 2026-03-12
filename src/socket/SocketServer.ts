@@ -4,6 +4,7 @@ import type { Server as HTTPServer } from "http";
 import type { ISocketService } from "../service/socket/ISocketService";
 import socketConfig from "../config/socketConfig";
 import type { IMatchedUsersRepository } from "../repositories/match/IMatchedUsersRepository";
+import type { IMessageRepository } from "../repositories/message/IMessageRepository";
 import logger from "../config/logger";
 import type { SocketMatchPayload, SocketMessagePayload, SocketNotificationPayload } from "../service/socket/socket-payloads";
 
@@ -15,10 +16,12 @@ export class SocketServer implements ISocketService {
 
     
     private userMatches: Map<string, string[]> = new Map();
+    private activeCalls: Map<string, { callerId: string; startTime?: number }> = new Map();
 
     constructor(
         httpServer: HTTPServer,
-        private matchedUsersRepo: IMatchedUsersRepository
+        private matchedUsersRepo: IMatchedUsersRepository,
+        private messageRepo: IMessageRepository
     ) {
         this.io = new SocketIOServer(httpServer, socketConfig);
         this.setupEventHandlers();
@@ -71,10 +74,22 @@ export class SocketServer implements ISocketService {
             // VIDEO CALL EVENTS
             // =========================
             socket.on("call_user", ({ userToCall, signalData, from }) => {
+                const callerId = socket.data.userId || from?.id || from?.userId || from?._id;
+                if (callerId && userToCall) {
+                    this.activeCalls.set(this.getCallId(callerId, userToCall), { callerId });
+                }
                 this.notifyUser(userToCall, "call_user", { signal: signalData, from });
             });
 
             socket.on("answer_call", (data) => {
+                const userId = socket.data.userId;
+                if (userId && data.to) {
+                    const callId = this.getCallId(userId, data.to);
+                    const call = this.activeCalls.get(callId);
+                    if (call) {
+                        call.startTime = Date.now();
+                    }
+                }
                 this.notifyUser(data.to, "call_accepted", data.signal);
             });
 
@@ -82,7 +97,11 @@ export class SocketServer implements ISocketService {
                 this.notifyUser(to, "ice_candidate", candidate);
             });
 
-            socket.on("end_call", ({ to }) => {
+            socket.on("end_call", async ({ to }) => {
+                const userId = socket.data.userId;
+                if (userId && to) {
+                    await this.handleEndCall(userId, to);
+                }
                 this.notifyUser(to, "call_ended", {});
             });
 
@@ -91,6 +110,17 @@ export class SocketServer implements ISocketService {
             socket.on("disconnect", async () => {
                 const userId = socket.data.userId;
                 if (!userId) return;
+
+                // Handle any active calls this user was in
+                for (const [callId, call] of this.activeCalls.entries()) {
+                    if (callId.includes(userId)) {
+                        const otherUserId = callId.split('-').find(id => id !== userId);
+                        if (otherUserId) {
+                            await this.handleEndCall(userId, otherUserId);
+                            this.notifyUser(otherUserId, "call_ended", {});
+                        }
+                    }
+                }
 
                 const isFullyOffline = this.removeUserSocket(userId, socket.id);
 
@@ -203,6 +233,65 @@ export class SocketServer implements ISocketService {
         this.userMatches.set(userId, matchedUserIds);
 
         return matchedUserIds;
+    }
+
+    private getCallId(id1: string, id2: string): string {
+        return [id1, id2].sort().join('-');
+    }
+
+    private async handleEndCall(userId: string, otherUserId: string) {
+        const callId = this.getCallId(userId, otherUserId);
+        const call = this.activeCalls.get(callId);
+        if (!call) return;
+
+        this.activeCalls.delete(callId);
+
+        try {
+            const match = await this.matchedUsersRepo.findMatchByUsers(userId, otherUserId);
+            if (!match) return;
+
+            let content = "";
+            if (call.startTime) {
+                const durationSeconds = Math.floor((Date.now() - call.startTime) / 1000);
+                const minutes = Math.floor(durationSeconds / 60);
+                const seconds = durationSeconds % 60;
+                content = `Video call ended (${minutes}:${seconds.toString().padStart(2, '0')})`;
+            } else {
+                
+                content = userId === call.callerId ? "Cancelled video call" : "Missed video call";
+            }
+
+            const message = await this.messageRepo.createMessage({
+                matchId: match._id.toString(),
+                senderId: call.callerId,
+                content,
+                type: 'video_call'
+            });
+
+            await this.matchedUsersRepo.updateLastMessageAt(match._id.toString(), new Date());
+
+            const messageResponse = {
+                id: message._id.toString(),
+                matchId: match._id.toString(),
+                senderId: message.senderId.toString(),
+                content: message.content,
+                type: 'video_call',
+                isRead: false,
+                createdAt: message.createdAt
+            };
+
+            // Notify both users via socket
+            [userId, otherUserId].forEach(uid => {
+                this.notifyUser(uid, "message", {
+                    type: 'message',
+                    matchId: match._id.toString(),
+                    message: messageResponse
+                });
+            });
+
+        } catch (error) {
+            logger.error("Error handling end call log:", error);
+        }
     }
 
     /**

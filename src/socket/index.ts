@@ -4,6 +4,7 @@ import { DI_TYPES } from "../di/types";
 import { SocketServer } from "./SocketServer";
 import type { SocketServiceWrapper } from "../service/socket/SocketServiceWrapper";
 import type { IMatchedUsersRepository } from "../repositories/match/IMatchedUsersRepository";
+import type { IMessageRepository } from "../repositories/message/IMessageRepository";
 
 
 // ========
@@ -14,7 +15,11 @@ export const initSocket = (httpServer: http.Server) => {
         DI_TYPES.REPOSITORIES.MATCHED_USERS_REPOSITORY
     );
 
-    const socketServer = new SocketServer(httpServer, matchedUsersRepo);
+    const messageRepo = container.get<IMessageRepository>(
+        DI_TYPES.REPOSITORIES.MESSAGE_REPOSITORY
+    );
+
+    const socketServer = new SocketServer(httpServer, matchedUsersRepo, messageRepo);
 
     const socketServiceWrapper = container.get<SocketServiceWrapper>(
         DI_TYPES.SERVICES.SOCKET_SERVICE

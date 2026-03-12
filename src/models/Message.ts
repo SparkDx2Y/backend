@@ -5,7 +5,7 @@ export interface IMessage extends Document {
     matchId: mongoose.Types.ObjectId;
     senderId: mongoose.Types.ObjectId;
     content: string;
-    type: 'text' | 'image' | 'audio';
+    type: 'text' | 'image' | 'audio' | 'video_call';
     isRead: boolean;
     createdAt: Date;
 }
@@ -29,7 +29,7 @@ const messageSchema = new Schema<IMessage>({
     },
     type: {
         type: String,
-        enum: ['text', 'image', 'audio'],
+        enum: ['text', 'image', 'audio', 'video_call'],
         default: 'text'
     },
     isRead: {
