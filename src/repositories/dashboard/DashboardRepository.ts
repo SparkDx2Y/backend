@@ -1,6 +1,5 @@
 import { injectable } from "inversify";
-import { IDashboardRepository } from "./IDashboardRepository";
-import { DashboardStatsDto, DailyDataPoint } from "../../dto/response/admin/dashboard-stats.dto";
+import { IDashboardRepository, DashboardRawData } from "./IDashboardRepository";
 import { User } from "../../models/user";
 import { UserSubscription } from "../../models/user-subscription";
 import { Match } from "../../models/Match";
@@ -8,9 +7,20 @@ import { Match } from "../../models/Match";
 @injectable()
 export class DashboardRepository implements IDashboardRepository {
 
-    async getDashboardStats(from: Date, to: Date): Promise<DashboardStatsDto> {
-        const [ totalUsers, newUsers, premiumUsers, expiredSubscriptions, totalMatches, newMatches, revenueAgg, revenueInRangeAgg, revenueByDayAgg, newUsersByDayAgg, newMatchesByDayAgg ]
-            = await Promise.all([
+    async getDashboardMetrics(from: Date, to: Date): Promise<DashboardRawData> {
+        const [ 
+            totalUsers, 
+            newUsers, 
+            premiumUsers, 
+            expiredSubscriptions, 
+            totalMatches, 
+            newMatches, 
+            revenueAgg, 
+            revenueInRangeAgg, 
+            revenueByDayAgg, 
+            newUsersByDayAgg, 
+            newMatchesByDayAgg 
+        ] = await Promise.all([
             User.countDocuments({ role: 'user' }),
             User.countDocuments({ role: 'user', createdAt: { $gte: from, $lte: to } }),
             UserSubscription.distinct('userId', { status: 'ACTIVE' }).then(ids => ids.length),
@@ -46,22 +56,18 @@ export class DashboardRepository implements IDashboardRepository {
             ]),
         ]);
 
-        const mapDailyData = (agg: { _id: string; value: number }[]): DailyDataPoint[] =>
-            agg.map(d => ({ date: d._id, value: d.value }));
-
         return {
             totalUsers,
             newUsers,
             premiumUsers,
-            totalRevenue: revenueAgg[0]?.total ?? 0,
-            revenueInRange: revenueInRangeAgg[0]?.total ?? 0,
+            expiredSubscriptions,
             totalMatches,
             newMatches,
-            activeSubscriptions: premiumUsers, 
-            expiredSubscriptions,
-            revenueByDay: mapDailyData(revenueByDayAgg),
-            newUsersByDay: mapDailyData(newUsersByDayAgg),
-            newMatchesByDay: mapDailyData(newMatchesByDayAgg),
+            revenueAgg,
+            revenueInRangeAgg,
+            revenueByDayAgg,
+            newUsersByDayAgg,
+            newMatchesByDayAgg
         };
     }
 }

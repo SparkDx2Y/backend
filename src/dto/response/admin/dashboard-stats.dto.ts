@@ -1,6 +1,8 @@
-export interface DailyDataPoint {
+export interface ChartDataPoint {
     date: string;
-    value: number;
+    revenue: number;
+    users: number;
+    matches: number;
 }
 
 export interface DashboardStatsDto {
@@ -14,7 +16,5 @@ export interface DashboardStatsDto {
     activeSubscriptions: number;
     expiredSubscriptions: number;
 
-    revenueByDay: DailyDataPoint[];    
-    newUsersByDay: DailyDataPoint[];   
-    newMatchesByDay: DailyDataPoint[]; 
+    chartData: ChartDataPoint[];
 }

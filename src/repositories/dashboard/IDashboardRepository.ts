@@ -1,5 +1,17 @@
-import type { DashboardStatsDto } from "../../dto/response/admin/dashboard-stats.dto";
+export interface DashboardRawData {
+    totalUsers: number;
+    newUsers: number;
+    premiumUsers: number;
+    expiredSubscriptions: number;
+    totalMatches: number;
+    newMatches: number;
+    revenueAgg: any[];
+    revenueInRangeAgg: any[];
+    revenueByDayAgg: any[];
+    newUsersByDayAgg: any[];
+    newMatchesByDayAgg: any[];
+}
 
 export interface IDashboardRepository {
-    getDashboardStats(from: Date, to: Date): Promise<DashboardStatsDto>;
+    getDashboardMetrics(from: Date, to: Date): Promise<DashboardRawData>;
 }

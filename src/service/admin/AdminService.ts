@@ -5,6 +5,7 @@ import { IUserRepository } from "../../repositories/user/IUserRepository";
 import { IDashboardRepository } from "../../repositories/dashboard/IDashboardRepository";
 import { AdminUserListResponseDto } from "../../dto/response/admin/admin.userList.response";
 import { DashboardStatsDto } from "../../dto/response/admin/dashboard-stats.dto";
+import { DashboardMapper } from "../../mapper/dashboard/dashboard.mapper";
 
 @injectable()
 export class AdminService implements IAdminService {
@@ -30,6 +31,7 @@ export class AdminService implements IAdminService {
     }
 
     async getDashboardStats(from: Date, to: Date): Promise<DashboardStatsDto> {
-        return this._dashboardRepo.getDashboardStats(from, to);
+        const raw = await this._dashboardRepo.getDashboardMetrics(from, to);
+        return DashboardMapper.toDto(raw);
     }
 }
