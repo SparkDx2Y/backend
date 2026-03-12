@@ -15,9 +15,6 @@ export class AdminController {
     private readonly _adminService: IAdminService
   ) { }
 
-  // ----------------------------------
-  // Get all users (admin only)
-  // ----------------------------------
   getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const search = (req.query.search as string) || '';
@@ -25,22 +22,11 @@ export class AdminController {
       const limit = Number(req.query.limit) || 10;
 
       const { users, total } =
-        await this._adminService.getAllUsers(
-          search,
-          page,
-          limit
-        );
-
-
+        await this._adminService.getAllUsers(search, page, limit);
 
       return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FETCHED_SUCCESSFULLY, {
         users,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
       });
 
     } catch (error) {
@@ -48,16 +34,12 @@ export class AdminController {
     }
   };
 
-  // ----------------------------------
-  // Update user block status (admin only)
-  // ----------------------------------
   updateUserBlockStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { userId } = req.params;
       const { isBlocked } = req.body;
 
       if (!userId) {
-
         return sendResponse(res, HTTP_STATUS.BAD_REQUEST, ADMIN_MESSAGES.USER_ID_REQUIRED);
       }
 
@@ -73,5 +55,22 @@ export class AdminController {
       next(error);
     }
   };
-}
 
+  getDashboardStats = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { from, to } = req.query;
+
+      const toDate = to ? new Date(to as string) : new Date();
+      const fromDate = from ? new Date(from as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+      toDate.setHours(23, 59, 59, 999);
+      fromDate.setHours(0, 0, 0, 0);
+
+      const stats = await this._adminService.getDashboardStats(fromDate, toDate);
+
+      return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FETCHED_SUCCESSFULLY, stats);
+    } catch (error) {
+      next(error);
+    }
+  };
+}

@@ -13,7 +13,8 @@ export const DI_TYPES = {
         REPORT_REPOSITORY: Symbol.for('ReportRepository'),
         PROFILE_VIEW_REPOSITORY: Symbol.for('ProfileViewRepository'),
         SUBSCRIPTION_REPOSITORY: Symbol.for('SubscriptionRepository'),
-        USER_SUBSCRIPTION_REPOSITORY: Symbol.for('UserSubscriptionRepository')
+        USER_SUBSCRIPTION_REPOSITORY: Symbol.for('UserSubscriptionRepository'),
+        DASHBOARD_REPOSITORY: Symbol.for('DashboardRepository')
     },
     SERVICES: {
         AUTH_SERVICE: Symbol.for('AuthService'),
