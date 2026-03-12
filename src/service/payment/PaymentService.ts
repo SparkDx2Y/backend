@@ -36,7 +36,7 @@ export class PaymentService implements IPaymentService {
             throw new AppError("This plan is no longer available", HTTP_STATUS.BAD_REQUEST);
         }
 
-        
+
         const session = await this.stripe.checkout.sessions.create({
             payment_method_types: ["card"],
             line_items: [
@@ -98,7 +98,7 @@ export class PaymentService implements IPaymentService {
             return;
         }
 
-        
+
         const startDate = new Date();
         const endDate = new Date(startDate);
 
@@ -109,7 +109,7 @@ export class PaymentService implements IPaymentService {
             endDate.setFullYear(endDate.getFullYear() + value);
         }
 
-       
+
         const existingActive = await this._userSubscriptionRepo.findActiveByUserId(userId);
         if (existingActive) {
             await this._userSubscriptionRepo.updateById(existingActive._id.toString(), {
@@ -117,12 +117,13 @@ export class PaymentService implements IPaymentService {
             });
         }
 
-        
+
         await this._userSubscriptionRepo.create({
             userId: userId,
             planId: planId,
             startDate,
             endDate,
+            amountPaid: session.amount_total ? session.amount_total / 100 : 0,
             status: "ACTIVE"
         } as unknown as Partial<IUserSubscription>);
     }

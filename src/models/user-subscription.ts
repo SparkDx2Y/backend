@@ -1,11 +1,12 @@
-import type { Document , Types } from "mongoose";
-import  { Schema, model } from "mongoose";
+import type { Document, Types } from "mongoose";
+import { Schema, model } from "mongoose";
 
 export interface IUserSubscription extends Document {
     userId: Types.ObjectId;
     planId: Types.ObjectId;
     startDate: Date;
     endDate: Date;
+    amountPaid: number;
     status: "ACTIVE" | "EXPIRED" | "UPGRADED";
     createdAt: Date;
     updatedAt: Date;
@@ -33,6 +34,12 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
         endDate: {
             type: Date,
             required: true,
+        },
+
+        amountPaid: {
+            type: Number,
+            required: true,
+            min: 0,
         },
 
         status: {
