@@ -28,7 +28,8 @@ export const DI_TYPES = {
         REPORT_SERVICE: Symbol.for('ReportService'),
         PROFILE_VIEW_SERVICE: Symbol.for('ProfileViewService'),
         SUBSCRIPTION_SERVICE: Symbol.for('SubscriptionService'),
-        USER_SUBSCRIPTION_SERVICE: Symbol.for('UserSubscriptionService')
+        USER_SUBSCRIPTION_SERVICE: Symbol.for('UserSubscriptionService'),
+        PAYMENT_SERVICE: Symbol.for('PaymentService')
     },
     CONTROLLERS: {
         AUTH_CONTROLLER: Symbol.for('AuthController'),
@@ -41,7 +42,8 @@ export const DI_TYPES = {
         INTEREST_CONTROLLER: Symbol.for('InterestController'),
         REPORT_CONTROLLER: Symbol.for('ReportController'),
         SUBSCRIPTION_CONTROLLER: Symbol.for('SubscriptionController'),
-        USER_SUBSCRIPTION_CONTROLLER: Symbol.for('UserSubscriptionController')
+        USER_SUBSCRIPTION_CONTROLLER: Symbol.for('UserSubscriptionController'),
+        PAYMENT_CONTROLLER: Symbol.for('PaymentController')
     },
 
     External: {

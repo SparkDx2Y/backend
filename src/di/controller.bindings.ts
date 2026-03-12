@@ -11,6 +11,7 @@ import { InterestController } from "../controllers/admin/interest/InterestContro
 import { ReportController } from "../controllers/report/ReportController";
 import { SubscriptionController } from "../controllers/admin/subscription/SubscriptionController";
 import { UserSubscriptionController } from "../controllers/subscription/UserSubscriptionController";
+import { PaymentController } from "../controllers/payment/PaymentController";
 
 
 export function bindControllers(container: Container) {
@@ -25,4 +26,5 @@ export function bindControllers(container: Container) {
     container.bind(DI_TYPES.CONTROLLERS.REPORT_CONTROLLER).to(ReportController).inSingletonScope()
     container.bind(DI_TYPES.CONTROLLERS.SUBSCRIPTION_CONTROLLER).to(SubscriptionController).inSingletonScope()
     container.bind(DI_TYPES.CONTROLLERS.USER_SUBSCRIPTION_CONTROLLER).to(UserSubscriptionController).inSingletonScope()
+    container.bind(DI_TYPES.CONTROLLERS.PAYMENT_CONTROLLER).to(PaymentController).inSingletonScope()
 }
