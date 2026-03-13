@@ -75,9 +75,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
                     isBlocked: 1,
                     createdAt: 1,
                     updatedAt: 1,
-                    profilePhoto: {
-                        $arrayElemAt: ['$profile.photos', 0]
-                    }
+                    profilePhoto: '$profile.profilePhoto'
                 }
             },
             {
