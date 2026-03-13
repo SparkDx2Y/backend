@@ -15,8 +15,8 @@ export class NotificationService implements INotificationService {
         private readonly _userSubService: IUserSubscriptionService
     ) { }
 
-    async getNotifications(userId: string, limit?: number): Promise<NotificationResponseDto[]> {
-        const notifications = await this._notificationRepo.findByUserId(userId, limit);
+    async getNotifications(userId: string, page?: number, limit?: number): Promise<NotificationResponseDto[]> {
+        const notifications = await this._notificationRepo.findByUserId(userId, page, limit);
         const limits = await this._userSubService.getUserLimits(userId);
 
         return notifications.map(notif => {

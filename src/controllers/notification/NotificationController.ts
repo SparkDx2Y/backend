@@ -22,9 +22,10 @@ export class NotificationController {
                 return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
+            const page = req.query.page ? parseInt(req.query.page as string) : undefined;
             const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
 
-            const notifications = await this._notificationService.getNotifications(req.user.id, limit);
+            const notifications = await this._notificationService.getNotifications(req.user.id, page, limit);
             sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.NOTIFICATIONS_FETCHED, notifications);
         } catch (error) {
             next(error);
