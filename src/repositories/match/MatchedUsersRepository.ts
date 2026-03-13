@@ -3,7 +3,7 @@ import { Match, IMatch, IMatchPopulated, IPopulatedUser } from "../../models/Mat
 import { Profile } from "../../models/profile";
 import { IMatchedUsersRepository } from "./IMatchedUsersRepository";
 
-import { Types } from "mongoose";
+import { PipelineStage, Types } from "mongoose";
 
 
 @injectable()
@@ -60,22 +60,51 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
     }
 
     // find all matches for a user
-    async findMatchesByUserId(userId: string, page?: number, limit?: number): Promise<IMatchPopulated[]> {
-        const query = Match.find({
-            users: new Types.ObjectId(userId)
-        })
-            .populate('users', 'name isBlocked')
-            .sort({ lastMessageAt: -1, createdAt: -1 });
+    async findMatchesByUserId(userId: string, page?: number, limit?: number, search?: string): Promise<IMatchPopulated[]> {
+        const userObjId = new Types.ObjectId(userId);
+
+        const pipeline: PipelineStage[] = [
+            {
+                $match: {
+                    users: userObjId
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'users',
+                    foreignField: '_id',
+                    as: 'users'
+                }
+            },
+            {
+                $sort: { lastMessageAt: -1, createdAt: -1 }
+            }
+        ];
+
+        if (search) {
+            pipeline.push({
+                $match: {
+                    users: {
+                        $elemMatch: {
+                            _id: { $ne: userObjId },
+                            name: { $regex: search, $options: 'i' }
+                        }
+                    }
+                }
+            });
+        }
 
         if (page && limit) {
             const skip = (page - 1) * limit;
-            query.skip(skip).limit(limit);
+            pipeline.push({ $skip: skip });
+            pipeline.push({ $limit: limit });
         }
 
-        const matches = await query.lean().exec() as unknown as IMatchPopulated[];
+        const matches = await Match.aggregate(pipeline).exec() as unknown as IMatchPopulated[];
 
-        const userIds = matches.flatMap(m => m.users.map(u => u._id));
-        const profiles = await Profile.find({ userId: { $in: userIds } }).select('userId profilePhoto').lean();
+        const allMatchUserIds = matches.flatMap(m => m.users.map(u => u._id));
+        const profiles = await Profile.find({ userId: { $in: allMatchUserIds } }).select('userId profilePhoto').lean();
 
         const profileMap = new Map();
         profiles.forEach(p => profileMap.set(p.userId.toString(), p.profilePhoto));

@@ -61,8 +61,9 @@ export class MessageController {
 
             const page = req.query.page ? parseInt(req.query.page as string) : undefined;
             const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+            const search = req.query.search ? req.query.search as string : undefined;
 
-            const matches = await this._messageService.getMatches(req.user.id, page, limit);
+            const matches = await this._messageService.getMatches(req.user.id, page, limit, search);
             sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.MATCHES_FETCHED, matches);
         } catch (error) {
             next(error);
