@@ -3,8 +3,8 @@ import type { INotification } from "../../models/Notification";
 export interface INotificationRepository {
     create(data: {
         userId: string;
-        type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed';
-        fromUserId: string;
+        type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed' | 'profile_view' | 'subscription_expired' | 'subscription_expiring_soon';
+        fromUserId?: string;
         matchId?: string;
         messageId?: string;
     }): Promise<INotification>;

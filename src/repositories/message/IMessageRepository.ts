@@ -13,5 +13,7 @@ export interface IMessageRepository {
 
     getUnreadCount(userId: string): Promise<number>;
 
+    getTodayMessageCount(userId: string): Promise<number>;
+
     deleteMessage(messageId: string, userId: string): Promise<IMessage | null>;
 }

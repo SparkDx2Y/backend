@@ -18,6 +18,7 @@ export const COMMON_MESSAGES = {
     OTP_SESSION_EXPIRED: "OTP Session expired",
     RESET_SESSION_EXPIRED: "Reset session expired",
     SESSION_EXPIRED: "Session expired",
+    PASSWORD_CHANGED: "Password changed successfully",
 
     // Profile
     PROFILE_COMPLETED: "Profile completed successfully",
@@ -60,4 +61,5 @@ export const COMMON_MESSAGES = {
     REPORT_SUBMITTED: "User reported successfully",
     REPORTS_FETCHED: "Reports fetched successfully",
     REPORT_STATUS_UPDATED: "Report status updated",
+    ACTIVITY_FETCHED: "Activity fetched successfully",
 } as const;

@@ -12,6 +12,7 @@ import { REPORT_ERRORS } from "../../constants/errors/report.errors";
 import { INotificationRepository } from "../../repositories/notification/INotificationRepository";
 import { ISocketService } from "../socket/ISocketService";
 import { NotificationMapper } from "../../mapper/notification/notification.mapper";
+import logger from "../../config/logger";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -34,13 +35,16 @@ export class ReportService implements IReportService {
             throw new AppError(REPORT_ERRORS.ALREADY_REPORTED, HTTP_STATUS.CONFLICT);
         }
 
-        return this._reportRepo.createReport({
+        const report = await this._reportRepo.createReport({
             reportedBy,
             reportedUser,
             reason,
             description,
             image
         });
+
+        logger.info(`New report created: By ${reportedBy} on user ${reportedUser}, Reason: ${reason}`);
+        return report;
     }
 
     async getReports(): Promise<IReport[]> {
@@ -53,7 +57,7 @@ export class ReportService implements IReportService {
             throw new AppError(REPORT_ERRORS.REPORT_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
         }
 
-        // Notify the reporter if the status changed to resolved or dismissed
+       
         if (status === 'resolved' || status === 'dismissed') {
             const reporterId = report.reportedBy._id.toString();
             const notificationType = status === 'resolved' ? 'report_resolved' : 'report_dismissed';
@@ -71,6 +75,8 @@ export class ReportService implements IReportService {
                 data: NotificationMapper.toResponse(notification)
             });
         }
+
+        logger.info(`Report ${reportId} status updated to ${status} by admin ${adminId}`);
 
         return report;
     }

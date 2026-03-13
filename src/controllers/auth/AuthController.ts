@@ -11,6 +11,7 @@ import { loginSchema } from "../../dto/request/auth/login.dto";
 import { forgotPasswordSchema } from "../../dto/request/auth/forgot-password.dto";
 import { forgotPasswordVerifyOtpSchema } from "../../dto/request/auth/forgot-password-verify-otp.dto";
 import { resetPasswordSchema } from "../../dto/request/auth/reset-password.dto";
+import { changePasswordSchema } from "../../dto/request/auth/change-password.dto";
 import { verifyTempToken } from "../../utils/jwtHelper";
 import { IProfileService } from "../../service/profile/IProfileService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
@@ -101,7 +102,7 @@ export class AuthController {
             const result = await this._authService.login(data);
 
             setAuthCookies(res, result.accessToken, result.refreshToken);
-            return sendResponse(res, HTTP_STATUS.OK, "Login successful", { user: result.user });
+            return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.LOGIN_SUCCESSFUL, { user: result.user });
 
 
         } catch (error) {
@@ -203,6 +204,25 @@ export class AuthController {
         }
     }
 
+
+    //* // // // // // //   changePassword  // // // // // // // *//
+
+    changePassword = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+            }
+
+            const data = changePasswordSchema.parse(req.body);
+
+            const result = await this._authService.changePassword(req.user.id, data);
+
+            return sendResponse(res, HTTP_STATUS.OK, result.message);
+        } catch (error) {
+            next(error)
+        }
+    }
+
     //* // // // // // //   logout  // // // // // // // *//
 
     logout = async (req: Request, res: Response, next: NextFunction) => {
@@ -221,7 +241,7 @@ export class AuthController {
         try {
             const refreshToken = req.cookies.refreshToken;
             if (!refreshToken) {
-                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, "Refresh token not valid");
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.SESSION_EXPIRED);
             }
 
             const result = await this._authService.refreshToken(refreshToken);

@@ -17,6 +17,11 @@ export const completeProfileSchema = z.object({
     .string()
     .url("Invalid photo URL")
     .min(1, "Profile photo is required"),
+
+  bio: z
+    .string()
+    .max(500, "Bio must be less than 500 characters")
+    .optional(),
 });
 
 export type CompleteProfileDto = z.infer<typeof completeProfileSchema>;

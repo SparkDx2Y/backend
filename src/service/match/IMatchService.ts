@@ -12,7 +12,7 @@ export interface IMatchService {
     hasUserSwipedOn(fromUserId: string, toUserId: string): Promise<boolean>;
 
     //? Get all swipe actions for a user (Liked, Passed, Received, Passed By)
-    getActivity(userId: string): Promise<{ liked: MatchActionWithUsersDto[]; passed: MatchActionWithUsersDto[]; received: MatchActionWithUsersDto[]; passedBy: MatchActionWithUsersDto[]; }>;
+    getActivity(userId: string): Promise<{ liked: MatchActionWithUsersDto[]; passed: MatchActionWithUsersDto[]; received: MatchActionWithUsersDto[]; passedBy: MatchActionWithUsersDto[]; viewedYou: MatchActionWithUsersDto[]; }>;
 
 }
 

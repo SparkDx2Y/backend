@@ -15,7 +15,9 @@ import { errorHandler } from './middlewares/errorHandler'
 
 
 //? middleware
-app.use(express.json())
+app.use('/api/v1/payments/webhook', express.raw({ type: 'application/json' }));
+app.use(express.json());
+
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(requestLogger);

@@ -14,7 +14,8 @@ export class UserMapper {
             interests: interests || [],
             isProfileCompleted,
             isInterestsSelected,
-            isLocationCompleted
+            isLocationCompleted,
+            hasPassword: !!user.password
         }
     }
 }

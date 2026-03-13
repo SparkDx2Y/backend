@@ -1,12 +1,12 @@
-import type { Document} from "mongoose";
+import type { Document } from "mongoose";
 import mongoose, { Schema } from "mongoose";
 
 export interface IMessage extends Document {
-    matchId: mongoose.Types.ObjectId;  
-    senderId: mongoose.Types.ObjectId; 
-    content: string;                   
-    type: 'text' | 'image' | 'audio';   
-    isRead: boolean;                   
+    matchId: mongoose.Types.ObjectId;
+    senderId: mongoose.Types.ObjectId;
+    content: string;
+    type: 'text' | 'image' | 'audio' | 'video_call';
+    isRead: boolean;
     createdAt: Date;
 }
 
@@ -25,12 +25,11 @@ const messageSchema = new Schema<IMessage>({
     content: {
         type: String,
         required: true,
-        trim: true,
-        maxlength: 2000 
+        trim: true
     },
     type: {
         type: String,
-        enum: ['text', 'image', 'audio'],
+        enum: ['text', 'image', 'audio', 'video_call'],
         default: 'text'
     },
     isRead: {

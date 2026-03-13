@@ -7,6 +7,8 @@ import notificationRoutes from "./notification/notification.routes";
 import messageRoutes from "./message/message.routes";
 import adminRoutes from "./admin";
 import reportRoutes from "./report/report.routes";
+import subscriptionRoutes from "./subscription/subscription.routes";
+import paymentRoutes from "./payment/payment.routes";
 
 const router = Router()
 
@@ -33,5 +35,11 @@ router.use('/admin', adminRoutes)
 
 //? Report routes
 router.use('/reports', reportRoutes)
+
+//? Subscription routes
+router.use('/subscriptions', subscriptionRoutes)
+
+//? Payment routes
+router.use('/payments', paymentRoutes)
 
 export default router

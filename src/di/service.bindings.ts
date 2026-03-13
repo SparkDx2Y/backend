@@ -11,7 +11,11 @@ import { InterestService } from "../service/interest/InterestService";
 import { SocketServiceWrapper } from "../service/socket/SocketServiceWrapper";
 import { CloudinaryStorageProvider } from "../service/storage/CloudinaryStorageProvider";
 import { ReportService } from "../service/report/ReportService";
-
+import { ProfileViewService } from "../service/profile-view/ProfileViewService";
+import { SubscriptionService } from "../service/subscription/SubscriptionService";
+import { UserSubscriptionService } from "../service/subscription/UserSubscriptionService";
+import { PaymentService } from "../service/payment/PaymentService";
+import { SubscriptionCleanupJob } from "../jobs/SubscriptionCleanupJob";
 
 export function bindServices(container: Container) {
     container.bind(DI_TYPES.SERVICES.AUTH_SERVICE).to(AuthService).inSingletonScope();
@@ -25,4 +29,11 @@ export function bindServices(container: Container) {
     container.bind(DI_TYPES.SERVICES.SOCKET_SERVICE).to(SocketServiceWrapper).inSingletonScope();
     container.bind(DI_TYPES.PROVIDERS.STORAGE_PROVIDER).to(CloudinaryStorageProvider).inSingletonScope();
     container.bind(DI_TYPES.SERVICES.REPORT_SERVICE).to(ReportService).inSingletonScope();
+    container.bind(DI_TYPES.SERVICES.PROFILE_VIEW_SERVICE).to(ProfileViewService).inSingletonScope();
+    container.bind(DI_TYPES.SERVICES.SUBSCRIPTION_SERVICE).to(SubscriptionService).inSingletonScope();
+    container.bind(DI_TYPES.SERVICES.USER_SUBSCRIPTION_SERVICE).to(UserSubscriptionService).inSingletonScope();
+    container.bind(DI_TYPES.SERVICES.PAYMENT_SERVICE).to(PaymentService).inSingletonScope();
+
+    // Jobs
+    container.bind(DI_TYPES.JOBS.SUBSCRIPTION_CLEANUP_JOB).to(SubscriptionCleanupJob).inSingletonScope();
 }

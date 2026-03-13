@@ -1,6 +1,6 @@
 export interface MatchActionWithUsersDto {
     _id: string;
-    action: 'like' | 'pass';
+    action: 'like' | 'pass' | 'view';
     createdAt: Date;
     fromUserId: {
         _id: string;

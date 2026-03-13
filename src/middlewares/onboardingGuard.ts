@@ -25,19 +25,19 @@ export const onboardingGuard = (
             return next();
         }
 
-        
+
         if (!req.user.isProfileCompleted) {
-            return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Profile not completed. Please complete your profile basics first.", { code: "PROFILE_INCOMPLETE" });
+            return sendResponse(res, HTTP_STATUS.FORBIDDEN, COMMON_ERRORS.PROFILE_INCOMPLETE, { code: "PROFILE_INCOMPLETE" });
         }
 
-        
+
         if (!req.user.isInterestsSelected) {
-            return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Interests not selected. Please select your interests.", { code: "INTERESTS_PENDING" });
+            return sendResponse(res, HTTP_STATUS.FORBIDDEN, COMMON_ERRORS.INTERESTS_PENDING, { code: "INTERESTS_PENDING" });
         }
 
-       
+
         if (!req.user.isLocationCompleted) {
-            return sendResponse(res, HTTP_STATUS.FORBIDDEN, "Location not set. Please enable location services.", { code: "LOCATION_PENDING" });
+            return sendResponse(res, HTTP_STATUS.FORBIDDEN, COMMON_ERRORS.LOCATION_PENDING, { code: "LOCATION_PENDING" });
         }
 
         next();

@@ -14,6 +14,9 @@ export interface IMatchRepository {
     //? Get IDs of users swiped by a specific user for showing in feed who must be excluded from potential matches.
     getSwipedUserIds(fromUserId: string): Promise<string[]>;
 
+    //? Count how many times a user swiped today
+    getTodaySwipeCount(userId: string, action: 'like' | 'pass'): Promise<number>;
+
     //? Get all swipe actions for a user (Liked, Passed, Received, Passed By)
     getActions(filter: { fromUserId?: string; toUserId?: string; action?: 'like' | 'pass'; }): Promise<MatchActionWithUsersDto[]>;
 

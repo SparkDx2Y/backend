@@ -11,7 +11,7 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
 
     // create a new match
     async createMatch(users: [string, string]): Promise<IMatch> {
-        // Sort users to ensure consistent ordering (prevents duplicate matches)
+        
         const sortedUsers = [
             new Types.ObjectId(users[0]),
             new Types.ObjectId(users[1])
@@ -21,6 +21,17 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
             users: sortedUsers,
             lastMessageAt: null
         });
+    }
+
+    async findMatchByUsers(userId1: string, userId2: string): Promise<IMatch | null> {
+        return Match.findOne({
+            users: {
+                $all: [
+                    new Types.ObjectId(userId1),
+                    new Types.ObjectId(userId2)
+                ]
+            }
+        }).exec();
     }
 
     // find a match by id
@@ -33,7 +44,7 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
         if (!match) return null;
 
 
-        // extract userid from the match for profile photo
+        
         const userIds = match.users.map(u => u._id);
         const profiles = await Profile.find({ userId: { $in: userIds } }).select('userId profilePhoto').lean();
 

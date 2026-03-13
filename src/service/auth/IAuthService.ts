@@ -5,9 +5,7 @@ import type { SignupDto } from "../../dto/request/auth/register.dto";
 import type { ResetPasswordDto } from "../../dto/request/auth/reset-password.dto";
 import type { VerifyOtpDto } from "../../dto/request/auth/verify-otp.dto";
 import type { LoginResponseDto } from "../../dto/response/auth/login-response.dto";
-
-
-
+import type { ChangePasswordDto } from "../../dto/request/auth/change-password.dto";
 
 export interface IAuthService {
 
@@ -32,6 +30,8 @@ export interface IAuthService {
   getCurrentUser(userId: string): Promise<LoginResponseDto>
 
   refreshToken(refreshToken: string): Promise<{ accessToken: string }>
+
+  changePassword(userId: string, data: ChangePasswordDto): Promise<{ message: string }>
 
   generateTokens(userId: string, role: string): Promise<{ accessToken: string; refreshToken: string; isProfileCompleted: boolean; isInterestsSelected: boolean; isLocationCompleted: boolean; }>
 

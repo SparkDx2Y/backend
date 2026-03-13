@@ -9,4 +9,5 @@ export interface UserResponseDto {
   isProfileCompleted: boolean;
   isInterestsSelected: boolean;
   isLocationCompleted: boolean;
+  hasPassword?: boolean;
 }

@@ -10,7 +10,11 @@ export const DI_TYPES = {
         NOTIFICATION_REPOSITORY: Symbol.for('NotificationRepository'),
         INTEREST_REPOSITORY: Symbol.for('InterestRepository'),
         INTEREST_CATEGORY_REPOSITORY: Symbol.for('InterestCategoryRepository'),
-        REPORT_REPOSITORY: Symbol.for('ReportRepository')
+        REPORT_REPOSITORY: Symbol.for('ReportRepository'),
+        PROFILE_VIEW_REPOSITORY: Symbol.for('ProfileViewRepository'),
+        SUBSCRIPTION_REPOSITORY: Symbol.for('SubscriptionRepository'),
+        USER_SUBSCRIPTION_REPOSITORY: Symbol.for('UserSubscriptionRepository'),
+        DASHBOARD_REPOSITORY: Symbol.for('DashboardRepository')
     },
     SERVICES: {
         AUTH_SERVICE: Symbol.for('AuthService'),
@@ -22,7 +26,11 @@ export const DI_TYPES = {
         ADMIN_SERVICE: Symbol.for('AdminService'),
         INTEREST_SERVICE: Symbol.for('InterestService'),
         SOCKET_SERVICE: Symbol.for('SocketService'),
-        REPORT_SERVICE: Symbol.for('ReportService')
+        REPORT_SERVICE: Symbol.for('ReportService'),
+        PROFILE_VIEW_SERVICE: Symbol.for('ProfileViewService'),
+        SUBSCRIPTION_SERVICE: Symbol.for('SubscriptionService'),
+        USER_SUBSCRIPTION_SERVICE: Symbol.for('UserSubscriptionService'),
+        PAYMENT_SERVICE: Symbol.for('PaymentService')
     },
     CONTROLLERS: {
         AUTH_CONTROLLER: Symbol.for('AuthController'),
@@ -33,7 +41,10 @@ export const DI_TYPES = {
         NOTIFICATION_CONTROLLER: Symbol.for('NotificationController'),
         ADMIN_CONTROLLER: Symbol.for('AdminController'),
         INTEREST_CONTROLLER: Symbol.for('InterestController'),
-        REPORT_CONTROLLER: Symbol.for('ReportController')
+        REPORT_CONTROLLER: Symbol.for('ReportController'),
+        SUBSCRIPTION_CONTROLLER: Symbol.for('SubscriptionController'),
+        USER_SUBSCRIPTION_CONTROLLER: Symbol.for('UserSubscriptionController'),
+        PAYMENT_CONTROLLER: Symbol.for('PaymentController')
     },
 
     External: {
@@ -42,5 +53,8 @@ export const DI_TYPES = {
     },
     PROVIDERS: {
         STORAGE_PROVIDER: Symbol.for('StorageProvider')
+    },
+    JOBS: {
+        SUBSCRIPTION_CLEANUP_JOB: Symbol.for('SubscriptionCleanupJob')
     }
 }

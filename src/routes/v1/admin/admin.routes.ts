@@ -14,6 +14,7 @@ const adminController = container.get<AdminController>(DI_TYPES.CONTROLLERS.ADMI
 
 router.get('/users', authMiddleware, requireAdmin, adminController.getAllUsers);
 router.patch('/users/:userId/block-status', authMiddleware, requireAdmin, adminController.updateUserBlockStatus);
+router.get('/dashboard/stats', authMiddleware, requireAdmin, adminController.getDashboardStats);
 
 export default router;
 

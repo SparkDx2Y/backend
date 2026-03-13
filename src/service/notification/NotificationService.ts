@@ -4,17 +4,34 @@ import { DI_TYPES } from "../../di/types";
 import { INotificationRepository } from "../../repositories/notification/INotificationRepository";
 import { NotificationResponseDto } from "../../dto/response/notification/notification-response.dto";
 import { NotificationMapper } from "../../mapper/notification/notification.mapper";
+import { IUserSubscriptionService } from "../subscription/IUserSubscriptionService";
 
 @injectable()
 export class NotificationService implements INotificationService {
     constructor(
         @inject(DI_TYPES.REPOSITORIES.NOTIFICATION_REPOSITORY)
-        private readonly _notificationRepo: INotificationRepository
+        private readonly _notificationRepo: INotificationRepository,
+        @inject(DI_TYPES.SERVICES.USER_SUBSCRIPTION_SERVICE)
+        private readonly _userSubService: IUserSubscriptionService
     ) { }
 
     async getNotifications(userId: string, limit?: number): Promise<NotificationResponseDto[]> {
         const notifications = await this._notificationRepo.findByUserId(userId, limit);
-        return notifications.map(notif => NotificationMapper.toResponse(notif));
+        const limits = await this._userSubService.getUserLimits(userId);
+
+        return notifications.map(notif => {
+            const dto = NotificationMapper.toResponse(notif);
+
+            if (dto.type === 'profile_view' && !limits.seeWhoViewedProfile) {
+                dto.fromUser = { userId: "hidden", name: "Hidden User", profilePhoto: undefined };
+                (dto as any).isPremiumLocked = true;
+            } else if (dto.type === 'like' && !limits.seeWhoLikedYou) {
+                dto.fromUser = { userId: "hidden", name: "Hidden User", profilePhoto: undefined };
+                (dto as any).isPremiumLocked = true;
+            }
+
+            return dto;
+        });
     }
 
 
