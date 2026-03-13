@@ -60,14 +60,19 @@ export class MatchedUsersRepository implements IMatchedUsersRepository {
     }
 
     // find all matches for a user
-    async findMatchesByUserId(userId: string): Promise<IMatchPopulated[]> {
-        const matches = await Match.find({
+    async findMatchesByUserId(userId: string, page?: number, limit?: number): Promise<IMatchPopulated[]> {
+        const query = Match.find({
             users: new Types.ObjectId(userId)
         })
             .populate('users', 'name isBlocked')
-            .sort({ lastMessageAt: -1, createdAt: -1 })
-            .lean()
-            .exec() as unknown as IMatchPopulated[];
+            .sort({ lastMessageAt: -1, createdAt: -1 });
+
+        if (page && limit) {
+            const skip = (page - 1) * limit;
+            query.skip(skip).limit(limit);
+        }
+
+        const matches = await query.lean().exec() as unknown as IMatchPopulated[];
 
         const userIds = matches.flatMap(m => m.users.map(u => u._id));
         const profiles = await Profile.find({ userId: { $in: userIds } }).select('userId profilePhoto').lean();

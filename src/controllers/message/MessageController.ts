@@ -59,7 +59,10 @@ export class MessageController {
                 return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
-            const matches = await this._messageService.getMatches(req.user.id);
+            const page = req.query.page ? parseInt(req.query.page as string) : undefined;
+            const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+
+            const matches = await this._messageService.getMatches(req.user.id, page, limit);
             sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.MATCHES_FETCHED, matches);
         } catch (error) {
             next(error);
