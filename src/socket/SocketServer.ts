@@ -112,7 +112,7 @@ export class SocketServer implements ISocketService {
                 if (!userId) return;
 
                 // Handle any active calls this user was in
-                for (const [callId, call] of this.activeCalls.entries()) {
+                for (const [callId] of this.activeCalls.entries()) {
                     if (callId.includes(userId)) {
                         const otherUserId = callId.split('-').find(id => id !== userId);
                         if (otherUserId) {
