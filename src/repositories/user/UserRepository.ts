@@ -67,6 +67,36 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
                 }
             },
             {
+                $lookup: {
+                    from: 'usersubscriptions',
+                    let: { userId: '$_id' },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ['$userId', '$$userId'] }, status: 'ACTIVE' } }
+                    ],
+                    as: 'activeSubscription'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$activeSubscription',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'subscriptionplans',
+                    localField: 'activeSubscription.planId',
+                    foreignField: '_id',
+                    as: 'planDoc'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$planDoc',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
                 $project: {
                     name: 1,
                     email: 1,
@@ -75,7 +105,8 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
                     isBlocked: 1,
                     createdAt: 1,
                     updatedAt: 1,
-                    profilePhoto: '$profile.profilePhoto'
+                    profilePhoto: '$profile.profilePhoto',
+                    plan: { $ifNull: ['$planDoc.name', 'Free'] }
                 }
             },
             {
