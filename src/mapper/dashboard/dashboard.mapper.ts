@@ -1,5 +1,5 @@
-import { DashboardStatsDto, ChartDataPoint } from "../../dto/response/admin/dashboard-stats.dto";
-import { DashboardRawData } from "../../repositories/dashboard/IDashboardRepository";
+import type { DashboardStatsDto, ChartDataPoint } from "../../dto/response/admin/dashboard-stats.dto";
+import type { DashboardRawData } from "../../repositories/dashboard/IDashboardRepository";
 
 export class DashboardMapper {
     static toDto(raw: DashboardRawData): DashboardStatsDto {
