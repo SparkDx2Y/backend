@@ -1,0 +1,41 @@
+import { Router } from "express";
+import { DI_TYPES } from "../../../di/types";
+import type { AuthController } from "../../../controllers/auth/AuthController";
+import container from "../../../di";
+import { authMiddleware } from "../../../middlewares/auth/authMiddleware";
+
+const router = Router()
+
+
+const authController = container.get<AuthController>(DI_TYPES.CONTROLLERS.AUTH_CONTROLLER);
+
+//* ------------------ Auth Routes ---------------------------
+
+router.post('/signup', authController.signup)
+
+router.post('/verify-otp', authController.verifySignupOtp)
+
+router.post('/resend-otp', authController.resendSignupOtp)
+
+router.post('/login', authController.login)
+
+router.post('/google-login', authController.googleLogin)
+
+
+router.post('/forgot-password', authController.forgotPassword)
+
+router.post('/forgot-password/verify-otp', authController.forgotPasswordVerifyOtp)
+
+router.post('/forgot-password/resend-otp', authController.resendForgotPasswordOtp)
+
+router.post('/reset-password', authController.resetPassword)
+
+router.put('/change-password', authMiddleware, authController.changePassword)
+
+router.post('/logout', authController.logout)
+
+router.post('/refresh-token', authController.refreshToken)
+
+router.get('/me', authMiddleware, authController.getCurrentUser)
+
+export default router
