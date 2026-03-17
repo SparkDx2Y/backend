@@ -7,7 +7,7 @@ export interface IMatchedUsersRepository {
 
     findMatchById(matchId: string): Promise<IMatchPopulated | null>;
 
-    findMatchesByUserId(userId: string): Promise<IMatchPopulated[]>;
+    findMatchesByUserId(userId: string, page?: number, limit?: number, search?: string): Promise<IMatchPopulated[]>;
 
     hasMatch(userId1: string, userId2: string): Promise<boolean>;
 

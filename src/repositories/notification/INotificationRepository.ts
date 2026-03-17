@@ -8,7 +8,7 @@ export interface INotificationRepository {
         matchId?: string;
         messageId?: string;
     }): Promise<INotification>;
-    findByUserId(userId: string, limit?: number): Promise<INotification[]>;
+    findByUserId(userId: string, page?: number, limit?: number): Promise<INotification[]>;
     findUnreadByUserId(userId: string): Promise<INotification[]>;
     markAsRead(notificationId: string, userId: string): Promise<void>;
     markAllAsRead(userId: string): Promise<void>;

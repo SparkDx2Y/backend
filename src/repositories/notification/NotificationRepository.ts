@@ -27,12 +27,14 @@ export class NotificationRepository implements INotificationRepository {
     }
 
     // find notifications by user id
-    async findByUserId(userId: string, limit: number = 20): Promise<INotification[]> {
+    async findByUserId(userId: string, page: number = 1, limit: number = 5): Promise<INotification[]> {
+        const skip = (page - 1) * limit;
         const notifications = await Notification.find({
             userId: new Types.ObjectId(userId)
         })
             .populate('fromUserId', 'name')
             .sort({ createdAt: -1 })
+            .skip(skip)
             .limit(limit)
             .lean()
             .exec();

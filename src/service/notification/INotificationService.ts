@@ -1,7 +1,7 @@
 import type { NotificationResponseDto } from "../../dto/response/notification/notification-response.dto";
 
 export interface INotificationService {
-    getNotifications(userId: string, limit?: number): Promise<NotificationResponseDto[]>;
+    getNotifications(userId: string, page?: number, limit?: number): Promise<NotificationResponseDto[]>;
 
 
     markAsRead(notificationId: string, userId: string): Promise<void>;

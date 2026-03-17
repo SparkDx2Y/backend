@@ -5,7 +5,7 @@ export interface IMessageService {
 
     getMessages(matchId: string, userId: string, limit?: number): Promise<MessageResponseDto[]>;
 
-    getMatches(userId: string): Promise<MatchResponseDto[]>;
+    getMatches(userId: string, page?: number, limit?: number, search?: string): Promise<MatchResponseDto[]>;
 
     markMessagesAsRead(matchId: string, userId: string): Promise<void>;
 

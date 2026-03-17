@@ -8,5 +8,6 @@ export interface AdminUserListResponseDto {
     createdAt: Date;
     updatedAt: Date;
     profilePhoto: string | null;
+    plan: string | null;
   }
   

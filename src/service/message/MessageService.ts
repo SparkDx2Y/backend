@@ -127,8 +127,8 @@ export class MessageService implements IMessageService {
     // ==============================================    
     // Get Matches
     // ==============================================    
-    async getMatches(userId: string): Promise<MatchResponseDto[]> {
-        const matches = await this._matchedUsersRepo.findMatchesByUserId(userId);
+    async getMatches(userId: string, page?: number, limit?: number, search?: string): Promise<MatchResponseDto[]> {
+        const matches = await this._matchedUsersRepo.findMatchesByUserId(userId, page, limit, search);
 
         const result = await Promise.all(matches.map(async (match) => {
             const lastMessage = await this._messageRepo.findLastMessageByMatchId(match._id.toString());

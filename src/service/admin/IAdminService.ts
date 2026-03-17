@@ -1,5 +1,5 @@
 import type { AdminUserListResponseDto } from "../../dto/response/admin/admin.userList.response";
-import { DashboardStatsDto } from "../../dto/response/admin/dashboard-stats.dto";
+import type { DashboardStatsDto } from "../../dto/response/admin/dashboard-stats.dto";
 
 export interface IAdminService {
 
