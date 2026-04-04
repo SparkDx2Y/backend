@@ -24,10 +24,10 @@ export class NotificationService implements INotificationService {
 
             if (dto.type === 'profile_view' && !limits.seeWhoViewedProfile) {
                 dto.fromUser = { userId: "hidden", name: "Hidden User", profilePhoto: undefined };
-                (dto as any).isPremiumLocked = true;
+                (dto as NotificationResponseDto & { isPremiumLocked?: boolean }).isPremiumLocked = true;
             } else if (dto.type === 'like' && !limits.seeWhoLikedYou) {
                 dto.fromUser = { userId: "hidden", name: "Hidden User", profilePhoto: undefined };
-                (dto as any).isPremiumLocked = true;
+                (dto as NotificationResponseDto & { isPremiumLocked?: boolean }).isPremiumLocked = true;
             }
 
             return dto;
