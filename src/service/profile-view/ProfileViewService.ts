@@ -48,10 +48,10 @@ export class ProfileViewService implements IProfileViewService {
                     if (!limits.seeWhoViewedProfile) {
                         
                         responseDto.fromUser = {
-                            id: "hidden",
+                            userId: "hidden",
                             name: "Hidden User",
-                            profilePhoto: null,
-                        } as any;
+                            profilePhoto: undefined,
+                        };
 
                         this._socketService.sendNotification(viewedId, {
                             type: 'profile_view',

@@ -14,6 +14,7 @@ import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { ISocketService } from "../socket/ISocketService";
 import { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
 import { NotificationMapper } from "../../mapper/notification/notification.mapper";
+import { NotificationResponseDto } from "../../dto/response/notification/notification-response.dto";
 
 import { IUserSubscriptionService } from "../subscription/IUserSubscriptionService";
 
@@ -116,7 +117,7 @@ export class MatchService implements IMatchService {
 
             if (!targetLimits.seeWhoLikedYou) {
                 dto.fromUser = { userId: "hidden", name: "Hidden User", profilePhoto: undefined };
-                (dto as any).isPremiumLocked = true;
+                (dto as NotificationResponseDto & { isPremiumLocked?: boolean }).isPremiumLocked = true;
             }
 
             this._socketService.sendNotification(toUserId, {

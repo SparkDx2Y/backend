@@ -5,11 +5,11 @@ export interface DashboardRawData {
     expiredSubscriptions: number;
     totalMatches: number;
     newMatches: number;
-    revenueAgg: any[];
-    revenueInRangeAgg: any[];
-    revenueByDayAgg: any[];
-    newUsersByDayAgg: any[];
-    newMatchesByDayAgg: any[];
+    revenueAgg: { total: number }[];
+    revenueInRangeAgg: { total: number }[];
+    revenueByDayAgg: { _id: string; value: number }[];
+    newUsersByDayAgg: { _id: string; value: number }[];
+    newMatchesByDayAgg: { _id: string; value: number }[];
 }
 
 export interface IDashboardRepository {

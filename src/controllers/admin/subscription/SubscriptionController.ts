@@ -17,7 +17,7 @@ export class SubscriptionController {
     createPlan = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = createPlanSchema.parse(req.body);
-            const plan = await this._subscriptionService.createPlan(data as any);
+            const plan = await this._subscriptionService.createPlan(data as Parameters<ISubscriptionService['createPlan']>[0]);
             return sendResponse(res, HTTP_STATUS.CREATED, SUBSCRIPTION_MESSAGES.CREATED, plan);
         } catch (error) {
             next(error);
@@ -28,7 +28,7 @@ export class SubscriptionController {
         try {
             const { id } = idParamSchema.parse(req.params);
             const data = updatePlanSchema.parse(req.body);
-            const plan = await this._subscriptionService.updatePlan(id, data as any);
+            const plan = await this._subscriptionService.updatePlan(id, data as Parameters<ISubscriptionService['updatePlan']>[1]);
             return sendResponse(res, HTTP_STATUS.OK, SUBSCRIPTION_MESSAGES.UPDATED, plan);
         } catch (error) {
             next(error);
