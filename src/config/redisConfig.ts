@@ -1,4 +1,3 @@
-import type { RedisOptions } from "ioredis";
 import Redis from "ioredis";
 import logger from "./logger";
 
