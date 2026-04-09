@@ -9,6 +9,7 @@ import { AppError } from "../../utils/AppError";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import type { IUserSubscription } from "../../models/user-subscription";
 import logger from "../../config/logger";
+import { ISubscriptionPlan } from "../../models/subscription-plan";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -34,6 +35,19 @@ export class PaymentService implements IPaymentService {
 
         if (!plan.isActive) {
             throw new AppError("This plan is no longer available", HTTP_STATUS.BAD_REQUEST);
+        }
+
+        const activeSub = await this._userSubscriptionRepo.findActiveByUserId(userId);
+
+        if (activeSub) {
+            const currentPlan = await this._subscriptionRepo.findById(activeSub.planId.toString());
+
+            if (currentPlan && plan.price <= currentPlan.price) {
+                throw new AppError(
+                    `Upgrade required. Your current plan (${currentPlan.name}) already provides this tier or higher.`,
+                    HTTP_STATUS.BAD_REQUEST
+                );
+            }
         }
 
 
