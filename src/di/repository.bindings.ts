@@ -17,6 +17,7 @@ import { ProfileViewRepository } from "../repositories/profile-view/ProfileViewR
 import { SubscriptionRepository } from "../repositories/subscription/SubscriptionRepository";
 import { UserSubscriptionRepository } from "../repositories/subscription/UserSubscriptionRepository";
 import { DashboardRepository } from "../repositories/dashboard/DashboardRepository";
+import { GooglePlacesRepository } from "../repositories/date-suggestion/GooglePlacesRepository";
 
 export function bindRepositories(container: Container) {
     container.bind(DI_TYPES.REPOSITORIES.USER_REPOSITORY).to(UserRepository).inSingletonScope()
@@ -33,4 +34,5 @@ export function bindRepositories(container: Container) {
     container.bind(DI_TYPES.REPOSITORIES.SUBSCRIPTION_REPOSITORY).to(SubscriptionRepository).inSingletonScope()
     container.bind(DI_TYPES.REPOSITORIES.USER_SUBSCRIPTION_REPOSITORY).to(UserSubscriptionRepository).inSingletonScope()
     container.bind(DI_TYPES.REPOSITORIES.DASHBOARD_REPOSITORY).to(DashboardRepository).inSingletonScope()
+    container.bind(DI_TYPES.REPOSITORIES.PLACES_REPOSITORY).to(GooglePlacesRepository).inSingletonScope()
 }

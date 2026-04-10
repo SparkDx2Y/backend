@@ -10,6 +10,7 @@ export class MessageMapper {
             senderId: message.senderId.toString(),
             content: message.content,
             type: message.type,
+            metadata: message.metadata,
             isRead: message.isRead,
             createdAt: message.createdAt
         };

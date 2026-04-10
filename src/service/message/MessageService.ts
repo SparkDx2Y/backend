@@ -9,6 +9,7 @@ import { AppError } from "../../utils/AppError";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import logger from "../../config/logger";
 
+import { MessageType, IMessageMetadata } from "../../types/message";
 import { ISocketService } from "../socket/ISocketService";
 
 import { IUserSubscriptionService } from "../subscription/IUserSubscriptionService";
@@ -29,7 +30,7 @@ export class MessageService implements IMessageService {
     // ==============================================
     // Send Message
     // ==============================================
-    async sendMessage(matchId: string, senderId: string, content: string, type: 'text' | 'image' | 'audio' = 'text'): Promise<MessageResponseDto> {
+    async sendMessage(matchId: string, senderId: string, content: string, type: MessageType = 'text', metadata?: IMessageMetadata): Promise<MessageResponseDto> {
 
         const limits = await this._userSubService.getUserLimits(senderId);
 
@@ -73,7 +74,8 @@ export class MessageService implements IMessageService {
             matchId,
             senderId,
             content,
-            type
+            type,
+            metadata
         });
 
         await this._matchedUsersRepo.updateLastMessageAt(matchId, new Date());

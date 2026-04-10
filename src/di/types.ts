@@ -14,7 +14,8 @@ export const DI_TYPES = {
         PROFILE_VIEW_REPOSITORY: Symbol.for('ProfileViewRepository'),
         SUBSCRIPTION_REPOSITORY: Symbol.for('SubscriptionRepository'),
         USER_SUBSCRIPTION_REPOSITORY: Symbol.for('UserSubscriptionRepository'),
-        DASHBOARD_REPOSITORY: Symbol.for('DashboardRepository')
+        DASHBOARD_REPOSITORY: Symbol.for('DashboardRepository'),
+        PLACES_REPOSITORY: Symbol.for('PlacesRepository')
     },
     SERVICES: {
         AUTH_SERVICE: Symbol.for('AuthService'),
@@ -30,7 +31,8 @@ export const DI_TYPES = {
         PROFILE_VIEW_SERVICE: Symbol.for('ProfileViewService'),
         SUBSCRIPTION_SERVICE: Symbol.for('SubscriptionService'),
         USER_SUBSCRIPTION_SERVICE: Symbol.for('UserSubscriptionService'),
-        PAYMENT_SERVICE: Symbol.for('PaymentService')
+        PAYMENT_SERVICE: Symbol.for('PaymentService'),
+        DATE_SUGGESTION_SERVICE: Symbol.for('DateSuggestionService')
     },
     CONTROLLERS: {
         AUTH_CONTROLLER: Symbol.for('AuthController'),

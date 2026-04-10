@@ -1,9 +1,12 @@
+import { MessageType, IMessageMetadata } from "../../../types/message";
+
 export interface MessageResponseDto {
     id: string;
     matchId: string;
     senderId: string;
     content: string;
-    type: 'text' | 'image' | 'audio' | 'video_call';
+    type: MessageType;
+    metadata?: IMessageMetadata;
     isRead: boolean;
     createdAt: Date;
 }
@@ -18,6 +21,6 @@ export interface MatchResponseDto {
     }[];
     lastMessageAt?: Date;
     lastMessage?: string;
-    lastMessageType?: 'text' | 'image' | 'audio' | 'video_call';
+    lastMessageType?: MessageType;
     createdAt: Date;
 }

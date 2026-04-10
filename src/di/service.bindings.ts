@@ -15,6 +15,7 @@ import { ProfileViewService } from "../service/profile-view/ProfileViewService";
 import { SubscriptionService } from "../service/subscription/SubscriptionService";
 import { UserSubscriptionService } from "../service/subscription/UserSubscriptionService";
 import { PaymentService } from "../service/payment/PaymentService";
+import { DateSuggestionService } from "../service/date-suggestion/DateSuggestionService";
 import { SubscriptionCleanupJob } from "../jobs/SubscriptionCleanupJob";
 
 export function bindServices(container: Container) {
@@ -33,6 +34,7 @@ export function bindServices(container: Container) {
     container.bind(DI_TYPES.SERVICES.SUBSCRIPTION_SERVICE).to(SubscriptionService).inSingletonScope();
     container.bind(DI_TYPES.SERVICES.USER_SUBSCRIPTION_SERVICE).to(UserSubscriptionService).inSingletonScope();
     container.bind(DI_TYPES.SERVICES.PAYMENT_SERVICE).to(PaymentService).inSingletonScope();
+    container.bind(DI_TYPES.SERVICES.DATE_SUGGESTION_SERVICE).to(DateSuggestionService).inSingletonScope();
 
     // Jobs
     container.bind(DI_TYPES.JOBS.SUBSCRIPTION_CLEANUP_JOB).to(SubscriptionCleanupJob).inSingletonScope();

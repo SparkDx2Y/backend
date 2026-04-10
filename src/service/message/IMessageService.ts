@@ -1,7 +1,8 @@
 import type { MessageResponseDto, MatchResponseDto } from "../../dto/response/message/message-response.dto";
+import { MessageType, IMessageMetadata } from "../../types/message";
 
 export interface IMessageService {
-    sendMessage(matchId: string, senderId: string, content: string, type?: 'text' | 'image' | 'audio'): Promise<MessageResponseDto>;
+    sendMessage(matchId: string, senderId: string, content: string, type?: MessageType, metadata?: IMessageMetadata): Promise<MessageResponseDto>;
 
     getMessages(matchId: string, userId: string, limit?: number): Promise<MessageResponseDto[]>;
 

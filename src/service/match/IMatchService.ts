@@ -1,5 +1,6 @@
 import type { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
 import type { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
+import type { DateSpotResponseDto } from "../../dto/response/match/date-suggestion.dto";
 
 export interface IMatchService {
     //? Get potential matches for a user (Feed)
@@ -13,6 +14,6 @@ export interface IMatchService {
 
     //? Get all swipe actions for a user (Liked, Passed, Received, Passed By)
     getActivity(userId: string): Promise<{ liked: MatchActionWithUsersDto[]; passed: MatchActionWithUsersDto[]; received: MatchActionWithUsersDto[]; passedBy: MatchActionWithUsersDto[]; viewedYou: MatchActionWithUsersDto[]; }>;
-
+    
+    suggestDateSpots(matchId: string, type?: string): Promise<DateSpotResponseDto[]>;
 }
-

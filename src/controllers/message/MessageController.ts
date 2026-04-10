@@ -23,9 +23,8 @@ export class MessageController {
                 return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
-            const { matchId, content, type } = sendMessageSchema.parse(req.body);
-
-            const message = await this._messageService.sendMessage(matchId, req.user.id, content, type);
+            const { matchId, content, type, metadata } = sendMessageSchema.parse(req.body);
+            const message = await this._messageService.sendMessage(matchId, req.user.id, content, type, metadata);
             sendResponse(res, HTTP_STATUS.CREATED, COMMON_MESSAGES.MESSAGE_SENT, message);
         } catch (error) {
             next(error);
