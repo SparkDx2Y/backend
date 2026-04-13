@@ -46,7 +46,7 @@ export class GooglePlacesRepository implements IPlacesRepository {
             }
 
             const data = await response.json() as GooglePlacesResponse;
-
+            
             if (data.status === "ZERO_RESULTS") return [];
             if (data.status !== "OK") {
                 logger.error(`Google API Status error: ${data.status}`, data.error_message);
@@ -61,7 +61,9 @@ export class GooglePlacesRepository implements IPlacesRepository {
                 user_ratings_total: place.user_ratings_total,
                 location: place.geometry.location,
                 photo_reference: place.photos?.[0]?.photo_reference,
-                types: place.types
+                types: place.types,
+                isOpenNow: place.opening_hours?.open_now,
+                businessStatus: place.business_status
             }));
 
             if (results.length > 0) {

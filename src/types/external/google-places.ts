@@ -17,6 +17,10 @@ export interface GooglePlace {
     };
     photos?: GooglePlacePhoto[];
     types: string[];
+    opening_hours?: {
+        open_now: boolean;
+    };
+    business_status?: string;
 }
 
 export interface GooglePlacesResponse {

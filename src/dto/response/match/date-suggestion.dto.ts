@@ -10,4 +10,6 @@ export interface DateSpotResponseDto {
     };
     photo_reference?: string;
     types: string[];
+    isOpenNow?: boolean;
+    businessStatus?: string;
 }
