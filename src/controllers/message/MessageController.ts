@@ -7,7 +7,7 @@ import { IMessageService } from "../../service/message/IMessageService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 import { MESSAGE_ERRORS } from "../../constants/errors/message.errors";
-import { sendMessageSchema } from "../../dto/request/message/send-message.dto";
+import { sendMessageSchema, respondToProposalSchema } from "../../dto/request/message/send-message.dto";
 
 @injectable()
 export class MessageController {
@@ -129,13 +129,13 @@ export class MessageController {
             }
 
             const { messageId } = req.params;
-            const { status, newTime } = req.body; 
+            const { status, newTime } = respondToProposalSchema.parse(req.body);
 
-            if (!messageId || !['accepted', 'declined', 'suggested'].includes(status)) {
-                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Invalid message ID or status");
+            if (!messageId) {
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Invalid message ID");
             }
 
-            const updatedMessage = await this._messageService.respondToDateProposal(messageId, req.user.id, status as any, newTime);
+            const updatedMessage = await this._messageService.respondToDateProposal(messageId, req.user.id, status, newTime);
             sendResponse(res, HTTP_STATUS.OK, "Response recorded successfully", updatedMessage);
         } catch (error) {
             next(error);

@@ -17,3 +17,10 @@ export const sendMessageSchema = z.object({
 });
 
 export type SendMessageDto = z.infer<typeof sendMessageSchema>;
+
+export const respondToProposalSchema = z.object({
+    status: z.enum(['accepted', 'declined', 'suggested']),
+    newTime: z.string().optional(),
+});
+
+export type RespondToProposalDto = z.infer<typeof respondToProposalSchema>;
