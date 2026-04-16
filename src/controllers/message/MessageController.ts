@@ -120,4 +120,25 @@ export class MessageController {
             next(error);
         }
     };
+
+    //? Respond to a date proposal (Accept/Decline)
+    respondToDateProposal = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+            }
+
+            const { messageId } = req.params;
+            const { status, newTime } = req.body; 
+
+            if (!messageId || !['accepted', 'declined', 'suggested'].includes(status)) {
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Invalid message ID or status");
+            }
+
+            const updatedMessage = await this._messageService.respondToDateProposal(messageId, req.user.id, status as any, newTime);
+            sendResponse(res, HTTP_STATUS.OK, "Response recorded successfully", updatedMessage);
+        } catch (error) {
+            next(error);
+        }
+    };
 }

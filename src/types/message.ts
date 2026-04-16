@@ -6,4 +6,7 @@ export interface IMessageMetadata {
     address?: string;
     rating?: number;
     photo?: string;
+    proposalStatus?: 'pending' | 'accepted' | 'declined' | 'suggested';
+    lastSuggestedBy?: string;
+    scheduledAt?: Date | string;
 }

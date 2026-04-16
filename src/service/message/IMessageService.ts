@@ -13,4 +13,6 @@ export interface IMessageService {
     getUnreadCount(userId: string): Promise<number>;
 
     deleteMessage(messageId: string, userId: string): Promise<void>;
+
+    respondToDateProposal(messageId: string, userId: string, status: 'accepted' | 'declined' | 'suggested', newTime?: string): Promise<MessageResponseDto>;
 }

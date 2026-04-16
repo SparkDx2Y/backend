@@ -17,4 +17,8 @@ export interface IMessageRepository {
     getTodayMessageCount(userId: string): Promise<number>;
 
     deleteMessage(messageId: string, userId: string): Promise<IMessage | null>;
+
+    findById(messageId: string): Promise<IMessage | null>;
+
+    updateProposal(messageId: string, content: string, metadata: IMessageMetadata, expectedStatus: string): Promise<IMessage | null>;
 }

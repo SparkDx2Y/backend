@@ -10,6 +10,9 @@ export const sendMessageSchema = z.object({
         address: z.string().optional(),
         rating: z.number().optional(),
         photo: z.string().optional(),
+        proposalStatus: z.enum(['pending', 'accepted', 'declined', 'suggested']).optional(),
+        lastSuggestedBy: z.string().optional(),
+        scheduledAt: z.union([z.string(), z.date()]).optional(),
     }).optional(),
 });
 

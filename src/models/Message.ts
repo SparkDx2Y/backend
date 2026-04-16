@@ -39,7 +39,14 @@ const messageSchema = new Schema<IMessage>({
         name: String,
         address: String,
         rating: Number,
-        photo: String
+        photo: String,
+        proposalStatus: {
+            type: String,
+            enum: ['pending', 'accepted', 'declined', 'suggested'],
+            default: 'pending'
+        },
+        lastSuggestedBy: String,
+        scheduledAt: Date
     },
     isRead: {
         type: Boolean,

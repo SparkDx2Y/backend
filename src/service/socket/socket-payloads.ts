@@ -8,7 +8,7 @@ export interface SocketNotificationPayload {
 }
 
 export interface SocketMessagePayload {
-    type: 'message' | 'message_deleted';
+    type: 'message' | 'message_deleted' | 'date_proposal_updated';
     matchId: string;
     message?: MessageResponseDto;
     messageId?: string;

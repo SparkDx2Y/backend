@@ -100,4 +100,24 @@ export class MessageRepository implements IMessageRepository {
             senderId: new Types.ObjectId(userId)
         });
     }
+
+    async findById(messageId: string): Promise<IMessage | null> {
+        if (!Types.ObjectId.isValid(messageId)) return null;
+        return Message.findById(messageId).exec();
+    }
+
+    async updateProposal(messageId: string, content: string, metadata: IMessageMetadata, expectedStatus: string): Promise<IMessage | null> {
+        if (!Types.ObjectId.isValid(messageId)) return null;
+        return Message.findOneAndUpdate(
+            {
+                _id: new Types.ObjectId(messageId),
+                $or: [
+                    { 'metadata.proposalStatus': expectedStatus },
+                    { 'metadata.proposalStatus': { $exists: false } }
+                ]
+            },
+            { $set: { content, metadata } },
+            { new: true }
+        ).exec();
+    }
 }
