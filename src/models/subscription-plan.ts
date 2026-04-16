@@ -13,6 +13,7 @@ export interface ISubscriptionFeatures {
     mediaSharingEnabled: boolean;
     audioEnabled: boolean;
     videoCallEnabled: boolean;
+    dateProposalEnabled: boolean;
     swipeLimit: number;
 }
 
@@ -62,18 +63,14 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
 
         features: {
             seeWhoLikedYou: { type: Boolean, required: true },
-            
             seeWhoViewedProfile: { type: Boolean, required: true },
-
             chatEnabled: { type: Boolean, required: true },
-
             dailyMessageLimit: { type: Number, required: true },
-
             mediaSharingEnabled: { type: Boolean, required: true },
-
             audioEnabled: { type: Boolean, required: true },
-
             videoCallEnabled: { type: Boolean, required: true },
+
+            dateProposalEnabled: { type: Boolean, required: true },
 
             swipeLimit: { type: Number, required: true },
         },

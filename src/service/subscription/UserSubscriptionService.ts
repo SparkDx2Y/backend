@@ -35,6 +35,7 @@ export class UserSubscriptionService implements IUserSubscriptionService {
             mediaSharingEnabled: false,
             audioEnabled: false,
             videoCallEnabled: false,
+            dateProposalEnabled: false,
             swipeLimit: 0
         };
     }

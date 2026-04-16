@@ -235,7 +235,14 @@ export class MatchService implements IMatchService {
     // Suggest Date Spots
     // ----------------------------------
 
-    async suggestDateSpots(matchId: string, type: string = 'cafe'): Promise<DateSpotResponseDto[]> {
+    async suggestDateSpots(userId: string, matchId: string, type: string = 'cafe'): Promise<DateSpotResponseDto[]> {
+       
+        const limits = await this._userSubService.getUserLimits(userId);
+        if (!limits.dateProposalEnabled) {
+            throw new AppError("Date recommendations are a premium feature. Upgrade your plan to unlock midway date spots!", HTTP_STATUS.FORBIDDEN);
+        }
+
+
         const match = await this._matchedUsersRepo.findMatchById(matchId);
         if (!match) {
             throw new AppError(MATCH_ERRORS.MATCH_NOT_FOUND, HTTP_STATUS.NOT_FOUND);

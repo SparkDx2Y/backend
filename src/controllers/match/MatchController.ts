@@ -78,7 +78,7 @@ export class MatchController {
                 return sendResponse(res, HTTP_STATUS.BAD_REQUEST, MATCH_ERRORS.MATCH_ID_REQUIRED);
             }
 
-            const suggestions = await this._matchService.suggestDateSpots(matchId as string, type);
+            const suggestions = await this._matchService.suggestDateSpots(req.user.id, matchId as string, type);
 
             sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.DATE_SUGGESTIONS_FETCHED, suggestions);
         } catch (error) {

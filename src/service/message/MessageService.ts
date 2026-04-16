@@ -38,6 +38,10 @@ export class MessageService implements IMessageService {
             throw new AppError("Direct messaging is not enabled in your current plan. Please upgrade to send messages.", HTTP_STATUS.FORBIDDEN);
         }
 
+        if (type === 'date_proposal' && !limits.dateProposalEnabled) {
+            throw new AppError("Date proposals are a premium feature. Upgrade your plan to send date invites!", HTTP_STATUS.FORBIDDEN);
+        }
+
         if (type === 'image' || type === 'audio') {
             if (!limits.mediaSharingEnabled && type === 'image') {
                 throw new AppError("Media sharing is not enabled in your current plan.", HTTP_STATUS.FORBIDDEN);
