@@ -2,16 +2,17 @@ import type { NotificationResponseDto } from "../../dto/response/notification/no
 import type { MessageResponseDto } from "../../dto/response/message/message-response.dto";
 
 export interface SocketNotificationPayload {
-    type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed' | 'profile_view';
+    type: 'like' | 'match' | 'message' | 'report_resolved' | 'report_dismissed' | 'profile_view' | 'subscription_expired' | 'subscription_expiring_soon' | 'date_reminder';
     message: string;
     data: NotificationResponseDto;
 }
 
 export interface SocketMessagePayload {
-    type: 'message' | 'message_deleted' | 'date_proposal_updated';
+    type: 'message' | 'message_deleted' | 'date_proposal_updated' | 'date_reminder_1hr';
     matchId: string;
     message?: MessageResponseDto;
     messageId?: string;
+    partnerName?: string;
 }
 
 export interface SocketMatchPayload {

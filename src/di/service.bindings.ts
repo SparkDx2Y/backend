@@ -17,6 +17,7 @@ import { UserSubscriptionService } from "../service/subscription/UserSubscriptio
 import { PaymentService } from "../service/payment/PaymentService";
 import { DateSuggestionService } from "../service/date-suggestion/DateSuggestionService";
 import { SubscriptionCleanupJob } from "../jobs/SubscriptionCleanupJob";
+import { DateReminderJob } from "../jobs/DateReminderJob";
 
 export function bindServices(container: Container) {
     container.bind(DI_TYPES.SERVICES.AUTH_SERVICE).to(AuthService).inSingletonScope();
@@ -38,4 +39,5 @@ export function bindServices(container: Container) {
 
     // Jobs
     container.bind(DI_TYPES.JOBS.SUBSCRIPTION_CLEANUP_JOB).to(SubscriptionCleanupJob).inSingletonScope();
+    container.bind(DI_TYPES.JOBS.DATE_REMINDER_JOB).to(DateReminderJob).inSingletonScope();
 }

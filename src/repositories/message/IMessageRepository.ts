@@ -21,4 +21,8 @@ export interface IMessageRepository {
     findById(messageId: string): Promise<IMessage | null>;
 
     updateProposal(messageId: string, content: string, metadata: IMessageMetadata, expectedStatus: string): Promise<IMessage | null>;
+
+    findDateProposals(userId: string, skip: number, limit: number): Promise<IMessage[]>;
+
+    findMessagesForReminder(startTime: Date, endTime: Date): Promise<IMessage[]>;
 }

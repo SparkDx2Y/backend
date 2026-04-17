@@ -120,4 +120,22 @@ export class MessageRepository implements IMessageRepository {
             { new: true }
         ).exec();
     }
+
+    async findDateProposals(userId: string, skip: number = 0, limit: number = 10): Promise<IMessage[]> {
+        const matches = await Match.find({ users: new Types.ObjectId(userId) }).select('_id');
+        const matchIds = matches.map(m => m._id);
+
+        return Message.find({
+            matchId: { $in: matchIds },
+            type: 'date_proposal'
+        }).sort({ createdAt: -1 }).skip(skip).limit(limit).exec();
+    }
+
+    async findMessagesForReminder(startTime: Date, endTime: Date): Promise<IMessage[]> {
+        return Message.find({
+            type: 'date_proposal',
+            'metadata.proposalStatus': 'accepted',
+            'metadata.scheduledAt': { $gte: startTime, $lt: endTime }
+        }).exec();
+    }
 }

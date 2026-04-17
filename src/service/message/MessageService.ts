@@ -281,4 +281,10 @@ export class MessageService implements IMessageService {
 
         return messageResponse;
     }
+
+    async getDateProposals(userId: string, page: number = 1, limit: number = 10): Promise<MessageResponseDto[]> {
+        const skip = (page - 1) * limit;
+        const messages = await this._messageRepo.findDateProposals(userId, skip, limit);
+        return messages.map(msg => MessageMapper.toMessageResponse(msg));
+    }
 }

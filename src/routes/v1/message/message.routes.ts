@@ -11,6 +11,7 @@ const messageController = container.get<MessageController>(DI_TYPES.CONTROLLERS.
 router.post("/", authMiddleware, messageController.sendMessage);
 router.get("/matches", authMiddleware, messageController.getMatches);
 router.get("/count", authMiddleware, messageController.getUnreadCount);
+router.get("/date-proposals", authMiddleware, messageController.getDateProposals);
 router.get("/:matchId", authMiddleware, messageController.getMessages);
 router.put("/:matchId/read", authMiddleware, messageController.markAsRead);
 router.delete("/:messageId", authMiddleware, messageController.deleteMessage);

@@ -15,4 +15,6 @@ export interface IMessageService {
     deleteMessage(messageId: string, userId: string): Promise<void>;
 
     respondToDateProposal(messageId: string, userId: string, status: 'accepted' | 'declined' | 'suggested', newTime?: string): Promise<MessageResponseDto>;
+
+    getDateProposals(userId: string, page: number, limit: number): Promise<MessageResponseDto[]>;
 }

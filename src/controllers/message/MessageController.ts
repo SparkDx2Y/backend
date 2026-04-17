@@ -121,7 +121,7 @@ export class MessageController {
         }
     };
 
-    //? Respond to a date proposal (Accept/Decline)
+    //? Respond to a date proposal 
     respondToDateProposal = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
@@ -137,6 +137,21 @@ export class MessageController {
 
             const updatedMessage = await this._messageService.respondToDateProposal(messageId, req.user.id, status, newTime);
             sendResponse(res, HTTP_STATUS.OK, "Response recorded successfully", updatedMessage);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    //? Get upcoming accepted dates for a user
+    getDateProposals = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+            }
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+            const dateProposals = await this._messageService.getDateProposals(req.user.id, page, limit);
+            sendResponse(res, HTTP_STATUS.OK, "Date proposals fetched successfully", dateProposals);
         } catch (error) {
             next(error);
         }
