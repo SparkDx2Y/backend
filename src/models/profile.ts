@@ -15,6 +15,7 @@ export interface IProfile extends Document {
         coordinates: [number, number]
     }
     profilePhoto?: string | null;
+    vibeVideo?: string | null;
     coverPhoto?: string | null;
     photos?: string[];
     createdAt: Date;
@@ -70,6 +71,10 @@ const profileSchema = new Schema<IProfile>({
         }
     },
     profilePhoto: {
+        type: String,
+        default: null
+    },
+    vibeVideo: {
         type: String,
         default: null
     },

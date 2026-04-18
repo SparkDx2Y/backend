@@ -31,6 +31,7 @@ export interface ProfileUpdateData {
   gender?: Gender;
   interestedIn?: Gender;
   profilePhoto?: string;
+  vibeVideo?: string | null;
   interests?: string[];
   coverPhoto?: string | null;
   photos?: string[];
