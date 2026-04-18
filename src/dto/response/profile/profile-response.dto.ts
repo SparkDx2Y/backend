@@ -7,6 +7,7 @@ export interface ProfileResponseDto {
     gender?: "male" | "female";
     interestedIn?: "male" | "female" | undefined;
     profilePhoto?: string | null;
+    vibeVideo?: string | null;
     coverPhoto?: string | null;
     photos: string[];
     interests: string[];

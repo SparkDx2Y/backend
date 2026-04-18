@@ -17,6 +17,9 @@ import { NotificationMapper } from "../../mapper/notification/notification.mappe
 import { NotificationResponseDto } from "../../dto/response/notification/notification-response.dto";
 
 import { IUserSubscriptionService } from "../subscription/IUserSubscriptionService";
+import { IDateSuggestionService } from "../date-suggestion/IDateSuggestionService";
+import { DateSpotResponseDto } from "../../dto/response/match/date-suggestion.dto";
+import { MATCH_ERRORS } from "../../constants/errors/match.errors";
 
 @injectable()
 export class MatchService implements IMatchService {
@@ -34,7 +37,9 @@ export class MatchService implements IMatchService {
         @inject(DI_TYPES.SERVICES.SOCKET_SERVICE)
         private readonly _socketService: ISocketService,
         @inject(DI_TYPES.SERVICES.USER_SUBSCRIPTION_SERVICE)
-        private readonly _userSubService: IUserSubscriptionService
+        private readonly _userSubService: IUserSubscriptionService,
+        @inject(DI_TYPES.SERVICES.DATE_SUGGESTION_SERVICE)
+        private readonly _dateSuggestionService: IDateSuggestionService
     ) { }
 
     // ----------------------------------
@@ -182,6 +187,9 @@ export class MatchService implements IMatchService {
         return this._matchRepo.hasUserAlreadySwiped(fromUserId, toUserId);
     }
 
+    // ----------------------------------
+    // Get Activity
+    // ----------------------------------
     async getActivity(userId: string): Promise<{ liked: MatchActionWithUsersDto[]; passed: MatchActionWithUsersDto[]; received: MatchActionWithUsersDto[]; passedBy: MatchActionWithUsersDto[]; viewedYou: MatchActionWithUsersDto[]; }> {
 
         const limits = await this._userSubService.getUserLimits(userId);
@@ -223,7 +231,39 @@ export class MatchService implements IMatchService {
         };
     }
 
+    // ----------------------------------
+    // Suggest Date Spots
+    // ----------------------------------
 
+    async suggestDateSpots(userId: string, matchId: string, type: string = 'cafe'): Promise<DateSpotResponseDto[]> {
+       
+        const limits = await this._userSubService.getUserLimits(userId);
+        if (!limits.dateProposalEnabled) {
+            throw new AppError("Date recommendations are a premium feature. Upgrade your plan to unlock midway date spots!", HTTP_STATUS.FORBIDDEN);
+        }
+
+
+        const match = await this._matchedUsersRepo.findMatchById(matchId);
+        if (!match) {
+            throw new AppError(MATCH_ERRORS.MATCH_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+        }
+
+        const userIds = match.users.map(u => u._id.toString());
+        const profiles = await Promise.all(userIds.map(id => this._profileRepo.findByUserId(id)));
+
+        const [profile1, profile2] = profiles;
+        if (!profile1?.location?.coordinates || !profile2?.location?.coordinates) {
+            throw new AppError(MATCH_ERRORS.LOCATION_REQUIRED, HTTP_STATUS.BAD_REQUEST);
+        }
+
+        return this._dateSuggestionService.getMidpointSuggestions(
+            profile1.location.coordinates[1], 
+            profile1.location.coordinates[0], 
+            profile2.location.coordinates[1], 
+            profile2.location.coordinates[0], 
+            type 
+        );
+    }
 }
 
 

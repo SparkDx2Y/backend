@@ -36,6 +36,7 @@ export const COMMON_MESSAGES = {
     // Match
     FEED_FETCHED: "Feed fetched successfully",
     SWIPE_SUCCESSFUL: "Swipe action successful",
+    DATE_SUGGESTIONS_FETCHED: "Date suggestions fetched successfully",
 
     // Messages
     MESSAGE_SENT: "Message sent successfully",

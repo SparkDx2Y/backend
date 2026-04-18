@@ -9,6 +9,7 @@ import { AppError } from "../../utils/AppError";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import logger from "../../config/logger";
 
+import { MessageType, IMessageMetadata } from "../../types/message";
 import { ISocketService } from "../socket/ISocketService";
 
 import { IUserSubscriptionService } from "../subscription/IUserSubscriptionService";
@@ -29,12 +30,16 @@ export class MessageService implements IMessageService {
     // ==============================================
     // Send Message
     // ==============================================
-    async sendMessage(matchId: string, senderId: string, content: string, type: 'text' | 'image' | 'audio' = 'text'): Promise<MessageResponseDto> {
+    async sendMessage(matchId: string, senderId: string, content: string, type: MessageType = 'text', metadata?: IMessageMetadata): Promise<MessageResponseDto> {
 
         const limits = await this._userSubService.getUserLimits(senderId);
 
         if (!limits.chatEnabled) {
             throw new AppError("Direct messaging is not enabled in your current plan. Please upgrade to send messages.", HTTP_STATUS.FORBIDDEN);
+        }
+
+        if (type === 'date_proposal' && !limits.dateProposalEnabled) {
+            throw new AppError("Date proposals are a premium feature. Upgrade your plan to send date invites!", HTTP_STATUS.FORBIDDEN);
         }
 
         if (type === 'image' || type === 'audio') {
@@ -69,11 +74,20 @@ export class MessageService implements IMessageService {
             throw new AppError("This conversation is no longer available", HTTP_STATUS.FORBIDDEN);
         }
 
+        // Validate future date for proposals
+        if (type === 'date_proposal' && metadata?.scheduledAt) {
+            const scheduledTime = new Date(metadata.scheduledAt).getTime();
+            if (scheduledTime < Date.now()) {
+                throw new AppError("You cannot propose a date in the past.", HTTP_STATUS.BAD_REQUEST);
+            }
+        }
+
         const message = await this._messageRepo.createMessage({
             matchId,
             senderId,
             content,
-            type
+            type,
+            metadata
         });
 
         await this._matchedUsersRepo.updateLastMessageAt(matchId, new Date());
@@ -173,5 +187,104 @@ export class MessageService implements IMessageService {
                 });
             }
         }
+    }
+    async respondToDateProposal(messageId: string, userId: string, status: 'accepted' | 'declined' | 'suggested', newTime?: string): Promise<MessageResponseDto> {
+        const message = await this._messageRepo.findById(messageId);
+
+        if (!message) {
+            throw new AppError("Message not found", HTTP_STATUS.NOT_FOUND);
+        }
+
+        if (message.type !== 'date_proposal') {
+            throw new AppError("Message is not a date proposal", HTTP_STATUS.BAD_REQUEST);
+        }
+
+        
+        const currentProposalStatus = message.metadata?.proposalStatus || 'pending';
+
+        if (currentProposalStatus === status && status !== 'suggested') {
+            return MessageMapper.toMessageResponse(message);
+        }
+
+        if (currentProposalStatus === 'pending' && message.senderId.toString() === userId) {
+            throw new AppError("You cannot respond to your own proposal", HTTP_STATUS.FORBIDDEN);
+        }
+        if (currentProposalStatus === 'suggested' && message.metadata?.lastSuggestedBy === userId) {
+            throw new AppError("Awaiting response from the other person", HTTP_STATUS.FORBIDDEN);
+        }
+
+        const match = await this._matchedUsersRepo.findMatchById(message.matchId.toString());
+        if (!match) {
+            throw new AppError("Match no longer exists", HTTP_STATUS.NOT_FOUND);
+        }
+
+        const userIds = match.users.map(u => u._id.toString());
+        if (!userIds.includes(userId)) {
+            throw new AppError("You are not part of this conversation", HTTP_STATUS.FORBIDDEN);
+        }
+
+        let content = message.content;
+        let scheduledAt = message.metadata?.scheduledAt;
+        let lastSuggestedBy = message.metadata?.lastSuggestedBy;
+
+        // Handle suggested
+        if (status === 'suggested') {
+            if (!newTime) {
+                throw new AppError("New time required", HTTP_STATUS.BAD_REQUEST);
+            }
+            scheduledAt = new Date(newTime);
+            lastSuggestedBy = userId;
+
+            // Generate new content for the text bubble
+            const formattedDate = scheduledAt.toLocaleString([], {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            content = `Check out this spot: ${message.metadata?.name}! How does ${formattedDate} sound?`;
+        }
+
+        // Handle accepted
+        if (status === 'accepted') {
+            if (!scheduledAt) {
+                throw new AppError("No proposed time to accept", HTTP_STATUS.BAD_REQUEST);
+            }
+        }
+
+        const updatedMetadata: IMessageMetadata = {
+            ...message.metadata,
+            proposalStatus: status,
+            lastSuggestedBy,
+            scheduledAt
+        };
+
+        const updatedMessage = await this._messageRepo.updateProposal(messageId, content, updatedMetadata, currentProposalStatus);
+        if (!updatedMessage) {
+            throw new AppError("Failed to update message", HTTP_STATUS.CONFLICT);
+        }
+
+        
+        const recipientId = userIds.find(id => id !== userId);
+        const messageResponse = MessageMapper.toMessageResponse(updatedMessage);
+
+        if (recipientId) {
+            this._socketService.sendMessage(recipientId, {
+                type: 'date_proposal_updated',
+                matchId: message.matchId.toString(),
+                message: messageResponse
+            });
+        }
+
+        logger.info(`Date Proposal: User ${userId} ${status} proposal ${messageId}`);
+
+        return messageResponse;
+    }
+
+    async getDateProposals(userId: string, page: number = 1, limit: number = 10): Promise<MessageResponseDto[]> {
+        const skip = (page - 1) * limit;
+        const messages = await this._messageRepo.findDateProposals(userId, skip, limit);
+        return messages.map(msg => MessageMapper.toMessageResponse(msg));
     }
 }

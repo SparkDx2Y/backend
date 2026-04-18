@@ -7,7 +7,7 @@ import { IMessageService } from "../../service/message/IMessageService";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import { COMMON_ERRORS } from "../../constants/errors/common.erros";
 import { MESSAGE_ERRORS } from "../../constants/errors/message.errors";
-import { sendMessageSchema } from "../../dto/request/message/send-message.dto";
+import { sendMessageSchema, respondToProposalSchema } from "../../dto/request/message/send-message.dto";
 
 @injectable()
 export class MessageController {
@@ -23,9 +23,8 @@ export class MessageController {
                 return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
             }
 
-            const { matchId, content, type } = sendMessageSchema.parse(req.body);
-
-            const message = await this._messageService.sendMessage(matchId, req.user.id, content, type);
+            const { matchId, content, type, metadata } = sendMessageSchema.parse(req.body);
+            const message = await this._messageService.sendMessage(matchId, req.user.id, content, type, metadata);
             sendResponse(res, HTTP_STATUS.CREATED, COMMON_MESSAGES.MESSAGE_SENT, message);
         } catch (error) {
             next(error);
@@ -117,6 +116,42 @@ export class MessageController {
 
             await this._messageService.deleteMessage(messageId, req.user.id);
             sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.DELETED_SUCCESSFULLY);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    //? Respond to a date proposal 
+    respondToDateProposal = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+            }
+
+            const { messageId } = req.params;
+            const { status, newTime } = respondToProposalSchema.parse(req.body);
+
+            if (!messageId) {
+                return sendResponse(res, HTTP_STATUS.BAD_REQUEST, "Invalid message ID");
+            }
+
+            const updatedMessage = await this._messageService.respondToDateProposal(messageId, req.user.id, status, newTime);
+            sendResponse(res, HTTP_STATUS.OK, "Response recorded successfully", updatedMessage);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    //? Get upcoming accepted dates for a user
+    getDateProposals = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user) {
+                return sendResponse(res, HTTP_STATUS.UNAUTHORIZED, COMMON_ERRORS.UNAUTHORIZED);
+            }
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+            const dateProposals = await this._messageService.getDateProposals(req.user.id, page, limit);
+            sendResponse(res, HTTP_STATUS.OK, "Date proposals fetched successfully", dateProposals);
         } catch (error) {
             next(error);
         }

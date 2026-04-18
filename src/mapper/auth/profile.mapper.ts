@@ -18,6 +18,7 @@ export class ProfileMapper {
       gender: profile.gender,
       interestedIn: profile.interestedIn,
       profilePhoto: profile.profilePhoto ?? profile.photos?.[0] ?? null,
+      vibeVideo: (profile as IProfile).vibeVideo ?? null,
       coverPhoto: profile.coverPhoto ?? null,
       photos: profile.photos ?? [],
       interests: (interests || []).map((interest) =>

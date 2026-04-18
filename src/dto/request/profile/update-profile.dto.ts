@@ -19,6 +19,13 @@ export const updateProfileSchema = z.object({
     .string()
     .url("Invalid image URL")
     .optional(),
+  
+  vibeVideo: z
+    .string()
+    .url("Invalid video URL")
+    .or(z.literal(""))
+    .optional()
+    .nullable(),
 
   bio: z
     .string()
@@ -41,6 +48,7 @@ export const updateProfileSchema = z.object({
     data.gender !== undefined ||
     data.interestedIn !== undefined ||
     data.profilePhoto !== undefined ||
+    data.vibeVideo !== undefined ||
     data.bio !== undefined ||
     data.coverPhoto !== undefined ||
     data.photos !== undefined,

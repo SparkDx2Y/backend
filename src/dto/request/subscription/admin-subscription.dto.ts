@@ -25,9 +25,10 @@ export const createPlanSchema = z.object({
         mediaSharingEnabled: z.boolean(),
         audioEnabled: z.boolean(),
         videoCallEnabled: z.boolean(),
+        dateProposalEnabled: z.boolean(),
         swipeLimit: z.number().min(-1, { message: "Swipe limit cannot be less than -1" }),
     }).refine((f) => {
-        const hasActiveToggle = f.seeWhoLikedYou || f.seeWhoViewedProfile || f.chatEnabled || f.mediaSharingEnabled || f.audioEnabled || f.videoCallEnabled;
+        const hasActiveToggle = f.seeWhoLikedYou || f.seeWhoViewedProfile || f.chatEnabled || f.mediaSharingEnabled || f.audioEnabled || f.videoCallEnabled || f.dateProposalEnabled;
         const hasNonZeroLimit = f.dailyMessageLimit !== 0 || f.swipeLimit !== 0;
         return hasActiveToggle || hasNonZeroLimit;
     }, {

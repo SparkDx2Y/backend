@@ -26,7 +26,13 @@ export class FileController {
                 return sendResponse(res, HTTP_STATUS.BAD_REQUEST, FILE_ERRORS.NO_FILE);
             }
 
-            const url = await this._fileService.uploadImage(req.file);
+            let url: string;
+            if (req.file.mimetype.startsWith('video/')) {
+                const startTime = req.body.startTime ? parseFloat(req.body.startTime) : undefined;
+                url = await this._fileService.uploadVideo(req.file, startTime);
+            } else {
+                url = await this._fileService.uploadImage(req.file);
+            }
 
             return sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FILE_UPLOADED, { url });
         } catch (error) {

@@ -1,5 +1,6 @@
 import { injectable } from "inversify";
 import { Message, IMessage } from "../../models/Message";
+import { MessageType, IMessageMetadata } from "../../types/message";
 import { IMessageRepository } from "./IMessageRepository";
 import { Types } from "mongoose";
 import { Match } from "../../models/Match";
@@ -8,13 +9,13 @@ import { Match } from "../../models/Match";
 export class MessageRepository implements IMessageRepository {
 
     // create a new message
-    async createMessage(data: { matchId: string; senderId: string; content: string; type?: string }): Promise<IMessage> {
-
+    async createMessage(data: { matchId: string; senderId: string; content: string; type?: MessageType; metadata?: IMessageMetadata }): Promise<IMessage> {
         return Message.create({
             matchId: new Types.ObjectId(data.matchId),
             senderId: new Types.ObjectId(data.senderId),
             content: data.content,
             type: data.type || 'text',
+            metadata: data.metadata,
             isRead: false
         });
     }
@@ -98,5 +99,43 @@ export class MessageRepository implements IMessageRepository {
             _id: new Types.ObjectId(messageId),
             senderId: new Types.ObjectId(userId)
         });
+    }
+
+    async findById(messageId: string): Promise<IMessage | null> {
+        if (!Types.ObjectId.isValid(messageId)) return null;
+        return Message.findById(messageId).exec();
+    }
+
+    async updateProposal(messageId: string, content: string, metadata: IMessageMetadata, expectedStatus: string): Promise<IMessage | null> {
+        if (!Types.ObjectId.isValid(messageId)) return null;
+        return Message.findOneAndUpdate(
+            {
+                _id: new Types.ObjectId(messageId),
+                $or: [
+                    { 'metadata.proposalStatus': expectedStatus },
+                    { 'metadata.proposalStatus': { $exists: false } }
+                ]
+            },
+            { $set: { content, metadata } },
+            { new: true }
+        ).exec();
+    }
+
+    async findDateProposals(userId: string, skip: number = 0, limit: number = 10): Promise<IMessage[]> {
+        const matches = await Match.find({ users: new Types.ObjectId(userId) }).select('_id');
+        const matchIds = matches.map(m => m._id);
+
+        return Message.find({
+            matchId: { $in: matchIds },
+            type: 'date_proposal'
+        }).sort({ createdAt: -1 }).skip(skip).limit(limit).exec();
+    }
+
+    async findMessagesForReminder(startTime: Date, endTime: Date): Promise<IMessage[]> {
+        return Message.find({
+            type: 'date_proposal',
+            'metadata.proposalStatus': 'accepted',
+            'metadata.scheduledAt': { $gte: startTime, $lt: endTime }
+        }).exec();
     }
 }
