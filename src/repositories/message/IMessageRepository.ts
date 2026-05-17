@@ -1,5 +1,5 @@
 import type { IMessage } from "../../models/Message";
-import { MessageType, IMessageMetadata } from "../../types/message";
+import type { MessageType, IMessageMetadata } from "../../types/message";
 
 export interface IMessageRepository {
     createMessage(data: { matchId: string; senderId: string; content: string; type?: MessageType; metadata?: IMessageMetadata }): Promise<IMessage>;

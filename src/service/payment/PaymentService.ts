@@ -9,7 +9,6 @@ import { AppError } from "../../utils/AppError";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
 import type { IUserSubscription } from "../../models/user-subscription";
 import logger from "../../config/logger";
-import { ISubscriptionPlan } from "../../models/subscription-plan";
 
 @injectable()
 export class PaymentService implements IPaymentService {

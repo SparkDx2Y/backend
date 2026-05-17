@@ -1,3 +1,4 @@
+import logger from "../config/logger";
 import { resend } from "../config/resendConfig"
 
 export const sendOtpEmail = async (email: string, otp: string) => {
@@ -18,13 +19,13 @@ export const sendOtpEmail = async (email: string, otp: string) => {
         });
 
         if (error) {
-            console.error("Resend error:", error);
+            logger.error("Resend error:", error);
             return null;
         }
 
         return data;
     } catch (err) {
-        console.error("Email sending failed:", err);
+        logger.error("Email sending failed:", err);
         return null
     }
 }

@@ -1,6 +1,6 @@
 import type { Document } from "mongoose";
 import mongoose, { Schema } from "mongoose";
-import { MessageType, IMessageMetadata } from "../types/message";
+import type { MessageType, IMessageMetadata } from "../types/message";
 
 export interface IMessage extends Document {
     matchId: mongoose.Types.ObjectId;

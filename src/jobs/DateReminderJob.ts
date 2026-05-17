@@ -5,6 +5,7 @@ import { IMessageRepository } from '../repositories/message/IMessageRepository';
 import { IMatchedUsersRepository } from '../repositories/match/IMatchedUsersRepository';
 import { ISocketService } from '../service/socket/ISocketService';
 import { INotificationRepository } from '../repositories/notification/INotificationRepository';
+import { NotificationMapper } from '../mapper/notification/notification.mapper';
 import { MessageMapper } from '../mapper/message/message.mapper';
 import logger from '../config/logger';
 
@@ -63,7 +64,7 @@ export class DateReminderJob {
                                 this._socketService.sendNotification(user._id.toString(), {
                                     type: 'date_reminder',
                                     message: 'Your date is rapidly approaching!',
-                                    data: dbNotification as any
+                                    data: NotificationMapper.toResponse(dbNotification)
                                 });
                             }).catch(e => logger.error('Failed to create date_reminder DB notification', e));
 

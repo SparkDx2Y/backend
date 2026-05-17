@@ -1,4 +1,4 @@
-import { MessageType, IMessageMetadata } from "../../../types/message";
+import type { MessageType, IMessageMetadata } from "../../../types/message";
 
 export interface MessageResponseDto {
     id: string;
