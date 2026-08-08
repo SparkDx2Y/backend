@@ -25,7 +25,7 @@ export class MatchRepository implements IMatchRepository {
     }
 
     async getSwipedUserIds(fromUserId: string): Promise<string[]> {
-        const actions = await MatchAction.find({ fromUserId: new Types.ObjectId(fromUserId) }).distinct('toUserId');
+        const actions = await MatchAction.distinct('toUserId', { fromUserId: new Types.ObjectId(fromUserId) });
         return actions.map(id => id.toString());
     }
 

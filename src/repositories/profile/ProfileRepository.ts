@@ -20,20 +20,26 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
 
     async findPotentialMatches(queryInput: MatchQuery): Promise<ProfileWithDistance[]> {
 
+        const geoNearParams: any = {
+            near: {
+                type: "Point",
+                coordinates: [
+                    queryInput.location.longitude,
+                    queryInput.location.latitude
+                ]
+            },
+            distanceField: "distanceMeters",
+            spherical: true,
+            maxDistance: queryInput.maxDistanceKm * 1000,
+        };
+
+        if (queryInput.minDistanceKm !== undefined) {
+            geoNearParams.minDistance = queryInput.minDistanceKm * 1000;
+        }
+
         const pipeline: PipelineStage[] = [
             {
-                $geoNear: {
-                    near: {
-                        type: "Point",
-                        coordinates: [
-                            queryInput.location.longitude,
-                            queryInput.location.latitude
-                        ]
-                    },
-                    distanceField: "distanceMeters",
-                    spherical: true,
-                    maxDistance: queryInput.maxDistanceKm * 1000,
-                }
+                $geoNear: geoNearParams
             },
             {
                 $match: {
@@ -78,14 +84,19 @@ export class ProfileRepository extends BaseRepository<IProfile> implements IProf
         });
 
 
-        pipeline.push({ $limit: 20 })
+        pipeline.push({ $limit: queryInput.limit || 20 })
 
-        const result = await this.model.aggregate<IProfilePopulated & { distanceMeters: number }>(pipeline);
+        try {
+            const result = await this.model.aggregate<IProfilePopulated & { distanceMeters: number }>(pipeline);
 
-        return result.map((p) => ({
-            ...p,
-            distanceKm: Math.round((p.distanceMeters / 1000) * 10) / 10
-        })) as unknown as ProfileWithDistance[];
+            return result.map((p) => ({
+                ...p,
+                distanceKm: Math.round((p.distanceMeters / 1000) * 10) / 10
+            })) as unknown as ProfileWithDistance[];
+        } catch (error) {
+            console.error("GEO QUERY ERROR", error);
+            return [];
+        }
     }
 
     async updateByUserId(userId: string, data: ProfileUpdateData): Promise<IProfilePopulated | null> {

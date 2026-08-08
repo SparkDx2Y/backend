@@ -24,8 +24,8 @@ export class MatchController {
             }
 
             //? Get potential matches
-            const profiles = await this._matchService.getDiscoverProfiles(req.user.id);
-            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FEED_FETCHED, profiles);
+            const result = await this._matchService.getDiscoverProfiles(req.user.id);
+            sendResponse(res, HTTP_STATUS.OK, COMMON_MESSAGES.FEED_FETCHED, result);
         } catch (error) {
             next(error);
         }
