@@ -15,4 +15,14 @@ export interface ProfileResponseDto {
     hasSwiped?: boolean;
 }
 
+export interface DiscoverFeedResponseDto {
+    profiles: ProfileResponseDto[];
+    metadata: {
+        searchedRadius: number;
+        expandedSearch: boolean;
+        totalProfilesFound: number;
+        searchLevel: number;
+        hasMoreNearbyUsers: boolean;
+    };
+}
 

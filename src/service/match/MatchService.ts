@@ -6,7 +6,7 @@ import { IMatchedUsersRepository } from "../../repositories/match/IMatchedUsersR
 import { INotificationRepository } from "../../repositories/notification/INotificationRepository";
 import { IProfileRepository } from "../../repositories/profile/IProfileRepository";
 import { IProfileViewRepository } from "../../repositories/profile-view/IProfileViewRepository";
-import { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
+import { ProfileResponseDto, DiscoverFeedResponseDto } from "../../dto/response/profile/profile-response.dto";
 import { ProfileMapper } from "../../mapper/auth/profile.mapper";
 import { AppError } from "../../utils/AppError";
 import { HTTP_STATUS } from "../../constants/http-status.constants";
@@ -45,11 +45,20 @@ export class MatchService implements IMatchService {
     // ----------------------------------
     // Get Potential Matches (Feed)
     // ----------------------------------
-    async getDiscoverProfiles(userId: string): Promise<ProfileResponseDto[]> {
+    async getDiscoverProfiles(userId: string): Promise<DiscoverFeedResponseDto> {
 
         const userProfile = await this._profileRepo.findByUserId(userId);
         if (!userProfile || !userProfile.interestedIn) {
-            return [];
+            return {
+                profiles: [],
+                metadata: {
+                    searchedRadius: 0,
+                    expandedSearch: false,
+                    totalProfilesFound: 0,
+                    searchLevel: 0,
+                    hasMoreNearbyUsers: false
+                }
+            };
         }
 
 
@@ -58,26 +67,65 @@ export class MatchService implements IMatchService {
 
         const excludeIds = [...swipedUserIds, userId];
 
-        const MAX_DISTANCE_KM = 20;
-
         if (!userProfile.location) {
             throw new AppError("User location not found", HTTP_STATUS.BAD_REQUEST);
         }
 
+        const RADIUS_STEPS = [20, 50, 100, 250, 500, 1000, 5000];
+        const TARGET_PROFILES = 20;
+        
+        let allProfiles: any[] = [];
+        let expandedSearch = false;
+        let searchLevel = 0;
+        let searchedRadius = RADIUS_STEPS[0]!;
+        let currentExcludeIds = [...excludeIds];
 
-        const profiles = await this._profileRepo.findPotentialMatches({
-            excludeUserIds: excludeIds,
-            interestedIn: userProfile.interestedIn,
-            userGender: userProfile.gender,
-            interests: userProfile.interests.map((interest) => interest._id.toString()),
-            location: {
-                longitude: userProfile.location.coordinates[0],
-                latitude: userProfile.location.coordinates[1]
-            },
-            maxDistanceKm: MAX_DISTANCE_KM
-        });
+        for (let i = 0; i < RADIUS_STEPS.length; i++) {
+            searchLevel = i;
+            searchedRadius = RADIUS_STEPS[i]!;
+            
+            const minDistanceKm = i === 0 ? 0 : RADIUS_STEPS[i - 1]!; 
+            const maxDistanceKm = RADIUS_STEPS[i]!;
+            const neededProfiles = TARGET_PROFILES - allProfiles.length;
 
-        return profiles.map((profile) => ProfileMapper.toProfileResponse(profile));
+            const profiles = await this._profileRepo.findPotentialMatches({
+                excludeUserIds: currentExcludeIds,
+                interestedIn: userProfile.interestedIn,
+                userGender: userProfile.gender,
+                interests: userProfile.interests.map((interest) => interest._id.toString()),
+                location: {
+                    longitude: userProfile.location.coordinates[0],
+                    latitude: userProfile.location.coordinates[1]
+                },
+                maxDistanceKm,
+                minDistanceKm,
+                limit: neededProfiles
+            });
+
+            allProfiles.push(...profiles);
+            currentExcludeIds.push(...profiles.map(p => p.userId._id.toString()));
+
+            if (i > 0 && profiles.length > 0) {
+                expandedSearch = true;
+            }
+
+            if (allProfiles.length >= TARGET_PROFILES) {
+                break;
+            }
+        }
+
+        const mappedProfiles = allProfiles.map((profile) => ProfileMapper.toProfileResponse(profile));
+
+        return {
+            profiles: mappedProfiles,
+            metadata: {
+                searchedRadius,
+                expandedSearch,
+                totalProfilesFound: mappedProfiles.length,
+                searchLevel,
+                hasMoreNearbyUsers: searchLevel === 0 && mappedProfiles.length >= TARGET_PROFILES
+            }
+        };
     }
 
     // ----------------------------------

@@ -9,6 +9,8 @@ export interface MatchQuery {
   interests?: string[];
   location: GeoLocation;
   maxDistanceKm: number;
+  minDistanceKm?: number;
+  limit?: number;
 }
 
 export interface ProfileWithDistance extends IProfilePopulated {

@@ -1,10 +1,10 @@
 import type { MatchActionWithUsersDto } from "../../dto/response/match/match-history.dto";
-import type { ProfileResponseDto } from "../../dto/response/profile/profile-response.dto";
+import type { ProfileResponseDto, DiscoverFeedResponseDto } from "../../dto/response/profile/profile-response.dto";
 import type { DateSpotResponseDto } from "../../dto/response/match/date-suggestion.dto";
 
 export interface IMatchService {
     
-    getDiscoverProfiles(userId: string): Promise<ProfileResponseDto[]>;
+    getDiscoverProfiles(userId: string): Promise<DiscoverFeedResponseDto>;
 
     
     swipe(fromUserId: string, toUserId: string, action: 'like' | 'pass'): Promise<{ isMatch: boolean; matchId?: string }>;
